@@ -70,7 +70,10 @@ const LoginScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}>
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle={'dark-content'} />
+        <StatusBar
+          backgroundColor={Colors.COLOR_WHITE}
+          barStyle={'dark-content'}
+        />
         <View style={styles.main}>
           <Image
             style={styles.logo}

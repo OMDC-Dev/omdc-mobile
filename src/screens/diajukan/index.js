@@ -269,6 +269,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     padding: Size.SIZE_14,
+    backgroundColor: Colors.COLOR_WHITE,
   },
 
   header: {

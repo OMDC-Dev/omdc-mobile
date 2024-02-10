@@ -14,7 +14,7 @@ const SplashScreen = () => {
       let userToken;
 
       try {
-        userToken = await retrieveData('token', false);
+        userToken = await retrieveData('USER_SESSION', true);
       } catch (e) {
         // Restoring token failed
       }

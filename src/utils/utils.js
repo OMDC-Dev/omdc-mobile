@@ -118,3 +118,19 @@ export const debounce = (func, delay) => {
     }, delay);
   };
 };
+
+export const cekAkses = (akses, userAkses = []) => {
+  /**
+   * REIMBURSEMENT -> 1170 -> #1
+   * PERMINTAAN BARANG -> 1157 -> #2
+   *
+   */
+
+  if (akses == '#1') {
+    return userAkses.findIndex(item => item == '1170') !== -1;
+  }
+
+  if (akses == '#2') {
+    return userAkses.findIndex(item => item == '1157') !== -1;
+  }
+};

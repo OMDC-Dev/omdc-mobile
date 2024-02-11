@@ -8,12 +8,14 @@ import {fetchApi} from '../../api/api';
 import {GET_BARANG} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {debounce} from '../../utils/utils';
+import ModalView from '../../components/modal';
 
 const BarangCariScreen = () => {
   // state
   const [barangs, setBarangs] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [keyword, setKeyword] = React.useState();
+  const [selectBarang, setSelectBarang] = React.useState();
 
   // paging
   const [page, setPage] = React.useState(1);
@@ -49,7 +51,7 @@ const BarangCariScreen = () => {
   }
 
   async function loadMoreBarang() {
-    if (!moreLoading && barangs.length >= 25) {
+    if (!moreLoading && barangs.length >= 20) {
       setMoreLoading(true);
       try {
         const {state, data, error} = await fetchApi({
@@ -105,7 +107,12 @@ const BarangCariScreen = () => {
           <FlatList
             data={barangs}
             showsVerticalScrollIndicator={false}
-            renderItem={({item, index}) => <Card.BarangCard data={item} />}
+            renderItem={({item, index}) => (
+              <Card.BarangCard
+                data={item}
+                onPress={() => setSelectBarang(item)}
+              />
+            )}
             onEndReachedThreshold={0.2}
             onEndReached={() => {
               if (page !== lastPage) {
@@ -119,6 +126,12 @@ const BarangCariScreen = () => {
           <BlankScreen loading={isLoading}>Error, mohon coba lagi!</BlankScreen>
         )}
       </View>
+      <ModalView
+        data={selectBarang}
+        type={'barang'}
+        visible={selectBarang}
+        onBackdropPress={() => setSelectBarang()}
+      />
     </Container>
   );
 };

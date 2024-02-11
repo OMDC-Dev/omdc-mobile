@@ -443,6 +443,19 @@ const PengajuanDetailScreen = () => {
                   </Row>
                 );
               })}
+              {data?.status_finance !== 'IDLE' && (
+                <Row>
+                  <InputLabel style={styles.rowLeft}>Finance</InputLabel>
+                  <Text
+                    numberOfLines={2}
+                    style={[styles.textValue]}
+                    variant={'labelMedium'}>
+                    {data?.status_finance == 'WAITING'
+                      ? 'Sedang Ditransfer'
+                      : 'Sudah Ditransfer'}
+                  </Text>
+                </Row>
+              )}
             </>
           )}
         </View>

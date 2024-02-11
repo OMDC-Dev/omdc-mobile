@@ -9,11 +9,14 @@ import {HistoryStack} from './HistoryStack';
 import {DiajukanStack} from './DiajukanStack';
 import {AuthContext} from '../context';
 import {BarangStack} from './BarangNavigator';
+import {cekAkses} from '../utils/utils';
 
 const Tab = createBottomTabNavigator();
 
 const MainStackNavigator = () => {
   const {user} = React.useContext(AuthContext);
+  const hasRequestBarang = cekAkses('#2', user.kodeAkses);
+
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -68,17 +71,19 @@ const MainStackNavigator = () => {
           ),
         }}
       />
-      <Tab.Screen
-        name="BarangStack"
-        component={BarangStack}
-        options={{
-          title: 'Permintaan Barang',
-          headerShown: false,
-          tabBarIcon: ({color, size}) => (
-            <Icon source={'basket-unfill'} color={color} size={size} />
-          ),
-        }}
-      />
+      {hasRequestBarang && (
+        <Tab.Screen
+          name="BarangStack"
+          component={BarangStack}
+          options={{
+            title: 'Permintaan Barang',
+            headerShown: false,
+            tabBarIcon: ({color, size}) => (
+              <Icon source={'basket-unfill'} color={color} size={size} />
+            ),
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 };

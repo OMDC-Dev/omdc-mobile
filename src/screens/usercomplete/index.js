@@ -1,4 +1,4 @@
-import {StatusBar, StyleSheet, View} from 'react-native';
+import {Platform, StatusBar, StyleSheet, View} from 'react-native';
 import React from 'react';
 import {Colors, Scaler, Size} from '../../styles';
 import {Button, Dropdown, Gap, Header, InputLabel} from '../../components';
@@ -56,7 +56,10 @@ const UserCompleteScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle={'light-content'} />
+      <StatusBar
+        backgroundColor={Colors.COLOR_SECONDARY}
+        barStyle={'light-content'}
+      />
       <Header title={'Lengkapi Profile'} />
       <View style={styles.mainContainer}>
         <InputLabel>Nomor Whatsapp</InputLabel>
@@ -99,7 +102,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.COLOR_SECONDARY,
-    paddingTop: Scaler.scaleSize(38),
+    paddingTop: Platform.OS == 'android' ? 0 : Scaler.scaleSize(38),
   },
 
   mainContainer: {

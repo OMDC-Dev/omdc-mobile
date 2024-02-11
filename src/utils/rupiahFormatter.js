@@ -1,5 +1,5 @@
-export function formatRupiah(num) {
+export function formatRupiah(num, usePrefix) {
   let rupiahFormat = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-  return rupiahFormat;
+  return usePrefix ? `Rp. ${rupiahFormat}` : rupiahFormat;
 }

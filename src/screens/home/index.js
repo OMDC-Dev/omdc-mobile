@@ -16,6 +16,7 @@ import {AuthContext} from '../../context';
 import {REIMBURSEMENT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {fetchApi} from '../../api/api';
+import {cekAkses} from '../../utils/utils';
 
 const HomeScreen = () => {
   const [recent, setRecent] = React.useState();
@@ -25,6 +26,8 @@ const HomeScreen = () => {
 
   // user context
   const {signOut, user} = React.useContext(AuthContext);
+
+  const hasReimbursement = cekAkses('#1', user?.kodeAkses);
 
   async function getRecentRequest() {
     const {state, data, error} = await fetchApi({
@@ -75,12 +78,16 @@ const HomeScreen = () => {
             </PaperButton>
           </Row>
 
-          <Gap h={24} />
-          <Button
-            style={styles.buttonRequest}
-            onPress={() => navigation.navigate('PengajuanStack')}>
-            Ajukan Reimbursement
-          </Button>
+          {hasReimbursement && (
+            <>
+              <Gap h={24} />
+              <Button
+                style={styles.buttonRequest}
+                onPress={() => navigation.navigate('PengajuanStack')}>
+                Ajukan Reimbursement
+              </Button>
+            </>
+          )}
         </View>
         <View style={styles.mainContent}>
           <Row style={styles.rowSub}>

@@ -6,9 +6,11 @@ import ModalPopUp from './type/popup';
 import DateYearModal from './type/dateyear';
 import CalendarModal from './type/calendar';
 import {Platform} from 'react-native';
+import BarangModal from './type/barang';
 
 const ModalView = ({
   children,
+  data,
   visible = false,
   type,
   onPress,
@@ -26,6 +28,9 @@ const ModalView = ({
         break;
       case 'popup':
         return <ModalPopUp onButtonPress={onPress} />;
+        break;
+      case 'barang':
+        return <BarangModal data={data} onButtonPress={onPress} />;
         break;
       case 'dateyear':
         return <DateYearModal cb={dateCallback} />;

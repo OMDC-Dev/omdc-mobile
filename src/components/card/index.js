@@ -1,3 +1,4 @@
 import PengajuanCard from './PengajuanCard';
+import BarangCard from './BarangCard';
 
-export {PengajuanCard};
+export {PengajuanCard, BarangCard};

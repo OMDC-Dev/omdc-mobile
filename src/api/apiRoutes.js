@@ -23,3 +23,14 @@ export const GET_BANK_NAME = (code, number) => {
 // SUPERUSER
 export const SUPERUSER = 'superuser';
 export const PENGAJUAN = 'superuser/pengajuan';
+
+// REQUEST BARANG
+export const GET_CABANG_BY_INDUK = id => {
+  return `anakcabang?kd_induk=${id}`;
+};
+export const GET_CABANG_DETAIL = id => {
+  return `anakcabang/detail?kode=${id}`;
+};
+export const GET_BARANG = (query = '') => {
+  return `barang?cari=${query}`;
+};

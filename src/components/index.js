@@ -7,6 +7,7 @@ import BlankScreen from './BlankScreen';
 import Header from './Header';
 import * as Dropdown from './dropdown';
 import InputLabel from './InputLabel';
+import Container from './Container';
 
 export {
   Button,
@@ -18,4 +19,5 @@ export {
   Header,
   Dropdown,
   InputLabel,
+  Container,
 };

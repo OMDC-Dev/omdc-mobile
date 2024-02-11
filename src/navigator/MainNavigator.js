@@ -8,6 +8,7 @@ import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 import {HistoryStack} from './HistoryStack';
 import {DiajukanStack} from './DiajukanStack';
 import {AuthContext} from '../context';
+import {BarangStack} from './BarangNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,6 +24,7 @@ const MainStackNavigator = () => {
             routeName === 'Home' ||
             routeName === 'History' ||
             routeName === 'DiajukanInit' ||
+            routeName === 'Barang' ||
             !routeName
           ) {
             return {display: 'flex', position: 'absolute'};
@@ -59,10 +61,21 @@ const MainStackNavigator = () => {
         name="HistoryStack"
         component={HistoryStack}
         options={{
-          title: 'Riwayat',
+          title: 'Riwayat Reimbursement',
           headerShown: false,
           tabBarIcon: ({color, size}) => (
             <Icon source={'clipboard-flow'} color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="BarangStack"
+        component={BarangStack}
+        options={{
+          title: 'Permintaan Barang',
+          headerShown: false,
+          tabBarIcon: ({color, size}) => (
+            <Icon source={'basket-unfill'} color={color} size={size} />
           ),
         }}
       />

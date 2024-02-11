@@ -6,17 +6,19 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Row from './Row';
 import {useNavigation} from '@react-navigation/native';
 
-const Header = ({title}) => {
+const Header = ({title, hideBack}) => {
   const navigation = useNavigation();
   return (
     <View style={styles.header}>
       <Row>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" color={Colors.COLOR_WHITE} size={24} />
-        </TouchableOpacity>
+        {!hideBack && (
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}>
+            <Icon name="arrow-left" color={Colors.COLOR_WHITE} size={24} />
+          </TouchableOpacity>
+        )}
 
         <Text variant={'titleMedium'} style={styles.textTitle}>
           {title || 'Title'}

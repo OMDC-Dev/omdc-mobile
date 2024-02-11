@@ -23,6 +23,10 @@ export const GET_BANK_NAME = (code, number) => {
 // SUPERUSER
 export const SUPERUSER = 'superuser';
 export const PENGAJUAN = 'superuser/pengajuan';
+export const FINANCE_PENGAJUAN = 'finance/pengajuan';
+export const FINANCE_ACCEPTANCE = id => {
+  return `finance/acceptance/${id}?status=DONE`;
+};
 
 // REQUEST BARANG
 export const GET_CABANG_BY_INDUK = id => {

@@ -10,6 +10,7 @@ import {DiajukanStack} from './DiajukanStack';
 import {AuthContext} from '../context';
 import {BarangStack} from './BarangNavigator';
 import {cekAkses} from '../utils/utils';
+import {FinanceStack} from './FinanceStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -27,6 +28,7 @@ const MainStackNavigator = () => {
             routeName === 'Home' ||
             routeName === 'History' ||
             routeName === 'DiajukanInit' ||
+            routeName === 'FinanceInit' ||
             routeName === 'Barang' ||
             !routeName
           ) {
@@ -47,19 +49,32 @@ const MainStackNavigator = () => {
           ),
         }}
       />
-      {user.isAdmin && (
-        <Tab.Screen
-          name="DiajukanStack"
-          component={DiajukanStack}
-          options={{
-            title: 'Pengajuan',
-            headerShown: false,
-            tabBarIcon: ({color, size}) => (
-              <Icon source={'clipboard-flow'} color={color} size={size} />
-            ),
-          }}
-        />
-      )}
+      {user.isAdmin &&
+        (user.type == 'ADMIN' ? (
+          <Tab.Screen
+            name="DiajukanStack"
+            component={DiajukanStack}
+            options={{
+              title: 'Pengajuan',
+              headerShown: false,
+              tabBarIcon: ({color, size}) => (
+                <Icon source={'clipboard-flow'} color={color} size={size} />
+              ),
+            }}
+          />
+        ) : (
+          <Tab.Screen
+            name="FiananceStack"
+            component={FinanceStack}
+            options={{
+              title: 'Pengajuan',
+              headerShown: false,
+              tabBarIcon: ({color, size}) => (
+                <Icon source={'clipboard-flow'} color={color} size={size} />
+              ),
+            }}
+          />
+        ))}
       <Tab.Screen
         name="HistoryStack"
         component={HistoryStack}

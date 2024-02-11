@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Button,
   Card,
+  Dialog,
   Icon,
   IconButton,
   Snackbar,
@@ -21,7 +22,11 @@ import {Dropdown, Gap, Header, InputLabel, Row} from '../../components';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {AuthContext} from '../../context';
 import {fetchApi} from '../../api/api';
-import {REIMBURSEMENT_ACCEPTANCE, SUPERUSER} from '../../api/apiRoutes';
+import {
+  FINANCE_ACCEPTANCE,
+  REIMBURSEMENT_ACCEPTANCE,
+  SUPERUSER,
+} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {formatRupiah} from '../../utils/rupiahFormatter';
 import ModalView from '../../components/modal';
@@ -57,6 +62,13 @@ const PengajuanDetailScreen = () => {
   // acceptance
   const [adminStatus, setAdminStatus] = React.useState(ADMINS);
   const [requestStatus, setRequestStatus] = React.useState(data?.status);
+  const [financeStatus, setFinanceStatus] = React.useState(
+    data?.status_finance,
+  );
+  const [financeData, setFinanceData] = React.useState(data?.finance_by);
+
+  // dialog
+  const [financeDialog, setFinanceDialog] = React.useState(false);
 
   const ACCEPTANCE_STATUS_BY_ID = getDataById(
     adminStatus,
@@ -64,8 +76,6 @@ const PengajuanDetailScreen = () => {
     'iduser',
     'status',
   );
-
-  console.log(ACCEPTANCE_STATUS_BY_ID);
 
   const typeName = data?.jenis_reimbursement;
 
@@ -100,33 +110,41 @@ const PengajuanDetailScreen = () => {
     }
   }
 
-  console.log(adminStatus);
-
   // get status
   async function getStatus() {
     setStatusLoading(true);
     const R_ID = data?.id;
     const EX_ADMIN_STATUS = data?.accepted_by;
     const EX_REQUEST_STATUS = data?.status;
+    const EX_FINANCE = data?.status_finance;
+    const EX_FINANCE_DATA = data?.finance_by;
     try {
       const {state, data, error} = await fetchApi({
         url: REIMBURSEMENT_ACCEPTANCE(R_ID),
         method: 'GET',
       });
 
+      console.log(data);
+
       if (state == API_STATES.OK) {
         setStatusLoading(false);
         setRequestStatus(data?.status);
         setAdminStatus(data?.accepted_by);
+        setFinanceStatus(data?.status_finance);
+        setFinanceData(data?.finance_by);
       } else {
         setStatusLoading(false);
         setAdminStatus(EX_ADMIN_STATUS);
         setRequestStatus(EX_REQUEST_STATUS);
+        setFinanceStatus(EX_FINANCE);
+        setFinanceData(EX_FINANCE_DATA);
       }
     } catch (error) {
       setStatusLoading(false);
       setAdminStatus(EX_ADMIN_STATUS);
       setRequestStatus(EX_REQUEST_STATUS);
+      setFinanceStatus(EX_FINANCE);
+      setFinanceData(EX_FINANCE_DATA);
     }
   }
 
@@ -152,6 +170,30 @@ const PengajuanDetailScreen = () => {
         setIsLoading(false);
         const msg = data?.message;
         setSnakMsg(msg);
+      } else {
+        setIsLoading(false);
+        throw error;
+      }
+    } catch (error) {
+      setIsLoading(false);
+      setSnakMsg(error);
+    }
+  }
+
+  // set status finance
+  async function acceptance_finance() {
+    setIsLoading(true);
+    const R_ID = data?.id;
+
+    try {
+      const {state, data, error} = await fetchApi({
+        url: FINANCE_ACCEPTANCE(R_ID),
+        method: 'POST',
+      });
+
+      if (state == API_STATES.OK) {
+        setIsLoading(false);
+        setSnakMsg('Status berhasil diupdate!');
       } else {
         setIsLoading(false);
         throw error;
@@ -252,12 +294,42 @@ const PengajuanDetailScreen = () => {
   }
 
   function onConfirmPressed() {
-    acceptance(accMode == 'ACC' ? 'APPROVED' : 'REJECTED');
+    setFinanceDialog(false);
+    user.type == 'ADMIN'
+      ? acceptance(accMode == 'ACC' ? 'APPROVED' : 'REJECTED')
+      : acceptance_finance();
   }
 
   // ========= rendering
   function renderBottomButton() {
     if (user.isAdmin) {
+      if (user.type == 'FINANCE') {
+        if (financeStatus == 'WAITING') {
+          return (
+            <View>
+              <Gap h={24} />
+              <Button
+                loading={isLoading}
+                disabled={isLoading}
+                mode={'contained'}
+                onPress={() => setFinanceDialog(true)}>
+                Konfirmasi Sudah Ditransfer
+              </Button>
+            </View>
+          );
+        } else {
+          return (
+            <View>
+              <Card mode={'outlined'}>
+                <Card.Content style={{alignItems: 'center'}}>
+                  <Text variant={'bodyMedium'}>Dana sudah ditransfer.</Text>
+                </Card.Content>
+              </Card>
+            </View>
+          );
+        }
+      }
+
       if (ACCEPTANCE_STATUS_BY_ID == 'WAITING') {
         if (accMode !== 'IDLE') {
           return (
@@ -447,12 +519,12 @@ const PengajuanDetailScreen = () => {
                 <Row>
                   <InputLabel style={styles.rowLeft}>Finance</InputLabel>
                   <Text
-                    numberOfLines={2}
+                    numberOfLines={3}
                     style={[styles.textValue]}
                     variant={'labelMedium'}>
-                    {data?.status_finance == 'WAITING'
+                    {financeStatus == 'WAITING'
                       ? 'Sedang Ditransfer'
-                      : 'Sudah Ditransfer'}
+                      : `Sudah Ditransfer pada ${financeData?.acceptDate} oleh ${financeData?.nm_user}`}
                   </Text>
                 </Row>
               )}
@@ -613,6 +685,18 @@ const PengajuanDetailScreen = () => {
         visible={isLoading}
         onModalHide={() => setSnak(true)}
       />
+      <Dialog visible={financeDialog} onDismiss={() => setFinanceDialog(false)}>
+        <Dialog.Title>Konfirmasi</Dialog.Title>
+        <Dialog.Content>
+          <Text variant="bodyMedium">
+            Konfirmasi bahwa dana sudah di transfer ke user?
+          </Text>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onPress={() => setFinanceDialog(false)}>Batalkan</Button>
+          <Button onPress={() => onConfirmPressed()}>Konfirmasi</Button>
+        </Dialog.Actions>
+      </Dialog>
     </View>
   );
 };

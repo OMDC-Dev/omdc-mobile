@@ -18,6 +18,8 @@ const MainStackNavigator = () => {
   const {user} = React.useContext(AuthContext);
   const hasRequestBarang = cekAkses('#2', user.kodeAkses);
 
+  console.log(user.kodeAkses);
+
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({

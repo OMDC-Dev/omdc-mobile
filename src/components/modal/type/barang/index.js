@@ -89,7 +89,10 @@ const BarangModal = ({data}) => {
                 <Text style={styles.textCaption} variant={'labelSmall'}>
                   {item.ti}
                 </Text>
-                <Text style={styles.textValue} variant={'labelSmall'}>
+                <Text
+                  numberOfLines={2}
+                  style={styles.textValue}
+                  variant={'labelSmall'}>
                   {item.va || '-'}
                 </Text>
               </Row>

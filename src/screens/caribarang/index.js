@@ -3,12 +3,11 @@ import React from 'react';
 import {BlankScreen, Card, Container, Gap, Header} from '../../components';
 import {Colors, Size} from '../../styles';
 import {ActivityIndicator, Searchbar, Text} from 'react-native-paper';
-import {useFocusEffect} from '@react-navigation/native';
 import {fetchApi} from '../../api/api';
 import {GET_BARANG} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
-import {debounce} from '../../utils/utils';
 import ModalView from '../../components/modal';
+import _ from 'lodash';
 
 const BarangCariScreen = () => {
   // state
@@ -16,6 +15,7 @@ const BarangCariScreen = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [keyword, setKeyword] = React.useState();
   const [selectBarang, setSelectBarang] = React.useState();
+  const [showAddBarang, setShowAddBarang] = React.useState(false);
 
   // paging
   const [page, setPage] = React.useState(1);
@@ -111,6 +111,7 @@ const BarangCariScreen = () => {
               <Card.BarangCard
                 data={item}
                 onPress={() => setSelectBarang(item)}
+                onAddPress={() => setShowAddBarang(true)}
               />
             )}
             onEndReachedThreshold={0.2}
@@ -129,8 +130,13 @@ const BarangCariScreen = () => {
       <ModalView
         data={selectBarang}
         type={'barang'}
-        visible={selectBarang}
+        visible={!_.isEmpty(selectBarang)}
         onBackdropPress={() => setSelectBarang()}
+      />
+      <ModalView
+        type={'addbarang'}
+        visible={showAddBarang}
+        onBackdropPress={() => setShowAddBarang(false)}
       />
     </Container>
   );

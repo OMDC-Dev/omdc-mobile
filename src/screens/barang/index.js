@@ -42,7 +42,12 @@ const BarangScreen = () => {
       <View style={styles.container}>
         <FlatList
           data={list}
-          renderItem={({item, index}) => <Card.PermintaanCard data={item} />}
+          renderItem={({item, index}) => (
+            <Card.PermintaanCard
+              data={item}
+              onPress={() => navigation.navigate('BarangDetail')}
+            />
+          )}
         />
         <FAB
           mode={'flat'}

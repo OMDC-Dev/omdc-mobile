@@ -6,7 +6,18 @@ import Row from '../../../Row';
 import {Button, Dropdown, Gap} from '../../..';
 import {Scaler, Size} from '../../../../styles';
 
-const AddBarangModal = () => {
+const AddBarangModal = ({data, onAddPress}) => {
+  // input state
+  const [qtyStock, setQtyStock] = React.useState();
+  const [qtyRequest, setQtyRequest] = React.useState();
+  const [keterangan, setKeterangan] = React.useState();
+
+  const CB_DATA = {
+    stock: qtyStock,
+    request: qtyRequest,
+    keterangan: keterangan || '',
+  };
+
   return (
     <View style={styles.container}>
       <Card>
@@ -20,8 +31,11 @@ const AddBarangModal = () => {
               mode={'outlined'}
               keyboardType={'decimal-pad'}
               returnKeyType={'done'}
+              value={qtyStock}
+              onChangeText={tx => setQtyStock(tx)}
             />
-            <Dropdown.KemasanDropdown onChange={val => null} />
+            <Text variant={'labelMedium'}>{data?.nm_kemasan}</Text>
+            {/* <Dropdown.KemasanDropdown onChange={val => null} /> */}
           </Row>
           <Gap h={12} />
           <InputLabel>Jumlah Permintaan</InputLabel>
@@ -32,8 +46,11 @@ const AddBarangModal = () => {
               mode={'outlined'}
               keyboardType={'decimal-pad'}
               returnKeyType={'done'}
+              value={qtyRequest}
+              onChangeText={tx => setQtyRequest(tx)}
             />
-            <Dropdown.KemasanDropdown onChange={val => null} />
+            <Text variant={'labelMedium'}>{data?.nm_kemasan}</Text>
+            {/* <Dropdown.KemasanDropdown onChange={val => null} /> */}
           </Row>
           <Gap h={12} />
           <InputLabel>Keterangan</InputLabel>
@@ -41,9 +58,15 @@ const AddBarangModal = () => {
             placeholder="Keterangan"
             style={styles.inputNormal}
             mode={'outlined'}
+            value={keterangan}
+            onChangeText={tx => setKeterangan(tx)}
           />
           <Gap h={24} />
-          <Button>Tambahkan Barang</Button>
+          <Button
+            disabled={!qtyRequest || !qtyStock}
+            onPress={() => onAddPress(CB_DATA)}>
+            Tambahkan Barang
+          </Button>
         </Card.Content>
       </Card>
     </View>
@@ -60,7 +83,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: Scaler.scaleSize(48),
-    marginRight: Size.SIZE_8,
+    marginRight: Size.SIZE_14,
   },
 
   inputNormal: {

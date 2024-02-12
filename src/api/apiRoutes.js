@@ -38,3 +38,5 @@ export const GET_CABANG_DETAIL = id => {
 export const GET_BARANG = (query = '') => {
   return `barang?cari=${query}`;
 };
+export const CREATE_REQUEST_BARANG = 'barang/create';
+export const LIST_REQUEST_BARANG = 'barang/requested';

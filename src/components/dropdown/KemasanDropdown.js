@@ -3,7 +3,7 @@ import React from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Colors, Scaler, Size} from '../../styles';
 
-const KemasanDropdown = ({onChange}) => {
+const KemasanDropdown = ({onChange, items = []}) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(null);
 
@@ -26,10 +26,7 @@ const KemasanDropdown = ({onChange}) => {
         placeholderStyle={styles.placeholderStyle}
         open={open}
         value={value}
-        items={[
-          {label: 'PCS', value: 'pcs'},
-          {label: 'PCX', value: 'pcx'},
-        ]}
+        items={items}
         setOpen={setOpen}
         setValue={setValue}
       />

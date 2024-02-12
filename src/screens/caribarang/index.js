@@ -8,14 +8,17 @@ import {GET_BARANG} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import ModalView from '../../components/modal';
 import _ from 'lodash';
+import {useNavigation} from '@react-navigation/native';
 
 const BarangCariScreen = () => {
+  const navigation = useNavigation();
   // state
   const [barangs, setBarangs] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [keyword, setKeyword] = React.useState();
   const [selectBarang, setSelectBarang] = React.useState();
   const [showAddBarang, setShowAddBarang] = React.useState(false);
+  const [dataBarang, setDataBarang] = React.useState();
 
   // paging
   const [page, setPage] = React.useState(1);
@@ -73,6 +76,12 @@ const BarangCariScreen = () => {
     }
   }
 
+  function onAddedBarang(rd) {
+    const data = {...dataBarang, requestData: rd};
+
+    navigation.navigate('BarangList', {data: data});
+  }
+
   // ======= Render
 
   const renderFooter = () => {
@@ -111,7 +120,10 @@ const BarangCariScreen = () => {
               <Card.BarangCard
                 data={item}
                 onPress={() => setSelectBarang(item)}
-                onAddPress={() => setShowAddBarang(true)}
+                onAddPress={() => {
+                  setDataBarang(item);
+                  setShowAddBarang(true);
+                }}
               />
             )}
             onEndReachedThreshold={0.2}
@@ -134,9 +146,11 @@ const BarangCariScreen = () => {
         onBackdropPress={() => setSelectBarang()}
       />
       <ModalView
+        data={dataBarang}
         type={'addbarang'}
-        visible={showAddBarang}
+        visible={showAddBarang && !_.isEmpty(dataBarang)}
         onBackdropPress={() => setShowAddBarang(false)}
+        onButtonPress={data => onAddedBarang(data)}
       />
     </Container>
   );

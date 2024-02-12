@@ -196,7 +196,15 @@ const BarangRequestScreen = () => {
               editable={false}
             />
             <Gap h={32} />
-            <Button onPress={() => navigation.navigate('BarangList')}>
+            <Button
+              onPress={() =>
+                navigation.navigate('BarangList', {
+                  cabang: {
+                    indukCabang: cabangIndukSelected,
+                    anakCabang: cabangAnakSelected,
+                  },
+                })
+              }>
               Lanjut
             </Button>
           </>

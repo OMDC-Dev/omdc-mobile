@@ -20,6 +20,8 @@ const ModalView = ({
   dateCallback,
   onSaveCalendar,
   onCancelCalendar,
+  onButtonPress,
+  message,
 }) => {
   //render modal children
   const renderContent = () => {
@@ -28,13 +30,13 @@ const ModalView = ({
         return <ModalLoading />;
         break;
       case 'popup':
-        return <ModalPopUp onButtonPress={onPress} />;
+        return <ModalPopUp message={message} onButtonPress={onPress} />;
         break;
       case 'barang':
         return <BarangModal data={data} onButtonPress={onPress} />;
         break;
       case 'addbarang':
-        return <AddBarangModal data={data} onButtonPress={onPress} />;
+        return <AddBarangModal data={data} onAddPress={onButtonPress} />;
         break;
       case 'dateyear':
         return <DateYearModal cb={dateCallback} />;

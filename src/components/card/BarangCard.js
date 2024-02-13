@@ -1,11 +1,60 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import React from 'react';
-import {Button, Card, Icon, Text} from 'react-native-paper';
+import {Button, Card, Chip, Icon, Text} from 'react-native-paper';
 import {Colors, Size} from '../../styles';
 import Row from '../Row';
 
-const BarangCard = ({data, onPress, onAddPress, onDeletePress, fromList}) => {
+const BarangCard = ({
+  data,
+  onPress,
+  onAddPress,
+  onDeletePress,
+  fromList,
+  fromDetail,
+}) => {
   const {nm_barang, grup_brg, kategory_brg} = data;
+
+  const [extended, setExtended] = React.useState(false);
+
+  if (fromDetail) {
+    return (
+      <Card
+        mode={'contained'}
+        style={styles.container}
+        onPress={() => setExtended(!extended)}>
+        <Card.Content>
+          <Row>
+            <View style={{flex: 1}}>
+              <Text variant={'titleSmall'}>{nm_barang}</Text>
+              <Text style={styles.textDesc} variant={'labelMedium'}>
+                {grup_brg} - {kategory_brg}
+              </Text>
+              {extended ? (
+                <>
+                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
+                    Jumlah Stock : {data?.jml_kemasan} {data.nm_kemasan}
+                  </Text>
+                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
+                    Jumlah Request : {data?.qty_stock} {data.nm_kemasan}
+                  </Text>
+                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
+                    Keterangan : {data?.keterangan || '-'}
+                  </Text>
+                </>
+              ) : (
+                <Text
+                  style={[styles.textDescInfo, {fontWeight: 'bold'}]}
+                  variant={'labelSmall'}>
+                  Tekan untuk melihat detail
+                </Text>
+              )}
+            </View>
+          </Row>
+        </Card.Content>
+      </Card>
+    );
+  }
+
   return (
     <Card mode={'contained'} style={styles.container} onPress={onPress}>
       <Card.Content>
@@ -17,8 +66,8 @@ const BarangCard = ({data, onPress, onAddPress, onDeletePress, fromList}) => {
             </Text>
             {fromList && (
               <Text style={styles.textDescInfo} variant={'labelSmall'}>
-                Stock : {data.requestData.stock} {data.nm_kemasan} | Request :{' '}
-                {data.requestData.request} {data.nm_kemasan}
+                Stock : {data?.requestData?.stock} {data.nm_kemasan} | Request :{' '}
+                {data?.requestData?.request} {data.nm_kemasan}
               </Text>
             )}
           </View>

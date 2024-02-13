@@ -40,3 +40,6 @@ export const GET_BARANG = (query = '') => {
 };
 export const CREATE_REQUEST_BARANG = 'barang/create';
 export const LIST_REQUEST_BARANG = 'barang/requested';
+export const DETAIL_REQUEST_BARANG = id => {
+  return `barang/requested/detail?id_pb=${id}`;
+};

@@ -1,9 +1,9 @@
 import {FlatList, Platform, StyleSheet, View} from 'react-native';
 import React from 'react';
-import {Card, Container, Gap, Header} from '../../components';
+import {BlankScreen, Card, Container, Gap, Header} from '../../components';
 import {Colors, Size} from '../../styles';
 import {FAB, Text} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {fetchApi} from '../../api/api';
 import {LIST_REQUEST_BARANG} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
@@ -16,9 +16,11 @@ const BarangScreen = () => {
   const [isLoading, setIsLoading] = React.useState(false);
 
   // gte list
-  React.useEffect(() => {
-    getRequestedList();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      getRequestedList();
+    }, []),
+  );
 
   async function getRequestedList() {
     setIsLoading(true);
@@ -40,15 +42,24 @@ const BarangScreen = () => {
     <Container>
       <Header hideBack={true} title={'Permintaan Barang'} />
       <View style={styles.container}>
-        <FlatList
-          data={list}
-          renderItem={({item, index}) => (
-            <Card.PermintaanCard
-              data={item}
-              onPress={() => navigation.navigate('BarangDetail')}
-            />
-          )}
-        />
+        {list && !isLoading ? (
+          <FlatList
+            data={list}
+            renderItem={({item, index}) => (
+              <Card.PermintaanCard
+                data={item}
+                onPress={() =>
+                  navigation.navigate('BarangDetail', {data: item})
+                }
+              />
+            )}
+          />
+        ) : (
+          <BlankScreen loading={isLoading}>
+            Belum ada permintaan barang!
+          </BlankScreen>
+        )}
+
         <FAB
           mode={'flat'}
           icon="plus"

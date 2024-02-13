@@ -41,10 +41,15 @@ const PengajuanScreen = () => {
   // user session
   const {user} = React.useContext(AuthContext);
 
-  console.log(user);
+  // navigation
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  const ROUTE_TYPE = route?.params?.type;
+  const ROUTE_DATA = route?.params?.data;
 
   // input state
-  const [jenis, setJenis] = React.useState();
+  const [jenis, setJenis] = React.useState(ROUTE_TYPE);
   const [coa, setCoa] = React.useState();
   const [cabang, setCabang] = React.useState();
   const [nominal, setNominal] = React.useState();
@@ -63,6 +68,9 @@ const PengajuanScreen = () => {
   // snackbar
   const [snack, setSnack] = React.useState();
   const [snackMsg, setSnackMsg] = React.useState('');
+
+  // REPORT
+  const [reportData, setReportData] = React.useState();
 
   const isNeedName = jenis == 'PR' || jenis == 'CAR' || jenis == 'PC';
 
@@ -84,10 +92,6 @@ const PengajuanScreen = () => {
     !admin ||
     !item.length ||
     disabledByType();
-
-  // navigation
-  const navigation = useNavigation();
-  const route = useRoute();
 
   // handle on add item
   React.useEffect(() => {
@@ -201,6 +205,13 @@ const PengajuanScreen = () => {
     setItem(data);
   }
 
+  React.useEffect(() => {
+    if (ROUTE_TYPE) {
+      setJenis(ROUTE_TYPE);
+      setReportData(ROUTE_DATA);
+    }
+  }, []);
+
   return (
     <View style={styles.container}>
       <Header title={'Reimbursement'} />
@@ -221,7 +232,15 @@ const PengajuanScreen = () => {
 
           <Gap h={14} />
           <InputLabel>Jenis Reimbursement</InputLabel>
-          <Dropdown.TypeDropdown onChange={val => setJenis(val)} />
+          {jenis == 'CAR' ? (
+            <Card style={styles.card} mode={'outlined'}>
+              <Card.Content>
+                <Text variant="labelLarge">Cash Advance Report</Text>
+              </Card.Content>
+            </Card>
+          ) : (
+            <Dropdown.TypeDropdown onChange={val => setJenis(val)} />
+          )}
 
           <Gap h={6} />
           <InputLabel>COA</InputLabel>
@@ -439,6 +458,7 @@ const PengajuanScreen = () => {
                     item: item,
                     fileInfo: fileInfo,
                     admin: admin,
+                    report: reportData,
                   },
                 })
               }>

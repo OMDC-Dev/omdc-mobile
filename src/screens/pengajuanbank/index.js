@@ -19,6 +19,7 @@ const PengajuanBankScreen = () => {
   const route = useRoute();
 
   const RR = route?.params?.data;
+  const REPORT_DATA = RR?.report;
 
   // STATE
   const [banks, setBanks] = React.useState();
@@ -87,6 +88,7 @@ const PengajuanBankScreen = () => {
       coa: RR.coa,
       file: RR.fileInfo,
       approved_by: RR.admin,
+      parentId: REPORT_DATA?.id || '',
     };
 
     const {state, data, error} = await fetchApi({

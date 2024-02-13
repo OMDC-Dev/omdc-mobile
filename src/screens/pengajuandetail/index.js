@@ -25,6 +25,7 @@ import {fetchApi} from '../../api/api';
 import {
   FINANCE_ACCEPTANCE,
   REIMBURSEMENT_ACCEPTANCE,
+  REIMBURSEMENT_DETAIL,
   SUPERUSER,
 } from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
@@ -46,6 +47,7 @@ const PengajuanDetailScreen = () => {
   const [nomEdit, setNomEdit] = React.useState(false);
   const [accMode, setAccMode] = React.useState('IDLE'); // IDLE || ACC || REJ
   const [note, setNote] = React.useState();
+  const [realisasi, setRealisasi] = React.useState(data?.realisasi);
 
   // states
   const [isLoading, setIsLoading] = React.useState(false);
@@ -78,6 +80,7 @@ const PengajuanDetailScreen = () => {
   );
 
   const typeName = data?.jenis_reimbursement;
+  const IS_PUSHED = route?.params?.pushed;
 
   // ==== Get Data
 
@@ -118,6 +121,7 @@ const PengajuanDetailScreen = () => {
     const EX_REQUEST_STATUS = data?.status;
     const EX_FINANCE = data?.status_finance;
     const EX_FINANCE_DATA = data?.finance_by;
+    const EX_REALISASI = data?.realisasi;
     try {
       const {state, data, error} = await fetchApi({
         url: REIMBURSEMENT_ACCEPTANCE(R_ID),
@@ -132,12 +136,14 @@ const PengajuanDetailScreen = () => {
         setAdminStatus(data?.accepted_by);
         setFinanceStatus(data?.status_finance);
         setFinanceData(data?.finance_by);
+        setRealisasi(data?.realisasi);
       } else {
         setStatusLoading(false);
         setAdminStatus(EX_ADMIN_STATUS);
         setRequestStatus(EX_REQUEST_STATUS);
         setFinanceStatus(EX_FINANCE);
         setFinanceData(EX_FINANCE_DATA);
+        setRealisasi(EX_REALISASI);
       }
     } catch (error) {
       setStatusLoading(false);
@@ -145,6 +151,7 @@ const PengajuanDetailScreen = () => {
       setRequestStatus(EX_REQUEST_STATUS);
       setFinanceStatus(EX_FINANCE);
       setFinanceData(EX_FINANCE_DATA);
+      setRealisasi(EX_REALISASI);
     }
   }
 
@@ -184,11 +191,15 @@ const PengajuanDetailScreen = () => {
   async function acceptance_finance() {
     setIsLoading(true);
     const R_ID = data?.id;
+    const body = {
+      nominal: data?.nominal,
+    };
 
     try {
       const {state, data, error} = await fetchApi({
         url: FINANCE_ACCEPTANCE(R_ID),
         method: 'POST',
+        data: body,
       });
 
       if (state == API_STATES.OK) {
@@ -207,6 +218,10 @@ const PengajuanDetailScreen = () => {
   // ========
 
   const DATA_REIMBURSEMENT = [
+    {
+      title: 'No. Doc',
+      value: data?.no_doc,
+    },
     {
       title: 'Jenis Reimbursement',
       value: data?.jenis_reimbursement,
@@ -298,6 +313,39 @@ const PengajuanDetailScreen = () => {
     user.type == 'ADMIN'
       ? acceptance(accMode == 'ACC' ? 'APPROVED' : 'REJECTED')
       : acceptance_finance();
+  }
+
+  function onRealisasiPressed() {
+    if (data?.jenis_reimbursement == 'Cash Advance') {
+      if (data.childId) {
+        getChildDetail(data.childId);
+      } else {
+        navigation.navigate('Pengajuan', {
+          type: 'CAR',
+          data: {id: data?.id, no_doc: data?.no_doc},
+        });
+      }
+    } else {
+      getChildDetail(data.parentId);
+    }
+  }
+
+  // get child data
+  async function getChildDetail(id) {
+    setIsLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: REIMBURSEMENT_DETAIL(id),
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setIsLoading(false);
+      navigation.push('PengajuanDetail', {data: data, pushed: true});
+    } else {
+      setIsLoading(false);
+      setSnakMsg('Ada kesalahan, mohon coba lagi!');
+      setSnak(true);
+    }
   }
 
   // ========= rendering
@@ -406,6 +454,26 @@ const PengajuanDetailScreen = () => {
                 </Text>
               </Card.Content>
             </Card>
+            {data?.status_finance == 'DONE' &&
+            data?.jenis_reimbursement == 'Cash Advance' &&
+            !IS_PUSHED ? (
+              <>
+                <Gap h={24} />
+                <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
+                  {data.childId ? 'Lihat' : 'Buat'} Laporan Realisasi
+                </Button>
+              </>
+            ) : null}
+            {data?.status_finance == 'DONE' &&
+            data?.jenis_reimbursement == 'Cash Advance Report' &&
+            !IS_PUSHED ? (
+              <>
+                <Gap h={24} />
+                <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
+                  Lihat Pengajaun
+                </Button>
+              </>
+            ) : null}
           </View>
         );
       }
@@ -483,6 +551,18 @@ const PengajuanDetailScreen = () => {
                     </Text>
                   </>
                 )}
+              </>
+            )}
+            {data?.childId && (
+              <>
+                <Gap h={14} />
+                <Text style={styles.textTotal} variant={'labelSmall'}>
+                  Nominal Realisasi
+                </Text>
+                <Gap h={8} />
+                <Text style={styles.textTotalValue} variant={'titleMedium'}>
+                  {formatRupiah(realisasi)}
+                </Text>
               </>
             )}
           </Card.Content>
@@ -683,13 +763,17 @@ const PengajuanDetailScreen = () => {
       <ModalView
         type={'loading'}
         visible={isLoading}
-        onModalHide={() => setSnak(true)}
+        onModalHide={() => {
+          if (snak) {
+            setSnak(false);
+          }
+        }}
       />
       <Dialog visible={financeDialog} onDismiss={() => setFinanceDialog(false)}>
         <Dialog.Title>Konfirmasi</Dialog.Title>
         <Dialog.Content>
           <Text variant="bodyMedium">
-            Konfirmasi bahwa dana sudah di transfer ke user?
+            Konfirmasi bahwa dana sudah di transfer?
           </Text>
         </Dialog.Content>
         <Dialog.Actions>

@@ -10,6 +10,9 @@ export const USER_COMPLETE = 'user/complete';
 // REIMBURSEMENT
 export const GET_CABANG = 'cabang';
 export const REIMBURSEMENT = 'reimbursement';
+export const REIMBURSEMENT_DETAIL = id => {
+  return `reimbursement/${id}`;
+};
 export const REIMBURSEMENT_ACCEPTANCE = id => {
   return `reimbursement/status/${id}`;
 };

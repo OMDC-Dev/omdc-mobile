@@ -7,6 +7,13 @@ export const BASE_URL =
 export const LOGIN = 'user/login';
 export const USER_COMPLETE = 'user/complete';
 export const UPDATE_PASSWORD = 'user/update-password';
+export const GET_NOTIFICATION = 'pengumuman';
+export const READ_NOTIFICATION = id => {
+  return `pengumuman/read/${id}`;
+};
+export const DELETE_PENGUMUMAN = pid => {
+  return `pengumuman/${pid}`;
+};
 
 // REIMBURSEMENT
 export const GET_CABANG = 'cabang';

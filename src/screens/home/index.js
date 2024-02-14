@@ -71,7 +71,10 @@ const HomeScreen = () => {
                 {user?.nm_user}
               </Text>
             </Row>
-            <TouchableOpacity style={styles.bellButton} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.bellButton}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('NotifikasiStack')}>
               <View style={styles.bellBadge} />
               <Icon
                 source={'bell-outline'}

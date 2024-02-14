@@ -8,6 +8,7 @@ import CalendarModal from './type/calendar';
 import {Platform} from 'react-native';
 import BarangModal from './type/barang';
 import AddBarangModal from './type/addbarang';
+import NotifModal from './type/notif';
 
 const ModalView = ({
   children,
@@ -34,6 +35,9 @@ const ModalView = ({
         break;
       case 'barang':
         return <BarangModal data={data} onButtonPress={onPress} />;
+        break;
+      case 'notif':
+        return <NotifModal data={data} onButtonPress={onPress} />;
         break;
       case 'addbarang':
         return <AddBarangModal data={data} onAddPress={onButtonPress} />;

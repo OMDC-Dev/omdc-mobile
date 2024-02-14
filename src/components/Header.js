@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Row from './Row';
 import {useNavigation} from '@react-navigation/native';
 
-const Header = ({title, hideBack}) => {
+const Header = ({title, hideBack, right}) => {
   const navigation = useNavigation();
   return (
     <View style={styles.header}>
@@ -23,6 +23,7 @@ const Header = ({title, hideBack}) => {
         <Text variant={'titleMedium'} style={styles.textTitle}>
           {title || 'Title'}
         </Text>
+        {right}
       </Row>
     </View>
   );
@@ -44,6 +45,7 @@ const styles = StyleSheet.create({
 
   // text
   textTitle: {
+    flex: 1,
     color: Colors.COLOR_WHITE,
     fontWeight: 'bold',
   },

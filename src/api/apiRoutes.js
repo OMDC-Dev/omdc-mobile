@@ -6,6 +6,7 @@ export const BASE_URL =
 // AUTH
 export const LOGIN = 'user/login';
 export const USER_COMPLETE = 'user/complete';
+export const UPDATE_PASSWORD = 'user/update-password';
 
 // REIMBURSEMENT
 export const GET_CABANG = 'cabang';

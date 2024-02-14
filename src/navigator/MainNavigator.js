@@ -11,6 +11,7 @@ import {AuthContext} from '../context';
 import {BarangStack} from './BarangNavigator';
 import {cekAkses} from '../utils/utils';
 import {FinanceStack} from './FinanceStack';
+import {ProfileStack} from './ProfileStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,6 +23,7 @@ const MainStackNavigator = () => {
 
   return (
     <Tab.Navigator
+      initialRouteName="HomeStack"
       screenOptions={({route}) => ({
         tabBarActiveTintColor: Colors.COLOR_PRIMARY,
         tabBarStyle: (route => {
@@ -32,6 +34,7 @@ const MainStackNavigator = () => {
             routeName === 'DiajukanInit' ||
             routeName === 'FinanceInit' ||
             routeName === 'Barang' ||
+            routeName === 'ProfileInit' ||
             !routeName
           ) {
             return {display: 'flex', position: 'absolute'};
@@ -101,6 +104,17 @@ const MainStackNavigator = () => {
           }}
         />
       )}
+      <Tab.Screen
+        name="ProfileStack"
+        component={ProfileStack}
+        options={{
+          title: 'Profile',
+          headerShown: false,
+          tabBarIcon: ({color, size}) => (
+            <Icon source={'account'} color={color} size={size} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };

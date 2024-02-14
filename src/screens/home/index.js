@@ -6,8 +6,9 @@ import {
   Image,
   StatusBar,
   FlatList,
+  TouchableOpacity,
 } from 'react-native';
-import {Avatar, Text, Button as PaperButton} from 'react-native-paper';
+import {Avatar, Text, Button as PaperButton, Icon} from 'react-native-paper';
 import {Colors, Scaler, Size} from '../../styles';
 import {BlankScreen, Button, Card, Gap, Row} from '../../components';
 import ASSETS from '../../utils/assetLoader';
@@ -70,12 +71,14 @@ const HomeScreen = () => {
                 {user?.nm_user}
               </Text>
             </Row>
-            <PaperButton
-              labelStyle={styles.textLogout}
-              mode={'text'}
-              onPress={() => signOut()}>
-              Keluar
-            </PaperButton>
+            <TouchableOpacity style={styles.bellButton} activeOpacity={0.8}>
+              <View style={styles.bellBadge} />
+              <Icon
+                source={'bell-outline'}
+                size={22}
+                color={Colors.COLOR_WHITE}
+              />
+            </TouchableOpacity>
           </Row>
 
           {hasReimbursement && (
@@ -166,6 +169,21 @@ const styles = StyleSheet.create({
 
   rowSub: {
     marginVertical: Size.SIZE_10,
+  },
+
+  bellButton: {
+    padding: Size.SIZE_8,
+    borderRadius: 16,
+  },
+
+  bellBadge: {
+    width: Size.SIZE_12,
+    height: Size.SIZE_12,
+    borderRadius: 6,
+    right: 5,
+    top: 5,
+    backgroundColor: 'red',
+    position: 'absolute',
   },
 
   // text

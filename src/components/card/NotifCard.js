@@ -7,7 +7,7 @@ import moment from 'moment';
 import {Colors, Size} from '../../styles';
 import {AuthContext} from '../../context';
 
-const NotifCard = ({data, onPress, onDeletePress}) => {
+const NotifCard = ({data, onPress, onDeletePress, showDeleteButton}) => {
   const {title, createdAt, isRead, createdBy} = data;
   const {user} = React.useContext(AuthContext);
   return (
@@ -30,7 +30,7 @@ const NotifCard = ({data, onPress, onDeletePress}) => {
             <Text variant={'labelSmall'}>{moment(createdAt).format('ll')}</Text>
           </View>
           {!isRead && <View style={styles.badge} />}
-          {user.iduser == createdBy && (
+          {showDeleteButton && user.iduser == createdBy && (
             <Button onPress={onDeletePress}>Hapus</Button>
           )}
         </Row>

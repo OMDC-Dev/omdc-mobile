@@ -14,13 +14,14 @@ import {BlankScreen, Button, Card, Gap, Row} from '../../components';
 import ASSETS from '../../utils/assetLoader';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../../context';
-import {REIMBURSEMENT} from '../../api/apiRoutes';
+import {GET_NOTIFICATION_COUNT, REIMBURSEMENT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {fetchApi} from '../../api/api';
 import {cekAkses} from '../../utils/utils';
 
 const HomeScreen = () => {
   const [recent, setRecent] = React.useState();
+  const [unreadCount, setUnreadCount] = React.useState();
 
   // navigation
   const navigation = useNavigation();
@@ -43,9 +44,23 @@ const HomeScreen = () => {
     }
   }
 
+  async function getNotificationCount() {
+    const {state, data, error} = await fetchApi({
+      url: GET_NOTIFICATION_COUNT,
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setUnreadCount(data.unreadCount);
+    } else {
+      setUnreadCount(0);
+    }
+  }
+
   useFocusEffect(
     React.useCallback(() => {
       getRecentRequest();
+      getNotificationCount();
     }, []),
   );
 
@@ -75,7 +90,9 @@ const HomeScreen = () => {
               style={styles.bellButton}
               activeOpacity={0.8}
               onPress={() => navigation.navigate('NotifikasiStack')}>
-              <View style={styles.bellBadge} />
+              {unreadCount && unreadCount > 0 ? (
+                <View style={styles.bellBadge} />
+              ) : null}
               <Icon
                 source={'bell-outline'}
                 size={22}
@@ -101,10 +118,10 @@ const HomeScreen = () => {
               Pengajuan Terbaru
             </Text>
             <Text
-              onPress={() => navigation.jumpTo('HistoryStack')}
+              onPress={() => navigation.navigate('HistoryReimbursementStack')}
               style={styles.textSubtitle}
               variant="labelMedium">
-              Riwayat
+              Riwayat Pengajuan
             </Text>
           </Row>
           {recent?.length ? (
@@ -200,7 +217,7 @@ const styles = StyleSheet.create({
 
   textSubtitleLeft: {
     flex: 1,
-    color: Colors.COLOR_PRIMARY,
+    color: Colors.COLOR_DARK_GRAY,
   },
 
   textLogout: {

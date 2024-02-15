@@ -8,6 +8,7 @@ export const LOGIN = 'user/login';
 export const USER_COMPLETE = 'user/complete';
 export const UPDATE_PASSWORD = 'user/update-password';
 export const GET_NOTIFICATION = 'pengumuman';
+export const GET_NOTIFICATION_COUNT = 'pengumuman/count';
 export const READ_NOTIFICATION = id => {
   return `pengumuman/read/${id}`;
 };

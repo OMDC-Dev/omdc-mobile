@@ -23,6 +23,8 @@ import {
 import {API_STATES} from '../../utils/constant';
 import ModalView from '../../components/modal';
 import {Button, Dialog, Snackbar, Text} from 'react-native-paper';
+import {cekAkses} from '../../utils/utils';
+import {AuthContext} from '../../context';
 
 const NotifikasiScreen = () => {
   const route = useRoute();
@@ -43,6 +45,10 @@ const NotifikasiScreen = () => {
 
   // dialog
   const [showDialog, setShowDialog] = React.useState(false);
+
+  // check access
+  const {user} = React.useContext(AuthContext);
+  const hasPengumumanAccess = cekAkses('#3', user?.kodeAkses);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -118,9 +124,11 @@ const NotifikasiScreen = () => {
       <Header
         title={'Notifikasi'}
         right={
-          <Button onPress={() => navigation.navigate('BuatNotifikasi')}>
-            Buat Pengumuman
-          </Button>
+          hasPengumumanAccess && (
+            <Button onPress={() => navigation.navigate('BuatNotifikasi')}>
+              Buat Pengumuman
+            </Button>
+          )
         }
       />
       <View style={styles.mainContainer}>
@@ -131,6 +139,7 @@ const NotifikasiScreen = () => {
               <Card.NotifCard
                 data={item}
                 onPress={() => onReadNotification(item)}
+                showDeleteButton={hasPengumumanAccess}
                 onDeletePress={() => {
                   setSelectedNotif(item);
                   setShowDialog(true);

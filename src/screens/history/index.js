@@ -9,7 +9,14 @@ import React from 'react';
 import {Card, Icon, IconButton, Text} from 'react-native-paper';
 import {Colors, Size} from '../../styles';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import {BlankScreen, Button, Row, Card as CustomCard} from '../../components';
+import {
+  BlankScreen,
+  Button,
+  Row,
+  Card as CustomCard,
+  Container,
+  Header,
+} from '../../components';
 import ModalView from '../../components/modal';
 import {getMonthYear, getMonthYearNumber} from '../../utils/utils';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -231,35 +238,20 @@ const HistoryScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text variant={'titleMedium'} style={styles.textTitle}>
-          Riwayat Pengajuan
-        </Text>
-      </View>
+    <Container>
+      <Header title={'Riwayat Pengajuan'} />
       {renderTab()}
-    </SafeAreaView>
+    </Container>
   );
 };
 
 export default HistoryScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.COLOR_SECONDARY,
-  },
-
   mainContainer: {
     flex: 1,
     padding: Size.SIZE_14,
     backgroundColor: Colors.COLOR_WHITE,
-  },
-
-  header: {
-    backgroundColor: Colors.COLOR_SECONDARY,
-    paddingHorizontal: Size.SIZE_14,
-    paddingVertical: Size.SIZE_20,
   },
 
   dateContainer: {

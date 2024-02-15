@@ -19,8 +19,6 @@ const MainStackNavigator = () => {
   const {user} = React.useContext(AuthContext);
   const hasRequestBarang = cekAkses('#2', user.kodeAkses);
 
-  console.log(user.kodeAkses);
-
   return (
     <Tab.Navigator
       initialRouteName="HomeStack"
@@ -80,7 +78,7 @@ const MainStackNavigator = () => {
             }}
           />
         ))}
-      <Tab.Screen
+      {/* <Tab.Screen
         name="HistoryStack"
         component={HistoryStack}
         options={{
@@ -90,7 +88,7 @@ const MainStackNavigator = () => {
             <Icon source={'clipboard-flow'} color={color} size={size} />
           ),
         }}
-      />
+      /> */}
       {hasRequestBarang && (
         <Tab.Screen
           name="BarangStack"

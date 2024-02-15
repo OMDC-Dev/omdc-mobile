@@ -9,6 +9,7 @@ import PreviewScreen from '../screens/preview';
 import PengajuanItemScreen from '../screens/pengajuanitem';
 import NotifikasiScreen from '../screens/notifikasi';
 import BuatNotifikasiScreen from '../screens/buatnotifikasi';
+import {HistoryStack} from './HistoryStack';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +22,7 @@ export const HomeStack = () => {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="PengajuanStack" component={PengajuanStack} />
       <Stack.Screen name="NotifikasiStack" component={NotifStack} />
+      <Stack.Screen name="HistoryReimbursementStack" component={HistoryStack} />
     </Stack.Navigator>
   );
 };

@@ -202,6 +202,12 @@ const PengajuanScreen = () => {
   function hapusDataById(id) {
     let data = item;
     data = data.filter(item => item.id !== id);
+
+    for (let index = 0; index < data.length; index++) {
+      const element = data[index];
+      element.id = index;
+    }
+
     setItem(data);
   }
 

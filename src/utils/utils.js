@@ -93,7 +93,7 @@ export function hitungTotalNominal(data) {
   let total = 0;
   data.forEach(item => {
     // Hilangkan "Rp" dan koma, lalu ubah ke tipe number
-    const nominal = Number(item.nominal.replace('Rp', '').replace('.', ''));
+    const nominal = Number(item.nominal.replace('Rp', '').replace('/./g', ''));
     // Tambahkan nominal ke total
     total += nominal;
   });

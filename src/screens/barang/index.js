@@ -31,7 +31,7 @@ const BarangScreen = () => {
 
     if (state == API_STATES.OK) {
       setIsLoading(false);
-      setList(data);
+      setList(data?.rows);
     } else {
       setIsLoading(false);
       setList([]);
@@ -45,6 +45,8 @@ const BarangScreen = () => {
         {list && !isLoading ? (
           <FlatList
             data={list}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{paddingBottom: 120}}
             renderItem={({item, index}) => (
               <Card.PermintaanCard
                 data={item}

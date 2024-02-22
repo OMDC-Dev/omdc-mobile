@@ -127,6 +127,7 @@ const HomeScreen = () => {
           {recent?.length ? (
             <FlatList
               data={recent}
+              contentContainerStyle={{paddingBottom: 120}}
               showsVerticalScrollIndicator={false}
               renderItem={({item, index}) => {
                 return (

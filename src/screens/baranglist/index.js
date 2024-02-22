@@ -96,6 +96,8 @@ const BarangListScreen = () => {
     }
   }
 
+  console.log(queryBarangs);
+
   return (
     <Container>
       <Header title={'Barang Ditambahkan'} />

@@ -65,7 +65,7 @@ const NotifikasiScreen = () => {
 
     if (state == API_STATES.OK) {
       setLoading(false);
-      setNotif(data);
+      setNotif(data?.rows);
     } else {
       setLoading(false);
       setNotif([]);

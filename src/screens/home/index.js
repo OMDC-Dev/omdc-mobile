@@ -38,7 +38,7 @@ const HomeScreen = () => {
     });
 
     if (state == API_STATES.OK) {
-      setRecent(data);
+      setRecent(data?.rows);
     } else {
       console.log(error);
     }

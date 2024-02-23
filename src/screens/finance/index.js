@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import React from 'react';
 import {Card, Icon, IconButton, Text} from 'react-native-paper';
-import {Colors, Size} from '../../styles';
+import {Colors, Scaler, Size} from '../../styles';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {BlankScreen, Button, Row, Card as CustomCard} from '../../components';
 import ModalView from '../../components/modal';
@@ -19,14 +19,14 @@ import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
 
 async function getHistory(type = '00', monthyear) {
-  const query = `?monthyear=${monthyear}&status=${type}`;
+  const query = `?monthyear=${monthyear}&status=${type}&limit=100&page=1`;
   const {state, data, error} = await fetchApi({
     url: FINANCE_PENGAJUAN + query,
     method: 'GET',
   });
 
   if (state == API_STATES.OK) {
-    return data;
+    return data?.rows;
   } else {
     return 'ERROR';
   }
@@ -93,6 +93,7 @@ const RenderWaiting = () => {
       {list?.length ? (
         <FlatList
           data={list}
+          contentContainerStyle={{paddingBottom: Scaler.scaleSize(90)}}
           renderItem={({item, index}) => {
             return (
               <CustomCard.PengajuanCard
@@ -179,6 +180,7 @@ const RenderDone = () => {
       {list?.length ? (
         <FlatList
           data={list}
+          contentContainerStyle={{paddingBottom: Scaler.scaleSize(90)}}
           renderItem={({item, index}) => {
             return (
               <CustomCard.PengajuanCard

@@ -25,14 +25,14 @@ import {REIMBURSEMENT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 
 async function getHistory(type = '00', monthyear) {
-  const query = `?monthyear=${monthyear}&status=${type}`;
+  const query = `?monthyear=${monthyear}&status=${type}&page=1&limit=30`;
   const {state, data, error} = await fetchApi({
     url: REIMBURSEMENT + query,
     method: 'GET',
   });
 
   if (state == API_STATES.OK) {
-    return data;
+    return data?.rows;
   } else {
     return 'ERROR';
   }

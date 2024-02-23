@@ -5,13 +5,14 @@ import {Button, Dropdown, Gap, Header, InputLabel} from '../../components';
 import {useRoute} from '@react-navigation/native';
 import {Snackbar, TextInput} from 'react-native-paper';
 import {fetchApi} from '../../api/api';
-import {USER_COMPLETE} from '../../api/apiRoutes';
+import {DEPT, USER_COMPLETE} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
 
 const UserCompleteScreen = () => {
   const [nomorWA, setNomorWA] = React.useState();
   const [dept, setDept] = React.useState();
+  const [deptList, setDeptList] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
 
   // snackbar
@@ -24,6 +25,23 @@ const UserCompleteScreen = () => {
   const USER = route.params.user;
 
   const {signIn} = React.useContext(AuthContext);
+
+  React.useEffect(() => {
+    getDeptList();
+  }, []);
+
+  async function getDeptList() {
+    const {state, data, error} = await fetchApi({
+      url: DEPT,
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setDeptList(data?.rows);
+    } else {
+      setDeptList([]);
+    }
+  }
 
   async function completeProfile() {
     setIsLoading(true);

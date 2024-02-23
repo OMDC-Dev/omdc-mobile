@@ -17,6 +17,7 @@ import {fetchApi} from '../../api/api';
 import {LOGIN} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {useNavigation} from '@react-navigation/native';
+import messaging from '@react-native-firebase/messaging';
 
 const LoginScreen = () => {
   const [userId, setUserId] = React.useState('');
@@ -36,11 +37,14 @@ const LoginScreen = () => {
 
   // API
   const login = async () => {
+    const token = await messaging().getToken();
+
     setIsLoading(true);
     // request body
     const body = {
       iduser: userId.toUpperCase(),
       password: password,
+      fcmToken: token,
     };
 
     // request

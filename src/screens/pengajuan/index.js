@@ -182,12 +182,14 @@ const PengajuanScreen = () => {
   async function getSuperUser() {
     try {
       const {state, data, error} = await fetchApi({
-        url: SUPERUSER,
+        url: SUPERUSER + '?limit=100',
         method: 'GET',
       });
 
+      console.log(data);
+
       if (state == API_STATES.OK) {
-        const doAdmin = data.map(item => {
+        const doAdmin = data?.rows?.map(item => {
           return {label: item.nm_user, value: item?.iduser};
         });
         setAdminList(doAdmin);

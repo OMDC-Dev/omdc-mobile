@@ -12,8 +12,8 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@react-native-firebase/app": "^14.10.1",
-    "@react-native-firebase/messaging": "^14.10.1",
+    "@react-native-firebase/app": "^18.9.0",
+    "@react-native-firebase/messaging": "^18.9.0",
     "@react-navigation/bottom-tabs": "^6.4.0",
     "@react-navigation/material-top-tabs": "^6.6.5",
     "@react-navigation/native": "^6.0.13",

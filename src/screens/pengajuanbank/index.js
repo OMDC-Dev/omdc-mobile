@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {Platform, ScrollView, StyleSheet, View} from 'react-native';
 import React from 'react';
 import {Button, Dropdown, Gap, Header, InputLabel, Row} from '../../components';
 import {Colors, Scaler, Size} from '../../styles';
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.COLOR_SECONDARY,
-    paddingTop: Scaler.scaleSize(38),
+    paddingTop: Platform.OS == 'ios' ? Scaler.scaleSize(38) : 0,
   },
 
   mainContainer: {

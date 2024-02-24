@@ -76,6 +76,7 @@ const PengajuanScreen = () => {
 
   const disabledByType = () => {
     if (isNeedName) {
+      console.log('need name');
       return !name;
     }
   };
@@ -118,6 +119,8 @@ const PengajuanScreen = () => {
 
       const size = pickerResult.size;
 
+      console.log(pickerResult);
+
       if (size > 1200000) {
         setSnackMsg('Ukuran file tidak boleh lebih dari 1 MB');
         setSnack(true);
@@ -136,13 +139,16 @@ const PengajuanScreen = () => {
 
       setFileInfo(fileInfo);
 
-      const path = pickerResult.fileCopyUri.split('Caches/')[1];
+      const path =
+        Platform.OS == 'android'
+          ? pickerResult.fileCopyUri
+          : pickerResult.fileCopyUri.split('Caches/')[1];
 
       if (pickerResult.type == 'application/pdf') {
-        const picker = await uriToBas64(path);
+        const picker = await uriToBas64(path, true);
         setResult(picker);
       } else {
-        const base64 = await imgToBase64(path);
+        const base64 = await imgToBase64(path, true);
         setResult(base64);
       }
     } catch (error) {
@@ -389,7 +395,9 @@ const PengajuanScreen = () => {
                           <Text style={{flex: 1}} variant="labelLarge">
                             {item.name}
                           </Text>
-                          <Text variant="labelLarge">Rp. {item.nominal}</Text>
+                          <Text variant="labelLarge">
+                            {formatRupiah(item.nominal, true)}
+                          </Text>
                           <Gap w={10} />
                           <TouchableOpacity
                             activeOpacity={0.8}

@@ -47,8 +47,8 @@ const PengajuanItemScreen = () => {
           keyboardType={'phone-pad'}
           returnKeyType={'done'}
           placeholder={'Nominal'}
-          onBlur={onInputBlur}
-          onFocus={onInputFocus}
+          // onBlur={onInputBlur}
+          // onFocus={onInputFocus}
           placeholderTextColor={Colors.COLOR_DARK_GRAY}
           onChangeText={text => setNominal(text)}
           value={nominal}
@@ -59,7 +59,7 @@ const PengajuanItemScreen = () => {
           disabled={!name || !nominal}
           onPress={() =>
             navigation.navigate('Pengajuan', {
-              item: {name: name, nominal: formatRupiah(nominal)},
+              item: {name: name, nominal: nominal},
             })
           }>
           Tambah Item

@@ -36,6 +36,7 @@ export default PengajuanDoneScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: Size.SIZE_14,
   },
 
   mainContainer: {

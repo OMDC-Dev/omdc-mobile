@@ -46,8 +46,8 @@ export const getDate = date => {
 };
 
 //uri to base64
-export const uriToBas64 = async uri => {
-  const fp = ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + uri;
+export const uriToBas64 = async (uri, android) => {
+  const fp = android ? uri : ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + uri;
   return await ReactNativeBlobUtil.fs
     .readFile(fp, 'base64')
     .then(data => {
@@ -59,8 +59,8 @@ export const uriToBas64 = async uri => {
 };
 
 // image to base64
-export const imgToBase64 = async uri => {
-  const fp = ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + uri;
+export const imgToBase64 = async (uri, android) => {
+  const fp = android ? uri : ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + uri;
   return await ImgToBase64.getBase64String(fp)
     .then(base64String => {
       return base64String;
@@ -93,7 +93,7 @@ export function hitungTotalNominal(data) {
   let total = 0;
   data.forEach(item => {
     // Hilangkan "Rp" dan koma, lalu ubah ke tipe number
-    const nominal = Number(item.nominal.replace('Rp', '').replace('/./g', ''));
+    const nominal = Number(item.nominal);
     // Tambahkan nominal ke total
     total += nominal;
   });

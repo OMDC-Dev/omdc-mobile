@@ -627,7 +627,9 @@ const PengajuanDetailScreen = () => {
                       <Text style={{flex: 1}} variant="labelLarge">
                         {item.name}
                       </Text>
-                      <Text variant="labelLarge">Rp. {item.nominal}</Text>
+                      <Text variant="labelLarge">
+                        {formatRupiah(item.nominal, true)}
+                      </Text>
                     </Row>
                   </Card.Content>
                 </Card>

@@ -82,9 +82,14 @@ const HomeScreen = () => {
             <Row style={styles.topInfoLeft}>
               <Avatar.Icon icon={'account'} size={40} />
               <Gap w={10} />
-              <Text style={styles.textName} variant="labelLarge">
-                {user?.nm_user}
-              </Text>
+              <View>
+                <Text style={styles.textName} variant="labelLarge">
+                  {user?.nm_user}
+                </Text>
+                <Text style={styles.textLvl} variant="labelSmall">
+                  {user?.level_user}
+                </Text>
+              </View>
             </Row>
             <TouchableOpacity
               style={styles.bellButton}
@@ -210,6 +215,10 @@ const styles = StyleSheet.create({
   // text
   textName: {
     color: Colors.COLOR_WHITE,
+  },
+
+  textLvl: {
+    color: Colors.COLOR_LIGHT_GRAY,
   },
 
   textSubtitle: {

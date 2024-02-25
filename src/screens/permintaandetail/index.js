@@ -32,7 +32,7 @@ const PermintaanDetailScreen = () => {
       va: DATA?.nm_induk,
     },
     {
-      ti: 'Alamat Pengiriman',
+      ti: 'Kirim Ke',
       va: DATA?.nm_cabang,
     },
     {

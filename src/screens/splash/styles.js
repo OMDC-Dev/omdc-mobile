@@ -1,11 +1,12 @@
 import {StyleSheet} from 'react-native';
-import {Scaler} from '../../styles';
+import {Colors, Scaler} from '../../styles';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: Colors.COLOR_BLACK,
   },
 
   logo: {

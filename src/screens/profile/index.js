@@ -86,7 +86,7 @@ const ProfileScreen = () => {
           </Card.Content>
         </Card>
         <Text style={styles.textVersion} variant="labelSmall">
-          Version v.0.0.1-alpha
+          Version v.0.0.2-alpha
         </Text>
       </View>
     </Container>

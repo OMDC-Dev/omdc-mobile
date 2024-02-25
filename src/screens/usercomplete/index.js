@@ -77,7 +77,7 @@ const UserCompleteScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <Header title={'Lengkapi Profile'} />
+      <Header title={IS_FROM_EDIT ? 'Update Profile' : 'Lengkapi Profile'} />
       <View style={styles.mainContainer}>
         <InputLabel>Nomor Whatsapp</InputLabel>
         <TextInput
@@ -93,7 +93,7 @@ const UserCompleteScreen = () => {
         />
 
         <Gap h={6} />
-        <InputLabel>Jenis Reimbursement</InputLabel>
+        <InputLabel>Pilih Departemen</InputLabel>
         <Dropdown.DeptDropdown
           disabled={isLoading}
           defaultValue={dept}

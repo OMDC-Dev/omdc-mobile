@@ -33,10 +33,10 @@ const BarangCard = ({
               {extended ? (
                 <>
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
-                    Jumlah Stock : {data?.jml_kemasan} {data.nm_kemasan}
+                    Jumlah Permintaan : {data?.jml_kemasan} {data.nm_kemasan}
                   </Text>
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
-                    Jumlah Request : {data?.qty_stock} {data.nm_kemasan}
+                    Jumlah Stock : {data?.qty_stock} {data.nm_kemasan}
                   </Text>
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
                     Keterangan : {data?.keterangan || '-'}

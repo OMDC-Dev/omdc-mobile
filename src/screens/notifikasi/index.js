@@ -25,6 +25,45 @@ import ModalView from '../../components/modal';
 import {Button, Dialog, Snackbar, Text} from 'react-native-paper';
 import {cekAkses} from '../../utils/utils';
 import {AuthContext} from '../../context';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+
+// define tab
+const Tab = createMaterialTopTabNavigator();
+
+function RenderTab({comp1, comp2}) {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: Colors.COLOR_SECONDARY,
+        },
+        tabBarLabelStyle: {
+          textTransform: 'none',
+        },
+        tabBarActiveTintColor: Colors.COLOR_WHITE,
+        tabBarInactiveTintColor: Colors.COLOR_DARK_GRAY,
+        tabBarIndicatorStyle: {
+          backgroundColor: Colors.COLOR_PRIMARY,
+          height: 6,
+        },
+      }}>
+      <Tab.Screen
+        name="Pengumuman"
+        component={comp1}
+        options={{
+          title: 'Pengumuman',
+        }}
+      />
+      <Tab.Screen
+        name="PengumumanMe"
+        component={comp2}
+        options={{
+          title: 'Pengumuman Saya',
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
 
 const NotifikasiScreen = () => {
   const route = useRoute();
@@ -101,10 +140,11 @@ const NotifikasiScreen = () => {
   }
 
   async function onDeleteNotif() {
+    setShowDialog(false);
     setModalType('loading');
     setShowModal(true);
     const {state, data, error} = await fetchApi({
-      url: DELETE_PENGUMUMAN(),
+      url: DELETE_PENGUMUMAN(selectedNotif?.pid),
       method: 'DELETE',
     });
 
@@ -119,22 +159,57 @@ const NotifikasiScreen = () => {
     }
   }
 
-  return (
-    <View style={styles.container}>
-      <Header
-        title={'Notifikasi'}
-        right={
-          hasPengumumanAccess && (
-            <Button onPress={() => navigation.navigate('BuatNotifikasi')}>
-              Buat Pengumuman
-            </Button>
-          )
-        }
-      />
+  // ================= GAP
+
+  // ===  RENDER ALL PENGUMUMAN
+  function RenderAll() {
+    return (
       <View style={styles.mainContainer}>
         {notif?.length ? (
           <FlatList
             data={notif}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            renderItem={({item, index}) => (
+              <Card.NotifCard
+                data={item}
+                onPress={() => onReadNotification(item)}
+                showDeleteButton={false}
+                onDeletePress={() => {
+                  setSelectedNotif(item);
+                  setShowDialog(true);
+                }}
+              />
+            )}
+          />
+        ) : (
+          <BlankScreen loading={loading}>Belum ada pemberitahuan</BlankScreen>
+        )}
+      </View>
+    );
+  }
+
+  // ===  RENDER ALL PENGUMUMAN
+  function RenderMe() {
+    function onFiltered() {
+      if (notif) {
+        const fnotif = notif.filter(item => {
+          return item.createdBy == user?.iduser;
+        });
+
+        return fnotif;
+      } else {
+        return [];
+      }
+    }
+
+    return (
+      <View style={styles.mainContainer}>
+        {onFiltered()?.length ? (
+          <FlatList
+            data={onFiltered()}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
             renderItem={({item, index}) => (
               <Card.NotifCard
                 data={item}
@@ -151,6 +226,30 @@ const NotifikasiScreen = () => {
           <BlankScreen loading={loading}>Belum ada pemberitahuan</BlankScreen>
         )}
       </View>
+    );
+  }
+
+  // ======================
+
+  return (
+    <View style={styles.container}>
+      <Header
+        title={'Notifikasi'}
+        right={
+          hasPengumumanAccess && (
+            <Button onPress={() => navigation.navigate('BuatNotifikasi')}>
+              Buat Pengumuman
+            </Button>
+          )
+        }
+      />
+      {hasPengumumanAccess ? (
+        <View style={styles.tabContainer}>
+          <RenderTab comp1={RenderAll} comp2={RenderMe} />
+        </View>
+      ) : (
+        <RenderAll />
+      )}
       <ModalView
         onBackdropPress={() =>
           modalType == 'notif' ? setShowModal(false) : null
@@ -185,9 +284,17 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS == 'ios' ? Scaler.scaleSize(38) : 0,
   },
 
+  tabContainer: {
+    flex: 1,
+  },
+
   mainContainer: {
     flex: 1,
     backgroundColor: Colors.COLOR_WHITE,
     padding: Size.SIZE_14,
+  },
+
+  scrollContent: {
+    paddingBottom: Scaler.scaleSize(64),
   },
 });

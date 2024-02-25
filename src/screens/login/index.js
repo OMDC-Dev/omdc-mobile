@@ -37,7 +37,7 @@ const LoginScreen = () => {
 
   // API
   const login = async () => {
-    await messaging().registerDeviceForRemoteMessages();
+    //await messaging().registerDeviceForRemoteMessages();
     const token = await messaging().getToken();
 
     setIsLoading(true);
@@ -129,7 +129,7 @@ const LoginScreen = () => {
           </Button>
           <Gap h={16} />
           <Text style={styles.textVersion} variant="labelSmall">
-            Version v.0.0.2-alpha
+            Version v.0.0.4
           </Text>
         </View>
         <Snackbar visible={showSnack} onDismiss={() => setShowSnack(false)}>

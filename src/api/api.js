@@ -29,6 +29,7 @@ export const fetchApi = async props => {
         return {state: API_STATES.OK, data: resData?.data?.data, error: []};
       })
       .catch(error => {
+        console.log(error);
         return {
           state: API_STATES.ERROR,
           data: [],
@@ -36,6 +37,7 @@ export const fetchApi = async props => {
         };
       });
   } catch (error) {
+    console.log(error);
     return {
       state: API_STATES.ERROR,
       data: [],

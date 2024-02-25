@@ -1,9 +1,10 @@
 import * as React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, StatusBar, Image} from 'react-native';
 import {AuthContext} from '../../context';
 import {retrieveData} from '../../utils/store';
 import {wait} from '../../utils/utils';
 import styles from './styles';
+import ASSETS from '../../utils/assetLoader';
 
 const SplashScreen = () => {
   const {restoreToken} = React.useContext(AuthContext);
@@ -30,7 +31,12 @@ const SplashScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text>SplashScreen</Text>
+      <StatusBar hidden />
+      <Image
+        resizeMode={'contain'}
+        style={styles.logo}
+        source={ASSETS.logoDark}
+      />
     </View>
   );
 };

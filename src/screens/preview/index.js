@@ -47,6 +47,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.COLOR_WHITE,
     padding: Size.SIZE_14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   pdf: {

@@ -72,6 +72,9 @@ const PengajuanScreen = () => {
   // REPORT
   const [reportData, setReportData] = React.useState();
 
+  // MODAL
+  const [showSelectFile, setShowSelectFile] = React.useState(false);
+
   const isNeedName = jenis == 'PR' || jenis == 'CAR' || jenis == 'PC';
 
   const disabledByType = () => {
@@ -154,6 +157,25 @@ const PengajuanScreen = () => {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  // handle on pick from camera / gallery
+  function onPickFromRes(data) {
+    if (data.fileSize > 1200000) {
+      setSnackMsg('Ukuran file tidak boleh lebih dari 1 MB');
+      setSnack(true);
+      return;
+    }
+
+    setResult(data.base64);
+
+    const fileInfo = {
+      name: data.fileName,
+      size: data.fileSize,
+      type: data.fileType,
+    };
+
+    setFileInfo(fileInfo);
   }
 
   // API
@@ -357,7 +379,10 @@ const PengajuanScreen = () => {
                       color={Colors.COLOR_DARK_GRAY}
                     />
                     <Gap w={8} />
-                    <Text numberOfLines={1} variant={'labelLarge'}>
+                    <Text
+                      style={{marginRight: Size.SIZE_24}}
+                      numberOfLines={1}
+                      variant={'labelLarge'}>
                       {fileInfo?.name}
                     </Text>
                   </Row>
@@ -377,7 +402,7 @@ const PengajuanScreen = () => {
                 icon={'plus-box-outline'}
                 size={40}
                 iconColor={Colors.COLOR_DARK_GRAY}
-                onPress={() => pickFile()}
+                onPress={() => setShowSelectFile(!showSelectFile)}
               />
             )}
           </View>
@@ -483,6 +508,14 @@ const PengajuanScreen = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <ModalView
+        type={'selectfile'}
+        visible={showSelectFile}
+        toggle={() => setShowSelectFile(!showSelectFile)}
+        pickFromFile={() => pickFile()}
+        fileCallback={cb => onPickFromRes(cb)}
+      />
 
       <ModalView
         type={'calendar'}

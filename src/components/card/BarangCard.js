@@ -3,6 +3,7 @@ import React from 'react';
 import {Button, Card, Chip, Icon, Text} from 'react-native-paper';
 import {Colors, Size} from '../../styles';
 import Row from '../Row';
+import Gap from '../Gap';
 
 const BarangCard = ({
   data,
@@ -39,6 +40,13 @@ const BarangCard = ({
                   </Text>
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
                     Keterangan : {data?.keterangan || '-'}
+                  </Text>
+                  <Gap h={10} />
+                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
+                    Status : {data?.status_approve || 'Menunggu'}
+                  </Text>
+                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
+                    Tanggal Approval : {data?.tgl_approve || '-'}
                   </Text>
                 </>
               ) : (

@@ -1,8 +1,8 @@
-import {Platform, StatusBar, StyleSheet, View} from 'react-native';
+import {Alert, Platform, StatusBar, StyleSheet, View} from 'react-native';
 import React from 'react';
 import {Colors, Scaler, Size} from '../../styles';
 import {Button, Dropdown, Gap, Header, InputLabel} from '../../components';
-import {useRoute} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {Snackbar, TextInput} from 'react-native-paper';
 import {fetchApi} from '../../api/api';
 import {DEPT, USER_COMPLETE} from '../../api/apiRoutes';
@@ -10,38 +10,29 @@ import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
 
 const UserCompleteScreen = () => {
-  const [nomorWA, setNomorWA] = React.useState();
-  const [dept, setDept] = React.useState();
-  const [deptList, setDeptList] = React.useState();
+  const {signIn, user} = React.useContext(AuthContext);
+
+  console.log(user);
+
+  const navigation = useNavigation();
+
+  const route = useRoute();
+
+  const IS_FROM_EDIT = route.name == 'UpdateUser';
+
+  const {userToken} = IS_FROM_EDIT ? user : route?.params?.user;
+  const USER = IS_FROM_EDIT ? user : route.params.user;
+
+  // === STATE
+  const [nomorWA, setNomorWA] = React.useState(
+    user?.nomorWA || user?.nomorwa || '',
+  );
+  const [dept, setDept] = React.useState(user?.departemen || '');
   const [isLoading, setIsLoading] = React.useState(false);
 
   // snackbar
   const [snack, setSnack] = React.useState(false);
   const [snackMsg, setSnackMsg] = React.useState();
-
-  const route = useRoute();
-
-  const {userToken} = route?.params?.user;
-  const USER = route.params.user;
-
-  const {signIn} = React.useContext(AuthContext);
-
-  React.useEffect(() => {
-    getDeptList();
-  }, []);
-
-  async function getDeptList() {
-    const {state, data, error} = await fetchApi({
-      url: DEPT,
-      method: 'GET',
-    });
-
-    if (state == API_STATES.OK) {
-      setDeptList(data?.rows);
-    } else {
-      setDeptList([]);
-    }
-  }
 
   async function completeProfile() {
     setIsLoading(true);
@@ -65,6 +56,14 @@ const UserCompleteScreen = () => {
     if (state == API_STATES.OK) {
       setIsLoading(false);
       signIn({...USER, nomorWA: nomorWA, departemen: dept});
+      if (IS_FROM_EDIT) {
+        Alert.alert('Sukses', 'Data anda telah diupdate!', [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(),
+          },
+        ]);
+      }
     } else {
       setIsLoading(false);
       setSnackMsg(error);
@@ -90,12 +89,14 @@ const UserCompleteScreen = () => {
           placeholder={'Nomor Whatsapp'}
           placeholderTextColor={Colors.COLOR_DARK_GRAY}
           onChangeText={text => setNomorWA(text)}
+          value={nomorWA}
         />
 
         <Gap h={6} />
         <InputLabel>Jenis Reimbursement</InputLabel>
         <Dropdown.DeptDropdown
           disabled={isLoading}
+          defaultValue={dept}
           onChange={val => setDept(val)}
         />
         <View style={styles.bottom}>

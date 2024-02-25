@@ -2,18 +2,47 @@ import {Platform, StyleSheet, View} from 'react-native';
 import React from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Colors, Scaler, Size} from '../../styles';
+import {fetchApi} from '../../api/api';
+import {DEPT} from '../../api/apiRoutes';
+import {API_STATES} from '../../utils/constant';
 
-const DeptDropdown = ({data = [], onChange, loading, disabled}) => {
+const DeptDropdown = ({onChange, loading, disabled, defaultValue}) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(null);
-  const items = [
-    {label: 'DEPT APEL', value: '001 - APPLE'},
-    {label: 'DEPT naga', value: '002 - NAGA'},
-  ];
+  const [deptList, setDeptList] = React.useState([]);
 
   React.useEffect(() => {
     onChange(value);
   }, [value]);
+
+  React.useEffect(() => {
+    getDept();
+    if (defaultValue) {
+      setValue(defaultValue);
+    }
+  }, []);
+
+  async function getDept() {
+    const {state, data, error} = await fetchApi({
+      url: DEPT,
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      if (data?.rows) {
+        const mapping = data?.rows.map(item => {
+          return {
+            label: item?.label,
+            value: item?.label,
+          };
+        });
+
+        setDeptList(mapping);
+      }
+    } else {
+      setDeptList([]);
+    }
+  }
 
   return (
     <View
@@ -32,7 +61,7 @@ const DeptDropdown = ({data = [], onChange, loading, disabled}) => {
         placeholderStyle={styles.placeholderStyle}
         open={open}
         value={value}
-        items={items}
+        items={deptList}
         setOpen={setOpen}
         setValue={setValue}
       />

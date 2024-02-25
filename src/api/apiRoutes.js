@@ -1,7 +1,10 @@
 import {Platform} from 'react-native';
 
-export const BASE_URL =
-  Platform.OS == 'android' ? 'http://10.0.2.2:8080' : 'http://127.0.0.1:8080/';
+export const BASE_URL = !__DEV__
+  ? 'http://203.175.10.17:8080/'
+  : Platform.OS == 'android'
+  ? 'http://10.0.2.2:8080'
+  : 'http://127.0.0.1:8080/';
 
 // AUTH
 export const LOGIN = 'user/login';

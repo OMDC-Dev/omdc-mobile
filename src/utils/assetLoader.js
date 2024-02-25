@@ -4,6 +4,7 @@ const anim_path = '../../assets/animation/';
 const ASSETS = {
   logo: require(path + 'logo.png'),
   loginLogo: require(path + 'loginLogo.png'),
+  logoDark: require(path + 'authLogo.png'),
   animation: {
     done: require(anim_path + 'done.json'),
     done2: require(anim_path + 'done2.json'),

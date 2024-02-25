@@ -24,20 +24,20 @@ const PermintaanDetailScreen = () => {
       va: DATA?.id_pb,
     },
     {
-      ti: 'Nama Induk Cabang',
+      ti: 'Waktu Permintaan',
+      va: `${DATA?.tgl_trans} | ${DATA?.jam_trans}`,
+    },
+    {
+      ti: 'Cabang',
       va: DATA?.nm_induk,
     },
     {
-      ti: 'Nama Cabang',
+      ti: 'Alamat Pengiriman',
       va: DATA?.nm_cabang,
     },
     {
       ti: 'Alamat',
       va: DATA?.alamat,
-    },
-    {
-      ti: 'Waktu Permintaan',
-      va: `${DATA?.tgl_trans} | ${DATA?.jam_trans}`,
     },
   ];
 
@@ -97,8 +97,24 @@ const PermintaanDetailScreen = () => {
         </Text>
         <Gap h={14} />
         {DATA_PERMINTAAN.map((item, index) => {
-          return (
+          return item?.ti !== 'Alamat' ? (
             <Row key={item + index}>
+              <InputLabel style={styles.rowLeft}>{item.ti}</InputLabel>
+              <Text
+                numberOfLines={5}
+                style={styles.textValue}
+                variant={'labelMedium'}>
+                {item.va}
+              </Text>
+              <Gap h={6} />
+            </Row>
+          ) : (
+            <Row
+              style={{
+                alignItems: 'flex-start',
+                marginBottom: Scaler.scaleSize(6),
+              }}
+              key={item + index}>
               <InputLabel style={styles.rowLeft}>{item.ti}</InputLabel>
               <Text
                 numberOfLines={5}

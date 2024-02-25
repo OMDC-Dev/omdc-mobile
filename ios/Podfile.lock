@@ -343,6 +343,8 @@ PODS:
     - React-Core
   - react-native-image-base64 (0.1.4):
     - React
+  - react-native-image-picker (7.1.0):
+    - React-Core
   - react-native-month-year-picker (1.9.0):
     - React
   - react-native-pager-view (6.2.3):
@@ -459,6 +461,7 @@ DEPENDENCIES:
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-encrypted-storage (from `../node_modules/react-native-encrypted-storage`)
   - react-native-image-base64 (from `../node_modules/react-native-image-base64`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-month-year-picker (from `../node_modules/react-native-month-year-picker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
@@ -544,6 +547,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-encrypted-storage"
   react-native-image-base64:
     :path: "../node_modules/react-native-image-base64"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-month-year-picker:
     :path: "../node_modules/react-native-month-year-picker"
   react-native-pager-view:
@@ -623,6 +628,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
   react-native-encrypted-storage: e78d848ce0fb663c2ce306e37921d026809322e6
   react-native-image-base64: 2ff9ac788639c87a91361ab6652cc95e871b1e54
+  react-native-image-picker: a82b781c14f1f5c16953290bee2039db43822517
   react-native-month-year-picker: 948797e981ca502427024a34b17f545eb321bbff
   react-native-pager-view: c29d484f19c49ff19525a94105e4ab2c4d4ae273
   react-native-pdf: 7c0e91ada997bac8bac3bb5bea5b6b81f5a3caae

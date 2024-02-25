@@ -16,10 +16,11 @@ const ProfileScreen = () => {
         <Avatar.Icon icon={'account'} size={56} />
         <Gap h={8} />
         <Text variant={'labelMedium'} style={styles.textTitle}>
-          Hola
+          {user?.nm_user}
         </Text>
+        <Gap h={4} />
         <Text variant={'labelSmall'} style={styles.textDepart}>
-          Ini departemen
+          {user?.departemen}
         </Text>
       </View>
       <Gap h={8} />
@@ -46,7 +47,30 @@ const ProfileScreen = () => {
             </Row>
           </Card.Content>
         </Card>
-        <Gap h={8} />
+        <Gap h={14} />
+        <Card
+          mode={'outlined'}
+          onPress={() => navigation.navigate('UpdateUser')}>
+          <Card.Content>
+            <Row>
+              <Icon
+                source={'account-edit-outline'}
+                size={24}
+                color={Colors.COLOR_DARK_GRAY}
+              />
+              <Gap w={14} />
+              <Text variant={'labelMedium'} style={styles.textIconButton}>
+                Update Profile
+              </Text>
+              <Icon
+                source={'arrow-right-circle-outline'}
+                size={24}
+                color={Colors.COLOR_DARK_GRAY}
+              />
+            </Row>
+          </Card.Content>
+        </Card>
+        <Gap h={14} />
         <Card
           mode={'outlined'}
           style={styles.exitButton}

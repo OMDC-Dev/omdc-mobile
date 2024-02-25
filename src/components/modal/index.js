@@ -9,6 +9,7 @@ import {Platform} from 'react-native';
 import BarangModal from './type/barang';
 import AddBarangModal from './type/addbarang';
 import NotifModal from './type/notif';
+import SelectFileModal from './type/selectfile';
 
 const ModalView = ({
   children,
@@ -23,6 +24,9 @@ const ModalView = ({
   onCancelCalendar,
   onButtonPress,
   message,
+  toggle,
+  pickFromFile,
+  fileCallback,
 }) => {
   //render modal children
   const renderContent = () => {
@@ -44,6 +48,15 @@ const ModalView = ({
         break;
       case 'dateyear':
         return <DateYearModal cb={dateCallback} />;
+        break;
+      case 'selectfile':
+        return (
+          <SelectFileModal
+            value={fileCallback}
+            pickFromfile={pickFromFile}
+            toggle={toggle}
+          />
+        );
         break;
       case 'calendar':
         return (

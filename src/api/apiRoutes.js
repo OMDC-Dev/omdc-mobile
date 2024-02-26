@@ -1,6 +1,6 @@
 import {Platform} from 'react-native';
 
-export const BASE_URL = __DEV__
+export const BASE_URL = !__DEV__
   ? 'https://server.omdc.online/'
   : Platform.OS == 'android'
   ? 'http://10.0.2.2:8080'
@@ -61,3 +61,8 @@ export const DETAIL_REQUEST_BARANG = id => {
 
 // DEPT
 export const DEPT = 'dept';
+
+// COA
+export const GET_COA = (key = '') => {
+  return `coa?cari=${key}`;
+};

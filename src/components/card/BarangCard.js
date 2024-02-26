@@ -18,6 +18,17 @@ const BarangCard = ({
   const [extended, setExtended] = React.useState(false);
 
   if (fromDetail) {
+    const statusPB = data?.status_pb?.toLowerCase();
+    let statusTextColor = Colors.COLOR_ORANGE;
+
+    if (statusPB == 'dibatalkan') {
+      statusTextColor = Colors.COLOR_RED;
+    } else if (statusPB == 'diproses') {
+      statusTextColor = Colors.COLOR_ORANGE;
+    } else if (statusPB == 'diterima') {
+      statusTextColor = Colors.COLOR_GREEN;
+    }
+
     return (
       <Card
         mode={'contained'}
@@ -43,7 +54,12 @@ const BarangCard = ({
                   </Text>
                   <Gap h={10} />
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
-                    Status : {data?.status_approve || 'Menunggu'}
+                    Status :{' '}
+                    <Text
+                      variant={'labelSmall'}
+                      style={{...styles.textDescInfo, color: statusTextColor}}>
+                      {data?.status_approve || 'Menunggu'}
+                    </Text>
                   </Text>
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
                     Tanggal Approval : {data?.tgl_approve || '-'}

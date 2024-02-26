@@ -3,10 +3,28 @@ import React from 'react';
 import {Card, Text} from 'react-native-paper';
 import Gap from '../Gap';
 import Row from '../Row';
-import {Size} from '../../styles';
+import {Colors, Size} from '../../styles';
 
 const PermintaanCard = ({data = {}, onPress}) => {
   const {id_pb, nm_induk, nm_cabang, tgl_trans, status_approve} = data;
+
+  function statusWording() {
+    switch (status_approve?.toLowerCase()) {
+      case 'ditolak':
+        return {text: 'Ditolak', color: Colors.COLOR_RED};
+        break;
+      case 'disetujui sebagian':
+        return {text: 'Disetujui Sebagian', color: Colors.COLOR_SECONDARY};
+        break;
+      case 'disetujui':
+        return {text: 'Disetujui', color: Colors.COLOR_GREEN};
+        break;
+      default:
+        return {text: 'Menunggu', color: Colors.COLOR_ORANGE};
+        break;
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Card onPress={onPress}>
@@ -21,8 +39,10 @@ const PermintaanCard = ({data = {}, onPress}) => {
               <Gap h={14} />
               <Text variant={'labelSmall'}>{tgl_trans}</Text>
             </View>
-            <Text style={styles.textStatus} variant={'labelLarge'}>
-              {status_approve || 'Menunggu'}
+            <Text
+              style={{...styles.textStatus, color: statusWording().color}}
+              variant={'labelLarge'}>
+              {statusWording().text}
             </Text>
           </Row>
         </Card.Content>

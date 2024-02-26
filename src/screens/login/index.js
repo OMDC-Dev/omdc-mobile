@@ -37,7 +37,10 @@ const LoginScreen = () => {
 
   // API
   const login = async () => {
-    //await messaging().registerDeviceForRemoteMessages();
+    if (Platform.OS == 'android') {
+      await messaging().registerDeviceForRemoteMessages();
+    }
+
     const token = await messaging().getToken();
 
     setIsLoading(true);

@@ -61,6 +61,23 @@ const PermintaanDetailScreen = () => {
     }
   }
 
+  function statusWording() {
+    switch (DATA?.status_approve?.toLowerCase()) {
+      case 'ditolak':
+        return {text: 'Ditolak', color: Colors.COLOR_RED};
+        break;
+      case 'disetujui sebagian':
+        return {text: 'Disetujui Sebagian', color: Colors.COLOR_SECONDARY};
+        break;
+      case 'disetujui':
+        return {text: 'Disetujui', color: Colors.COLOR_GREEN};
+        break;
+      default:
+        return {text: 'Menunggu', color: Colors.COLOR_ORANGE};
+        break;
+    }
+  }
+
   return (
     <Container>
       <Header title={'Detail Permintaan'} />
@@ -75,9 +92,9 @@ const PermintaanDetailScreen = () => {
           <InputLabel style={styles.rowLeft}>Status</InputLabel>
           <Text
             numberOfLines={5}
-            style={styles.textValue}
+            style={{...styles.textValue, color: statusWording().color}}
             variant={'labelMedium'}>
-            {DATA?.status_approve || 'Menunggu'}
+            {statusWording().text}
           </Text>
           <Gap h={6} />
         </Row>

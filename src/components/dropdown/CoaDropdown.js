@@ -43,8 +43,6 @@ const CoaDropdown = ({onChange}) => {
     }
   }
 
-  console.log(coa);
-
   return (
     <View
       style={{

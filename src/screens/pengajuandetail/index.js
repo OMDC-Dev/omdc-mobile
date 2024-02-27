@@ -32,6 +32,7 @@ import {API_STATES} from '../../utils/constant';
 import {formatRupiah} from '../../utils/rupiahFormatter';
 import ModalView from '../../components/modal';
 import {getDataById} from '../../utils/utils';
+import _ from 'lodash';
 
 const PengajuanDetailScreen = () => {
   const route = useRoute();
@@ -322,7 +323,7 @@ const PengajuanDetailScreen = () => {
       } else {
         navigation.navigate('Pengajuan', {
           type: 'CAR',
-          data: {id: data?.id, no_doc: data?.no_doc},
+          data: {id: data?.id, no_doc: data?.no_doc, nominal: data?.nominal},
         });
       }
     } else {
@@ -347,6 +348,22 @@ const PengajuanDetailScreen = () => {
       setSnak(true);
     }
   }
+
+  // ===== function to calculate saldo
+  const calculateSaldo = (nominal = '', realisasi = '') => {
+    if (!nominal || !realisasi) {
+      return '-';
+    }
+
+    const intNominal = parseInt(nominal.replace('Rp. ', '').replace(/\./g, ''));
+    const intRealisasi = parseInt(
+      realisasi.replace('Rp. ', '').replace(/\./g, ''),
+    );
+
+    const saldo = intNominal - intRealisasi;
+
+    return 'Rp. ' + formatRupiah(saldo);
+  };
 
   // ========= rendering
   function renderBottomButton() {
@@ -373,6 +390,31 @@ const PengajuanDetailScreen = () => {
                   <Text variant={'bodyMedium'}>Dana sudah ditransfer.</Text>
                 </Card.Content>
               </Card>
+              {data?.status_finance == 'DONE' &&
+              data?.jenis_reimbursement == 'Cash Advance' &&
+              data?.childId &&
+              !IS_PUSHED ? (
+                <>
+                  <Gap h={24} />
+                  <Button
+                    onPress={() => onRealisasiPressed()}
+                    mode={'contained'}>
+                    Lihat Laporan Realisasi
+                  </Button>
+                </>
+              ) : null}
+              {data?.status_finance == 'DONE' &&
+              data?.jenis_reimbursement == 'Cash Advance Report' &&
+              !IS_PUSHED ? (
+                <>
+                  <Gap h={24} />
+                  <Button
+                    onPress={() => onRealisasiPressed()}
+                    mode={'contained'}>
+                    Lihat Pengajuan
+                  </Button>
+                </>
+              ) : null}
             </View>
           );
         }
@@ -438,13 +480,33 @@ const PengajuanDetailScreen = () => {
                 </Text>
               </Card.Content>
             </Card>
+            {data?.jenis_reimbursement == 'Cash Advance' &&
+            data?.childId &&
+            !IS_PUSHED ? (
+              <>
+                <Gap h={24} />
+                <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
+                  Lihat Laporan Realisasi
+                </Button>
+              </>
+            ) : null}
+            {data?.parentId &&
+            data?.jenis_reimbursement == 'Cash Advance Report' &&
+            !IS_PUSHED ? (
+              <>
+                <Gap h={24} />
+                <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
+                  Lihat Pengajuan
+                </Button>
+              </>
+            ) : null}
           </View>
         );
       }
     } else {
-      if (requestStatus !== 'WAITING') {
-        return (
-          <View>
+      return (
+        <View>
+          {requestStatus !== 'WAITING' ? (
             <Card mode={'outlined'}>
               <Card.Content style={{alignItems: 'center'}}>
                 <Text variant={'titleSmall'}>Catatan : </Text>
@@ -454,29 +516,29 @@ const PengajuanDetailScreen = () => {
                 </Text>
               </Card.Content>
             </Card>
-            {data?.status_finance == 'DONE' &&
-            data?.jenis_reimbursement == 'Cash Advance' &&
-            !IS_PUSHED ? (
-              <>
-                <Gap h={24} />
-                <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
-                  {data.childId ? 'Lihat' : 'Buat'} Laporan Realisasi
-                </Button>
-              </>
-            ) : null}
-            {data?.status_finance == 'DONE' &&
-            data?.jenis_reimbursement == 'Cash Advance Report' &&
-            !IS_PUSHED ? (
-              <>
-                <Gap h={24} />
-                <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
-                  Lihat Pengajaun
-                </Button>
-              </>
-            ) : null}
-          </View>
-        );
-      }
+          ) : null}
+          {data?.status_finance == 'DONE' &&
+          data?.jenis_reimbursement == 'Cash Advance' &&
+          !IS_PUSHED ? (
+            <>
+              <Gap h={24} />
+              <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
+                {data.childId ? 'Lihat' : 'Buat'} Laporan Realisasi
+              </Button>
+            </>
+          ) : null}
+          {data?.parentId &&
+          data?.jenis_reimbursement == 'Cash Advance Report' &&
+          !IS_PUSHED ? (
+            <>
+              <Gap h={24} />
+              <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
+                Lihat Pengajuan
+              </Button>
+            </>
+          ) : null}
+        </View>
+      );
     }
   }
 
@@ -553,7 +615,7 @@ const PengajuanDetailScreen = () => {
                 )}
               </>
             )}
-            {data?.childId && (
+            {data?.childId ? (
               <>
                 <Gap h={14} />
                 <Text style={styles.textTotal} variant={'labelSmall'}>
@@ -561,10 +623,18 @@ const PengajuanDetailScreen = () => {
                 </Text>
                 <Gap h={8} />
                 <Text style={styles.textTotalValue} variant={'titleMedium'}>
-                  {formatRupiah(realisasi)}
+                  {formatRupiah(realisasi) || '-'}
+                </Text>
+                <Gap h={14} />
+                <Text style={styles.textTotal} variant={'labelSmall'}>
+                  Saldo
+                </Text>
+                <Gap h={8} />
+                <Text style={styles.textTotalValue} variant={'titleMedium'}>
+                  {calculateSaldo(nominal, realisasi)}
                 </Text>
               </>
-            )}
+            ) : null}
           </Card.Content>
         </Card>
         <Gap h={24} />
@@ -595,7 +665,7 @@ const PengajuanDetailScreen = () => {
                   </Row>
                 );
               })}
-              {data?.status_finance !== 'IDLE' && (
+              {data?.status_finance !== 'IDLE' ? (
                 <Row>
                   <InputLabel style={styles.rowLeft}>Finance</InputLabel>
                   <Text
@@ -603,11 +673,11 @@ const PengajuanDetailScreen = () => {
                     style={[styles.textValue]}
                     variant={'labelMedium'}>
                     {financeStatus == 'WAITING'
-                      ? 'Sedang Ditransfer'
-                      : `Sudah Ditransfer pada ${financeData?.acceptDate} oleh ${financeData?.nm_user}`}
+                      ? 'Sedang Diproses'
+                      : `Selesai diproses pada ${financeData?.acceptDate} oleh ${financeData?.nm_user}`}
                   </Text>
                 </Row>
-              )}
+              ) : null}
             </>
           )}
         </View>
@@ -638,7 +708,7 @@ const PengajuanDetailScreen = () => {
             );
           })}
         </View>
-        {data?.isAdmin && (
+        {data?.isAdmin ? (
           <>
             <Gap h={24} />
             <Text style={styles.subtitle} variant="titleSmall">
@@ -660,13 +730,37 @@ const PengajuanDetailScreen = () => {
               );
             })}
           </>
-        )}
+        ) : null}
 
         <Gap h={24} />
         <Text style={styles.subtitle} variant="titleSmall">
           Data Reimbursement
         </Text>
         <Gap h={14} />
+        {data?.jenis_reimbursement == 'Cash Advance Report' ? (
+          <Row>
+            <InputLabel style={styles.rowLeft}>No. Doc Pengajuan</InputLabel>
+            <Text
+              numberOfLines={2}
+              style={styles.textValue}
+              variant={'labelMedium'}>
+              {data?.parentDoc}
+            </Text>
+            <Gap h={6} />
+          </Row>
+        ) : null}
+        {data?.jenis_reimbursement == 'Cash Advance' && data?.childId ? (
+          <Row>
+            <InputLabel style={styles.rowLeft}>No. Doc Realisasi</InputLabel>
+            <Text
+              numberOfLines={2}
+              style={styles.textValue}
+              variant={'labelMedium'}>
+              {data?.childDoc}
+            </Text>
+            <Gap h={6} />
+          </Row>
+        ) : null}
         {DATA_REIMBURSEMENT.map((item, index) => {
           return (
             <Row key={item + index}>
@@ -707,7 +801,7 @@ const PengajuanDetailScreen = () => {
             </Row>
           </TouchableOpacity>
         </View>
-        {typeName !== 'Petty Cash Report' && (
+        {typeName !== 'Petty Cash Report' && !_.isEmpty(BANK_DATA) ? (
           <>
             <Gap h={24} />
             <Text style={styles.subtitle} variant="titleSmall">
@@ -738,7 +832,7 @@ const PengajuanDetailScreen = () => {
               <Gap h={6} />
             </Row>
           </>
-        )}
+        ) : null}
 
         <Gap h={24} />
         {ACCEPTANCE_STATUS_BY_ID == 'WAITING' && (

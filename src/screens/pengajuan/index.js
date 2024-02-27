@@ -61,6 +61,9 @@ const PengajuanScreen = () => {
   const [item, setItem] = React.useState([]);
   const [admin, setAdmin] = React.useState();
 
+  // CAR
+  const [needBank, setNeedBank] = React.useState(true);
+
   // dropdown state
   const [cabangList, setCabangList] = React.useState([]);
   const [adminList, setAdminList] = React.useState([]);
@@ -247,6 +250,25 @@ const PengajuanScreen = () => {
       setReportData(ROUTE_DATA);
     }
   }, []);
+
+  React.useEffect(() => {
+    if (nominal && jenis == 'CAR') {
+      const _frel = nominal?.replace('Rp. ', '').replace(/\./g, '');
+      const _fnom = reportData?.nominal?.replace('Rp. ', '').replace(/\./g, '');
+
+      const _sal = _fnom - _frel;
+
+      if (_sal > 0) {
+        console.log('No Need Bank');
+        setNeedBank(false);
+      } else {
+        console.log('Need Bank');
+        setNeedBank(true);
+      }
+
+      console.log('SAL', _sal);
+    }
+  }, [nominal]);
 
   return (
     <View style={styles.container}>
@@ -481,10 +503,28 @@ const PengajuanScreen = () => {
             placeholderTextColor={Colors.COLOR_DARK_GRAY}
             value={nominal}
           />
+          {jenis == 'CAR' ? (
+            <>
+              <Gap h={6} />
+              <InputLabel>Nominal Cash Advance</InputLabel>
+              <TextInput
+                style={styles.input}
+                mode={'outlined'}
+                editable={false}
+                disabled
+                keyboardType={'phone-pad'}
+                returnKeyType={'done'}
+                placeholder={'Nominal'}
+                defaultValue={formatRupiah(reportData?.nominal)}
+                placeholderTextColor={Colors.COLOR_DARK_GRAY}
+              />
+            </>
+          ) : null}
+
           <View style={styles.bottomContainer}>
             <Button
               disabled={buttonDisabled}
-              onPress={() =>
+              onPress={() => {
                 navigation.navigate('PengajuanBank', {
                   data: {
                     jenis: jenis,
@@ -500,9 +540,10 @@ const PengajuanScreen = () => {
                     fileInfo: fileInfo,
                     admin: admin,
                     report: reportData,
+                    needBank: needBank,
                   },
-                })
-              }>
+                });
+              }}>
               Lanjut
             </Button>
           </View>

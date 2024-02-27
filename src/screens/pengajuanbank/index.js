@@ -20,6 +20,7 @@ const PengajuanBankScreen = () => {
 
   const RR = route?.params?.data;
   const REPORT_DATA = RR?.report;
+  const IS_NEED_BANK = RR?.needBank;
 
   // STATE
   const [banks, setBanks] = React.useState();
@@ -107,7 +108,7 @@ const PengajuanBankScreen = () => {
     }
   }
 
-  if (RR.jenis == 'PC') {
+  if (RR.jenis == 'PC' || (RR.jenis == 'CAR' && !IS_NEED_BANK)) {
     return (
       <View style={styles.container}>
         <Header title={'Reimbursement'} />

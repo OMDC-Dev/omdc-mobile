@@ -378,7 +378,9 @@ const PengajuanDetailScreen = () => {
                 disabled={isLoading}
                 mode={'contained'}
                 onPress={() => setFinanceDialog(true)}>
-                Konfirmasi Sudah Ditransfer
+                {_.isEmpty(BANK_DATA)
+                  ? 'Konfirmasi Selesai'
+                  : 'Konfirmasi Sudah Ditransfer'}
               </Button>
             </View>
           );
@@ -868,9 +870,7 @@ const PengajuanDetailScreen = () => {
       <Dialog visible={financeDialog} onDismiss={() => setFinanceDialog(false)}>
         <Dialog.Title>Konfirmasi</Dialog.Title>
         <Dialog.Content>
-          <Text variant="bodyMedium">
-            Konfirmasi bahwa dana sudah di transfer?
-          </Text>
+          <Text variant="bodyMedium">Konfirmasi aksi ini?</Text>
         </Dialog.Content>
         <Dialog.Actions>
           <Button onPress={() => setFinanceDialog(false)}>Batalkan</Button>

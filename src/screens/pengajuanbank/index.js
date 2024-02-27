@@ -150,7 +150,7 @@ const PengajuanBankScreen = () => {
         <Gap h={14} />
         <InputLabel>Bank</InputLabel>
         <Dropdown.BankDropdown
-          disabled={checkLoading || isLoading}
+          disabled={checkLoading || isLoading || acc?.accountname?.length}
           data={banks}
           onChange={val => setSelectBank(val)}
         />
@@ -161,6 +161,7 @@ const PengajuanBankScreen = () => {
           <TextInput
             style={styles.input}
             mode={'outlined'}
+            disabled={acc?.accountname?.length}
             editable={!checkLoading && !isLoading}
             keyboardType={'number-pad'}
             returnKeyType={'done'}
@@ -171,7 +172,7 @@ const PengajuanBankScreen = () => {
           />
           <View style={styles.checkerView}>
             <PaperButton
-              disabled={!noBank}
+              disabled={!noBank || acc?.accountname?.length}
               loading={checkLoading}
               onPress={() => getBankName()}>
               {checkLoading ? '' : 'Cek Nomor'}

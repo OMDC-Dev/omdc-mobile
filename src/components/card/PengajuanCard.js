@@ -33,7 +33,9 @@ const PengajuanCard = ({data, onPress}) => {
           <View style={styles.cardLeft}>
             <Text variant="titleMedium">{data.jenis_reimbursement}</Text>
             <Gap h={4} />
-            <Text variant="labelMedium">{data.nominal}</Text>
+            <Text variant="titleSmall">{data.no_doc}</Text>
+            <Gap h={4} />
+            <Text variant="labelSmall">{data.nominal}</Text>
             <Gap h={14} />
             <Text style={styles.textDate} variant="labelSmall">
               {getDate(data?.createdDate)}

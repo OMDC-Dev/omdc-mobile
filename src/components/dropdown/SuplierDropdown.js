@@ -1,29 +1,27 @@
 import {Platform, StyleSheet, View} from 'react-native';
 import React from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
-import {Colors, Scaler, Size} from '../../styles';
+import {Colors, Scaler} from '../../styles';
 import {fetchApi} from '../../api/api';
-import {GET_COA} from '../../api/apiRoutes';
+import {GET_SUPLIER} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 
-const COA_LIST = require('../../../assets/files/coa.json');
-
-const CoaDropdown = ({onChange, placeholder}) => {
+const SuplierDropdown = ({onChange}) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(null);
-  const [coa, setCoa] = React.useState([]);
+  const [list, setList] = React.useState([]);
 
   React.useEffect(() => {
     onChange(value);
   }, [value]);
 
   React.useEffect(() => {
-    getCoaList();
+    getList();
   }, []);
 
-  async function getCoaList() {
+  async function getList() {
     const {state, data, error} = await fetchApi({
-      url: GET_COA() + '&limit=200',
+      url: GET_SUPLIER + '?limit=200',
       method: 'GET',
     });
 
@@ -31,15 +29,15 @@ const CoaDropdown = ({onChange, placeholder}) => {
       if (data?.rows) {
         const mapping = data?.rows.map(item => {
           return {
-            value: `${item?.id_coa} - ${item?.accountname}`,
-            label: item?.accountname,
+            value: item?.kdsp,
+            label: item?.nmsp,
           };
         });
 
-        setCoa(mapping);
+        setList(mapping);
       }
     } else {
-      setCoa([]);
+      setList([]);
     }
   }
 
@@ -51,14 +49,14 @@ const CoaDropdown = ({onChange, placeholder}) => {
       }}>
       <DropDownPicker
         searchable={true}
-        searchPlaceholder="Cari coa..."
+        searchPlaceholder="Cari suplier..."
         searchTextInputStyle={styles.searchInput}
         listMode={Platform.OS == 'android' ? 'MODAL' : 'SCROLLVIEW'}
-        placeholder={placeholder || 'Pilih COA'}
+        placeholder="Pilih Suplier"
         placeholderStyle={styles.placeholderStyle}
         open={open}
         value={value}
-        items={coa}
+        items={list}
         setOpen={setOpen}
         setValue={setValue}
       />
@@ -66,7 +64,7 @@ const CoaDropdown = ({onChange, placeholder}) => {
   );
 };
 
-export default CoaDropdown;
+export default SuplierDropdown;
 
 const styles = StyleSheet.create({
   placeholderStyle: {

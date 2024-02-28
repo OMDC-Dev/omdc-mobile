@@ -24,6 +24,7 @@ import {AuthContext} from '../../context';
 import {fetchApi} from '../../api/api';
 import {
   FINANCE_ACCEPTANCE,
+  FINANCE_UPDATE_COA,
   REIMBURSEMENT_ACCEPTANCE,
   REIMBURSEMENT_DETAIL,
   SUPERUSER,
@@ -33,6 +34,7 @@ import {formatRupiah} from '../../utils/rupiahFormatter';
 import ModalView from '../../components/modal';
 import {getDataById} from '../../utils/utils';
 import _ from 'lodash';
+import {SIZE_14} from '../../styles/size';
 
 const PengajuanDetailScreen = () => {
   const route = useRoute();
@@ -40,6 +42,9 @@ const PengajuanDetailScreen = () => {
 
   const {data} = route?.params;
   const {user} = React.useContext(AuthContext);
+
+  // IS MINE
+  const IS_MINE = route?.params?.type == 'MINE';
 
   // state
   const [adminList, setAdminList] = React.useState([]);
@@ -49,6 +54,10 @@ const PengajuanDetailScreen = () => {
   const [accMode, setAccMode] = React.useState('IDLE'); // IDLE || ACC || REJ
   const [note, setNote] = React.useState();
   const [realisasi, setRealisasi] = React.useState(data?.realisasi);
+  // Cash Advance
+  const [coa, setCoa] = React.useState(data?.coa);
+  const [coaLoading, setCoaLoading] = React.useState(false);
+  const [coaUpdate, setCoaUpdate] = React.useState(false);
 
   // states
   const [isLoading, setIsLoading] = React.useState(false);
@@ -82,6 +91,7 @@ const PengajuanDetailScreen = () => {
 
   const typeName = data?.jenis_reimbursement;
   const IS_PUSHED = route?.params?.pushed;
+  const ID = data?.id;
 
   // ==== Get Data
 
@@ -160,11 +170,15 @@ const PengajuanDetailScreen = () => {
   async function acceptance(status) {
     setIsLoading(true);
     const R_ID = data?.id;
+    const noteStr = `${
+      data?.note?.length ? data?.note + `, ${note || ''}` : note || '-'
+    }`;
     const body = {
       fowarder_id: admin,
       status: admin ? 'FOWARDED' : status,
       nominal: formatRupiah(nominal),
-      note: note || '',
+      note: noteStr || '',
+      coa: coa,
     };
 
     try {
@@ -194,6 +208,8 @@ const PengajuanDetailScreen = () => {
     const R_ID = data?.id;
     const body = {
       nominal: data?.nominal,
+      note: note,
+      coa: coa,
     };
 
     try {
@@ -213,6 +229,29 @@ const PengajuanDetailScreen = () => {
     } catch (error) {
       setIsLoading(false);
       setSnakMsg(error);
+    }
+  }
+
+  // UPDATE COA
+  async function updateCOA() {
+    setCoaLoading(true);
+    const body = {
+      coa: coa,
+    };
+    const {state, data, error} = await fetchApi({
+      url: FINANCE_UPDATE_COA(ID),
+      method: 'POST',
+      data: body,
+    });
+
+    if (state == API_STATES.OK) {
+      setCoaLoading(false);
+      setSnakMsg('Sukses mengupdate COA');
+      setSnak(true);
+    } else {
+      setCoaLoading(false);
+      setSnakMsg('Ada kesalahan, mohon coba lagi!');
+      setSnak(true);
     }
   }
 
@@ -323,7 +362,12 @@ const PengajuanDetailScreen = () => {
       } else {
         navigation.navigate('Pengajuan', {
           type: 'CAR',
-          data: {id: data?.id, no_doc: data?.no_doc, nominal: data?.nominal},
+          data: {
+            id: data?.id,
+            no_doc: data?.no_doc,
+            nominal: data?.nominal,
+            cabang: data?.kode_cabang,
+          },
         });
       }
     } else {
@@ -367,11 +411,24 @@ const PengajuanDetailScreen = () => {
 
   // ========= rendering
   function renderBottomButton() {
-    if (user.isAdmin) {
+    if (user.isAdmin && !IS_MINE) {
+      //  FINANCE SECTION
       if (user.type == 'FINANCE') {
+        // FINANCE STATUS WAITING
         if (financeStatus == 'WAITING') {
           return (
             <View>
+              <Gap h={38} />
+              <InputLabel>Catatan ( opsional ) </InputLabel>
+              <TextInput
+                disabled={isLoading}
+                style={styles.inputFull}
+                mode={'outlined'}
+                placeholder={'Tambahkan catatan'}
+                placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                onChangeText={text => setNote(text)}
+                value={note}
+              />
               <Gap h={24} />
               <Button
                 loading={isLoading}
@@ -379,14 +436,25 @@ const PengajuanDetailScreen = () => {
                 mode={'contained'}
                 onPress={() => setFinanceDialog(true)}>
                 {_.isEmpty(BANK_DATA)
-                  ? 'Konfirmasi Selesai'
-                  : 'Konfirmasi Sudah Ditransfer'}
+                  ? 'Konfirmasi Dana Diterima'
+                  : 'Konfirmasi Dana Ditransfer'}
               </Button>
             </View>
           );
         } else {
+          // FINANCE STATUS DONE
           return (
             <View>
+              <Card mode={'outlined'}>
+                <Card.Content style={{alignItems: 'center'}}>
+                  <Text variant={'titleSmall'}>Catatan Finance : </Text>
+                  <Gap h={8} />
+                  <Text style={{textAlign: 'center'}} variant={'bodyMedium'}>
+                    {note || data?.finance_note || '-'}
+                  </Text>
+                </Card.Content>
+              </Card>
+              <Gap h={14} />
               <Card mode={'outlined'}>
                 <Card.Content style={{alignItems: 'center'}}>
                   <Text variant={'bodyMedium'}>Dana sudah ditransfer.</Text>
@@ -405,8 +473,7 @@ const PengajuanDetailScreen = () => {
                   </Button>
                 </>
               ) : null}
-              {data?.status_finance == 'DONE' &&
-              data?.jenis_reimbursement == 'Cash Advance Report' &&
+              {data?.jenis_reimbursement == 'Cash Advance Report' &&
               !IS_PUSHED ? (
                 <>
                   <Gap h={24} />
@@ -415,6 +482,7 @@ const PengajuanDetailScreen = () => {
                     mode={'contained'}>
                     Lihat Pengajuan
                   </Button>
+                  <Gap h={14} />
                 </>
               ) : null}
             </View>
@@ -422,22 +490,28 @@ const PengajuanDetailScreen = () => {
         }
       }
 
+      // ADMIN SECTION
       if (ACCEPTANCE_STATUS_BY_ID == 'WAITING') {
+        // ADMIN STATUS
         if (accMode !== 'IDLE') {
+          // ACC MODE TYPE DITERIMA / DITOLAK
           return (
             <View>
               <Gap h={38} />
-              <InputLabel>Catatan ( opsional ) </InputLabel>
-              <TextInput
-                disabled={isLoading}
-                style={styles.inputFull}
-                mode={'outlined'}
-                placeholder={'Tambahkan catatan'}
-                placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                onChangeText={text => setNote(text)}
-                value={note}
-              />
-              <Gap h={16} />
+              <>
+                <InputLabel>Catatan ( opsional ) </InputLabel>
+                <TextInput
+                  disabled={isLoading}
+                  style={styles.inputFull}
+                  mode={'outlined'}
+                  placeholder={'Tambahkan catatan'}
+                  placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                  onChangeText={text => setNote(text)}
+                  value={note}
+                />
+                <Gap h={16} />
+              </>
+
               <Button
                 loading={isLoading}
                 disabled={isLoading}
@@ -457,6 +531,7 @@ const PengajuanDetailScreen = () => {
           );
         }
 
+        // RENDER SELCET ACC TYPE
         return (
           <View>
             <Gap h={38} />
@@ -470,8 +545,19 @@ const PengajuanDetailScreen = () => {
           </View>
         );
       } else {
+        // ADMIN STATUS DONE
         return (
           <View>
+            <Card mode={'outlined'}>
+              <Card.Content style={{alignItems: 'center'}}>
+                <Text variant={'titleSmall'}>Catatan : </Text>
+                <Gap h={8} />
+                <Text style={{textAlign: 'center'}} variant={'bodyMedium'}>
+                  {note || data?.note || '-'}
+                </Text>
+              </Card.Content>
+            </Card>
+            <Gap h={14} />
             <Card mode={'outlined'}>
               <Card.Content style={{alignItems: 'center'}}>
                 <Text variant={'bodyMedium'}>
@@ -506,18 +592,33 @@ const PengajuanDetailScreen = () => {
         );
       }
     } else {
+      // USER SECTION
       return (
         <View>
           {requestStatus !== 'WAITING' ? (
-            <Card mode={'outlined'}>
-              <Card.Content style={{alignItems: 'center'}}>
-                <Text variant={'titleSmall'}>Catatan : </Text>
-                <Gap h={8} />
-                <Text style={{textAlign: 'center'}} variant={'bodyMedium'}>
-                  {data?.note || '-'}
-                </Text>
-              </Card.Content>
-            </Card>
+            <>
+              <Card mode={'outlined'}>
+                <Card.Content style={{alignItems: 'center'}}>
+                  <Text variant={'titleSmall'}>Catatan : </Text>
+                  <Gap h={8} />
+                  <Text style={{textAlign: 'center'}} variant={'bodyMedium'}>
+                    {data?.note || '-'}
+                  </Text>
+                </Card.Content>
+              </Card>
+              <Gap h={14} />
+              {data?.status_finance == 'DONE' ? (
+                <Card mode={'outlined'}>
+                  <Card.Content style={{alignItems: 'center'}}>
+                    <Text variant={'titleSmall'}>Catatan Finance : </Text>
+                    <Gap h={8} />
+                    <Text style={{textAlign: 'center'}} variant={'bodyMedium'}>
+                      {data?.finance_note || '-'}
+                    </Text>
+                  </Card.Content>
+                </Card>
+              ) : null}
+            </>
           ) : null}
           {data?.status_finance == 'DONE' &&
           data?.jenis_reimbursement == 'Cash Advance' &&
@@ -540,6 +641,74 @@ const PengajuanDetailScreen = () => {
             </>
           ) : null}
         </View>
+      );
+    }
+  }
+
+  // ==== COA SELECTOR
+  function renderCoaSelector() {
+    const TYPE = user?.type;
+
+    if (TYPE == 'ADMIN' && !IS_MINE) {
+      if (ACCEPTANCE_STATUS_BY_ID == 'WAITING') {
+        return (
+          <>
+            <InputLabel>COA</InputLabel>
+            <Dropdown.CoaDropdown
+              placeholder={data?.coa}
+              onChange={val => setCoa(val)}
+            />
+          </>
+        );
+      } else {
+        return (
+          <Row>
+            <InputLabel>COA</InputLabel>
+            <Text
+              numberOfLines={2}
+              style={styles.textValue}
+              variant={'labelMedium'}>
+              {data?.coa}
+            </Text>
+          </Row>
+        );
+      }
+    } else if (TYPE == 'FINANCE' && !IS_MINE) {
+      return (
+        <>
+          <InputLabel>COA</InputLabel>
+          <Dropdown.CoaDropdown
+            placeholder={data?.coa}
+            onChange={val => {
+              setCoa(val);
+              setCoaUpdate(true);
+            }}
+          />
+          {financeStatus !== 'WAITING' ? (
+            <>
+              <Gap h={14} />
+              <Button
+                onPress={() => updateCOA()}
+                loading={coaLoading}
+                disabled={!coaUpdate || coaLoading}
+                mode={'contained'}>
+                Update COA
+              </Button>
+            </>
+          ) : null}
+        </>
+      );
+    } else {
+      return (
+        <Row>
+          <InputLabel style={styles.rowLeft}>COA</InputLabel>
+          <Text
+            numberOfLines={2}
+            style={styles.textValue}
+            variant={'labelMedium'}>
+            {data?.coa}
+          </Text>
+        </Row>
       );
     }
   }
@@ -598,6 +767,32 @@ const PengajuanDetailScreen = () => {
                 <Text style={styles.textTotalValue} variant={'titleLarge'}>
                   Rp. {formatRupiah(nominal)}
                 </Text>
+                {data?.childId || data?.parentId ? (
+                  <>
+                    <Gap h={14} />
+                    <Text style={styles.textTotal} variant={'labelSmall'}>
+                      {data?.childId
+                        ? 'Nominal Realisasi'
+                        : 'Nominal Cash Advance'}
+                    </Text>
+                    <Gap h={8} />
+                    <Text style={styles.textTotalValue} variant={'titleMedium'}>
+                      {data?.childId
+                        ? formatRupiah(realisasi) || '-'
+                        : formatRupiah(data?.pengajuan_ca) || '-'}
+                    </Text>
+                    <Gap h={14} />
+                    <Text style={styles.textTotal} variant={'labelSmall'}>
+                      Saldo
+                    </Text>
+                    <Gap h={8} />
+                    <Text style={styles.textTotalValue} variant={'titleMedium'}>
+                      {data?.childId
+                        ? calculateSaldo(nominal, realisasi)
+                        : calculateSaldo(data?.pengajuan_ca, nominal)}
+                    </Text>
+                  </>
+                ) : null}
                 {user?.isAdmin && ACCEPTANCE_STATUS_BY_ID == 'WAITING' ? (
                   <>
                     <Gap h={8} />
@@ -617,26 +812,6 @@ const PengajuanDetailScreen = () => {
                 )}
               </>
             )}
-            {data?.childId ? (
-              <>
-                <Gap h={14} />
-                <Text style={styles.textTotal} variant={'labelSmall'}>
-                  Nominal Realisasi
-                </Text>
-                <Gap h={8} />
-                <Text style={styles.textTotalValue} variant={'titleMedium'}>
-                  {formatRupiah(realisasi) || '-'}
-                </Text>
-                <Gap h={14} />
-                <Text style={styles.textTotal} variant={'labelSmall'}>
-                  Saldo
-                </Text>
-                <Gap h={8} />
-                <Text style={styles.textTotalValue} variant={'titleMedium'}>
-                  {calculateSaldo(nominal, realisasi)}
-                </Text>
-              </>
-            ) : null}
           </Card.Content>
         </Card>
         <Gap h={24} />
@@ -668,7 +843,7 @@ const PengajuanDetailScreen = () => {
                 );
               })}
               {data?.status_finance !== 'IDLE' ? (
-                <Row>
+                <Row style={{alignItems: 'flex-start'}}>
                   <InputLabel style={styles.rowLeft}>Finance</InputLabel>
                   <Text
                     numberOfLines={3}
@@ -803,6 +978,8 @@ const PengajuanDetailScreen = () => {
             </Row>
           </TouchableOpacity>
         </View>
+        {renderCoaSelector()}
+
         {typeName !== 'Petty Cash Report' && !_.isEmpty(BANK_DATA) ? (
           <>
             <Gap h={24} />
@@ -914,6 +1091,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.COLOR_DARK_GRAY,
     padding: Size.SIZE_8,
     marginTop: Scaler.scaleSize(6),
+    marginBottom: SIZE_14,
   },
 
   itemCard: {

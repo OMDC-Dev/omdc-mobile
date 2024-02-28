@@ -105,6 +105,7 @@ const RenderDiajukan = () => {
                     screen: 'PengajuanDetail',
                     params: {
                       data: item,
+                      type: 'MINE',
                     },
                   })
                 }
@@ -191,6 +192,7 @@ const RenderDisetujui = () => {
                     screen: 'PengajuanDetail',
                     params: {
                       data: item,
+                      type: 'MINE',
                     },
                   })
                 }

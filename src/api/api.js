@@ -17,6 +17,8 @@ export const fetchApi = async props => {
     customHeaders.Authorization = `Bearer ${user?.userToken}`;
   }
 
+  console.log('API : ' + BASE_URL + url);
+
   try {
     return axios({
       baseURL: BASE_URL,

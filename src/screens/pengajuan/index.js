@@ -28,7 +28,7 @@ import {
 import {useNavigation, useRoute} from '@react-navigation/native';
 import DocumentPicker, {types} from 'react-native-document-picker';
 import {fetchApi} from '../../api/api';
-import {GET_CABANG, SUPERUSER} from '../../api/apiRoutes';
+import {GET_CABANG, GET_SUPLIER, SUPERUSER} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
 import {formatRupiah} from '../../utils/rupiahFormatter';
@@ -60,6 +60,8 @@ const PengajuanScreen = () => {
   const [selectDate, setSelectDate] = React.useState();
   const [item, setItem] = React.useState([]);
   const [admin, setAdmin] = React.useState();
+  const [suplier, setSuplier] = React.useState();
+  const [suplierDetail, setSuplierDetail] = React.useState();
 
   // CAR
   const [needBank, setNeedBank] = React.useState(true);
@@ -82,7 +84,9 @@ const PengajuanScreen = () => {
 
   const disabledByType = () => {
     if (isNeedName) {
-      console.log('need name');
+      if (jenis == 'PR') {
+        return !suplier;
+      }
       return !name;
     }
   };
@@ -248,6 +252,7 @@ const PengajuanScreen = () => {
     if (ROUTE_TYPE) {
       setJenis(ROUTE_TYPE);
       setReportData(ROUTE_DATA);
+      setCabang(ROUTE_DATA?.cabang);
     }
   }, []);
 
@@ -269,6 +274,33 @@ const PengajuanScreen = () => {
       console.log('SAL', _sal);
     }
   }, [nominal]);
+
+  // Get Sup detail
+  React.useEffect(() => {
+    if (suplier) {
+      getSuplierDeatil();
+    }
+  }, [suplier]);
+
+  async function getSuplierDeatil() {
+    const {state, data, error} = await fetchApi({
+      url: GET_SUPLIER + `/${suplier}`,
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setSuplierDetail(data);
+    } else {
+      setSnackMsg('Gagal mendapatkan detail suplier');
+      setSnack(true);
+    }
+  }
+
+  // =========================================
+  //
+  // ==================================== GAP
+  //
+  // =========================================
 
   return (
     <View style={styles.container}>
@@ -327,11 +359,19 @@ const PengajuanScreen = () => {
 
           <Gap h={6} />
           <InputLabel>Cabang</InputLabel>
-          <Dropdown.CabangDropdown
-            data={cabangList}
-            loading={!cabangList}
-            onChange={val => setCabang(val)}
-          />
+          {jenis == 'CAR' ? (
+            <Card style={styles.card} mode={'outlined'}>
+              <Card.Content>
+                <Text variant="labelLarge">{reportData?.cabang}</Text>
+              </Card.Content>
+            </Card>
+          ) : (
+            <Dropdown.CabangDropdown
+              data={cabangList}
+              loading={!cabangList}
+              onChange={val => setCabang(val)}
+            />
+          )}
 
           <Gap h={6} />
           <InputLabel>Approval ke</InputLabel>
@@ -359,14 +399,18 @@ const PengajuanScreen = () => {
             <>
               <Gap h={6} />
               <InputLabel>Nama Vendor / Client</InputLabel>
-              <TextInput
-                style={styles.input}
-                mode={'outlined'}
-                placeholder={'Nama Vendor / Client'}
-                placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                onChangeText={text => setName(text)}
-                value={name}
-              />
+              {jenis == 'PR' ? (
+                <Dropdown.SuplierDropdown onChange={val => setSuplier(val)} />
+              ) : (
+                <TextInput
+                  style={styles.input}
+                  mode={'outlined'}
+                  placeholder={'Nama Vendor / Client'}
+                  placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                  onChangeText={text => setName(text)}
+                  value={name}
+                />
+              )}
             </>
           )}
 
@@ -530,7 +574,8 @@ const PengajuanScreen = () => {
                     jenis: jenis,
                     coa: coa,
                     tanggal: selectDate,
-                    cabang: cabang,
+                    cabang:
+                      jenis == 'CAR' ? cabang.split('-')[0].trim() : cabang,
                     nominal: nominal,
                     nomor: nomorWA,
                     desc: desc,
@@ -541,6 +586,7 @@ const PengajuanScreen = () => {
                     admin: admin,
                     report: reportData,
                     needBank: needBank,
+                    suplier: suplierDetail,
                   },
                 });
               }}>

@@ -143,6 +143,7 @@ const HomeScreen = () => {
                         screen: 'PengajuanDetail',
                         params: {
                           data: item,
+                          type: 'MINE',
                         },
                       })
                     }

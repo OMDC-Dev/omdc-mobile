@@ -1,4 +1,5 @@
 import {
+  Alert,
   Platform,
   ScrollView,
   StyleSheet,
@@ -81,6 +82,7 @@ const PengajuanDetailScreen = () => {
 
   // dialog
   const [financeDialog, setFinanceDialog] = React.useState(false);
+  const [cancelDialog, setCancelDialog] = React.useState(false);
 
   const ACCEPTANCE_STATUS_BY_ID = getDataById(
     adminStatus,
@@ -163,6 +165,30 @@ const PengajuanDetailScreen = () => {
       setFinanceStatus(EX_FINANCE);
       setFinanceData(EX_FINANCE_DATA);
       setRealisasi(EX_REALISASI);
+    }
+  }
+
+  // delete reimburse
+  async function deleteReimbursement() {
+    setCancelDialog(false);
+    setIsLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: REIMBURSEMENT_DETAIL(ID),
+      method: 'DELETE',
+    });
+
+    if (state == API_STATES.OK) {
+      setIsLoading(false);
+      Alert.alert('Sukses', 'Pengajuan berhasil dibatalkan dan dihapus', [
+        {
+          text: 'OK',
+          onPress: () => navigation.goBack(),
+        },
+      ]);
+    } else {
+      setIsLoading(false);
+      setSnakMsg('Ada kesalahan, mohon coba lagi!');
+      setSnak(true);
     }
   }
 
@@ -619,7 +645,14 @@ const PengajuanDetailScreen = () => {
                 </Card>
               ) : null}
             </>
-          ) : null}
+          ) : (
+            <>
+              <Gap h={24} />
+              <Button mode="outlined" onPress={() => setCancelDialog(true)}>
+                Batalkan Pengajuan
+              </Button>
+            </>
+          )}
           {data?.status_finance == 'DONE' &&
           data?.jenis_reimbursement == 'Cash Advance' &&
           !IS_PUSHED ? (
@@ -1052,6 +1085,18 @@ const PengajuanDetailScreen = () => {
         <Dialog.Actions>
           <Button onPress={() => setFinanceDialog(false)}>Batalkan</Button>
           <Button onPress={() => onConfirmPressed()}>Konfirmasi</Button>
+        </Dialog.Actions>
+      </Dialog>
+      <Dialog visible={cancelDialog} onDismiss={() => setCancelDialog(false)}>
+        <Dialog.Title>Konfirmasi</Dialog.Title>
+        <Dialog.Content>
+          <Text variant="bodyMedium">
+            Apakah anda yakin ingin membatalkan dan menghapus pengajuan ini?
+          </Text>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onPress={() => setCancelDialog(false)}>Batalkan</Button>
+          <Button onPress={() => deleteReimbursement()}>Konfirmasi</Button>
         </Dialog.Actions>
       </Dialog>
     </View>

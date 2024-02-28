@@ -1,12 +1,15 @@
 import {StyleSheet, View} from 'react-native';
 import React from 'react';
-import {Card, Text} from 'react-native-paper';
+import {Card, Chip, Text} from 'react-native-paper';
 import Row from '../Row';
 import Gap from '../Gap';
 import {Colors, Size} from '../../styles';
 import {getDate} from '../../utils/utils';
+import {AuthContext} from '../../context';
 
 const PengajuanCard = ({data, onPress}) => {
+  const {user} = React.useContext(AuthContext);
+
   // set status
   const STATUS_TEXT = () => {
     switch (data?.status) {
@@ -26,25 +29,58 @@ const PengajuanCard = ({data, onPress}) => {
     }
   };
 
+  function renderCashAdvanceStatus() {
+    if (data?.jenis_reimbursement !== 'Cash Advance') return;
+    if (data?.status_finance !== 'DONE') return;
+    if (user?.type == 'ADMIN' && data?.requester_id !== user?.iduser) return;
+    if (data?.status !== 'APPROVED') return;
+
+    let text = '';
+    let color = '';
+
+    if (data?.realisasi?.length > 1 && data?.childId?.length > 1) {
+      text = 'Sudah dikembalikan';
+      color = Colors.COLOR_PRIMARY;
+    } else {
+      text = 'Belum dikembalikan';
+      color = Colors.COLOR_ORANGE;
+    }
+
+    return (
+      <>
+        <Gap h={2} />
+        <Text style={{color: color}} variant={'labelSmall'}>
+          {text}
+        </Text>
+      </>
+    );
+  }
+
   return (
     <Card style={styles.container} onPress={onPress}>
       <Card.Content>
-        <Row>
-          <View style={styles.cardLeft}>
-            <Text variant="titleMedium">{data.jenis_reimbursement}</Text>
-            <Gap h={4} />
-            <Text variant="titleSmall">{data.no_doc}</Text>
-            <Gap h={4} />
-            <Text variant="labelSmall">{data.nominal}</Text>
-            <Gap h={14} />
-            <Text style={styles.textDate} variant="labelSmall">
-              {getDate(data?.createdDate)}
+        <View style={styles.cardLeft}>
+          <Row>
+            <Text style={{flex: 1}} variant="titleSmall">
+              {data.jenis_reimbursement}
             </Text>
-          </View>
-          <Text style={STATUS_TEXT().style} variant="titleSmall">
-            {STATUS_TEXT().title}
+            <Text variant="labelSmall">{data.no_doc}</Text>
+          </Row>
+          <Gap h={4} />
+          <Row>
+            <Text style={{flex: 1, fontWeight: 'bold'}} variant="bodyLarge">
+              {data.nominal}
+            </Text>
+            <Text style={STATUS_TEXT().style} variant="bodyMedium">
+              {STATUS_TEXT().title}
+            </Text>
+          </Row>
+          {renderCashAdvanceStatus()}
+          <Gap h={14} />
+          <Text style={styles.textDate} variant="labelSmall">
+            {getDate(data?.createdDate)}
           </Text>
-        </Row>
+        </View>
       </Card.Content>
     </Card>
   );

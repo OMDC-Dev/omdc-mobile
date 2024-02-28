@@ -135,6 +135,7 @@ const PengajuanDetailScreen = () => {
     const EX_FINANCE = data?.status_finance;
     const EX_FINANCE_DATA = data?.finance_by;
     const EX_REALISASI = data?.realisasi;
+    const EX_COA = data?.coa;
     try {
       const {state, data, error} = await fetchApi({
         url: REIMBURSEMENT_ACCEPTANCE(R_ID),
@@ -150,6 +151,7 @@ const PengajuanDetailScreen = () => {
         setFinanceStatus(data?.status_finance);
         setFinanceData(data?.finance_by);
         setRealisasi(data?.realisasi);
+        setCoa(data?.coa);
       } else {
         setStatusLoading(false);
         setAdminStatus(EX_ADMIN_STATUS);
@@ -157,6 +159,7 @@ const PengajuanDetailScreen = () => {
         setFinanceStatus(EX_FINANCE);
         setFinanceData(EX_FINANCE_DATA);
         setRealisasi(EX_REALISASI);
+        setCoa(EX_COA);
       }
     } catch (error) {
       setStatusLoading(false);
@@ -165,6 +168,7 @@ const PengajuanDetailScreen = () => {
       setFinanceStatus(EX_FINANCE);
       setFinanceData(EX_FINANCE_DATA);
       setRealisasi(EX_REALISASI);
+      setCoa(EX_COA);
     }
   }
 
@@ -194,6 +198,7 @@ const PengajuanDetailScreen = () => {
 
   // set status
   async function acceptance(status) {
+    console.log('ACCEPT WITH COA' + coa);
     setIsLoading(true);
     const R_ID = data?.id;
     const noteStr = `${
@@ -411,7 +416,11 @@ const PengajuanDetailScreen = () => {
 
     if (state == API_STATES.OK) {
       setIsLoading(false);
-      navigation.push('PengajuanDetail', {data: data, pushed: true});
+      navigation.push('PengajuanDetail', {
+        data: data,
+        pushed: true,
+        type: 'MINE',
+      });
     } else {
       setIsLoading(false);
       setSnakMsg('Ada kesalahan, mohon coba lagi!');
@@ -645,7 +654,7 @@ const PengajuanDetailScreen = () => {
                 </Card>
               ) : null}
             </>
-          ) : (
+          ) : IS_PUSHED ? null : (
             <>
               <Gap h={24} />
               <Button mode="outlined" onPress={() => setCancelDialog(true)}>
@@ -688,7 +697,7 @@ const PengajuanDetailScreen = () => {
           <>
             <InputLabel>COA</InputLabel>
             <Dropdown.CoaDropdown
-              placeholder={data?.coa}
+              placeholder={coa || data?.coa}
               onChange={val => setCoa(val)}
             />
           </>
@@ -1050,7 +1059,7 @@ const PengajuanDetailScreen = () => {
         {ACCEPTANCE_STATUS_BY_ID == 'WAITING' && (
           <>
             <Text style={styles.subtitle} variant="titleSmall">
-              Fowarder
+              Forward
             </Text>
             <Gap h={10} />
             <InputLabel>Teruskan persetujuan ke ( opsional )</InputLabel>

@@ -9,11 +9,21 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
-import {Avatar, Text, Button as PaperButton, Icon} from 'react-native-paper';
+import {
+  Avatar,
+  Text,
+  Button as PaperButton,
+  Icon,
+  ActivityIndicator,
+} from 'react-native-paper';
 import {Colors, Scaler, Size} from '../../styles';
 import {BlankScreen, Button, Card, Gap, Row} from '../../components';
 import ASSETS from '../../utils/assetLoader';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {AuthContext} from '../../context';
 import {GET_NOTIFICATION_COUNT, REIMBURSEMENT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
@@ -21,28 +31,46 @@ import {fetchApi} from '../../api/api';
 import {cekAkses} from '../../utils/utils';
 
 const HomeScreen = () => {
-  const [recent, setRecent] = React.useState();
+  const [recent, setRecent] = React.useState([]);
   const [unreadCount, setUnreadCount] = React.useState();
   const [refreshing, setRefreshing] = React.useState(false);
+  const [listInfo, setListInfo] = React.useState();
+  const [page, setPage] = React.useState(1);
+  const [moreLoading, setMoreLoading] = React.useState(false);
+
+  console.log('PAGE', listInfo);
 
   // navigation
   const navigation = useNavigation();
+  const route = useRoute();
+
+  const REFRESH_DONE = route?.params?.refresh;
 
   // user context
   const {signOut, user} = React.useContext(AuthContext);
 
   const hasReimbursement = cekAkses('#1', user?.kodeAkses);
 
-  async function getRecentRequest() {
+  async function getRecentRequest(fromRequest) {
+    setMoreLoading(true);
     const {state, data, error} = await fetchApi({
-      url: REIMBURSEMENT + '?page=1&limit=5',
+      url: REIMBURSEMENT + `?page=${page}&limit=25&status=00`,
       method: 'GET',
     });
 
     if (state == API_STATES.OK) {
-      setRecent(data?.rows);
+      setMoreLoading(false);
+      setRecent(prev => {
+        if (fromRequest) {
+          return data?.rows || [];
+        } else {
+          return data?.rows ? [...prev, ...data.rows] : prev;
+        }
+      });
+      setListInfo(data?.pageInfo);
       setRefreshing(false);
     } else {
+      setMoreLoading(false);
       setRefreshing(false);
       console.log(error);
     }
@@ -63,15 +91,32 @@ const HomeScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      getRecentRequest();
       getNotificationCount();
     }, []),
   );
 
+  React.useEffect(() => {
+    const isNeedUpdate = String(REFRESH_DONE).length > 0;
+    getRecentRequest(isNeedUpdate);
+  }, [page, REFRESH_DONE]);
+
+  // React.useEffect(() => {
+
+  // }, [page]);
+
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    getRecentRequest();
+    getRecentRequest(true);
   }, []);
+
+  function onLoadMore() {
+    if (parseInt(page) < parseInt(listInfo?.pageCount) && !moreLoading) {
+      console.log('CAN LOAD MORE');
+      setPage(page + 1);
+    } else {
+      console.log('LOAD LIMIT');
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -129,7 +174,7 @@ const HomeScreen = () => {
         <View style={styles.mainContent}>
           <Row style={styles.rowSub}>
             <Text style={styles.textSubtitleLeft} variant="labelMedium">
-              Pengajuan Terbaru
+              Pengajuan Dalam Proses
             </Text>
             <Text
               onPress={() => navigation.navigate('HistoryReimbursementStack')}
@@ -145,6 +190,18 @@ const HomeScreen = () => {
               showsVerticalScrollIndicator={false}
               refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
+              onEndReachedThreshold={0.2}
+              onEndReached={onLoadMore}
+              ListFooterComponent={
+                moreLoading ? (
+                  <View style={styles.footerLoading}>
+                    <Gap h={24} />
+                    <ActivityIndicator />
+                    <Gap h={14} />
+                    <Text variant={'bodySmall'}>Memuat lebih banyak...</Text>
+                  </View>
+                ) : null
               }
               renderItem={({item, index}) => {
                 return (
@@ -223,6 +280,10 @@ const styles = StyleSheet.create({
     top: 5,
     backgroundColor: 'red',
     position: 'absolute',
+  },
+
+  footerLoading: {
+    alignItems: 'center',
   },
 
   // text

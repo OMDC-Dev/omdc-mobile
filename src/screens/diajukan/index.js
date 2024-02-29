@@ -7,7 +7,13 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import {Card, Icon, IconButton, Text} from 'react-native-paper';
+import {
+  Card,
+  Icon,
+  IconButton,
+  Text,
+  Button as MButton,
+} from 'react-native-paper';
 import {Colors, Scaler, Size} from '../../styles';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {BlankScreen, Button, Row, Card as CustomCard} from '../../components';
@@ -20,7 +26,13 @@ import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
 
 async function getHistory(type = '00', monthyear) {
-  const query = `?monthyear=${monthyear}&status=${type}&page=1&limit=100`;
+  let useMonthFilter = '';
+
+  if (monthyear !== 'ALL') {
+    useMonthFilter = `&monthyear=${monthyear}`;
+  }
+
+  const query = `?status=${type}&page=1&limit=200${useMonthFilter}`;
   const {state, data, error} = await fetchApi({
     url: PENGAJUAN + query,
     method: 'GET',
@@ -37,12 +49,8 @@ async function getHistory(type = '00', monthyear) {
 const RenderWaiting = () => {
   const [list, setList] = React.useState();
   const [showDateSelector, setShowDateSelector] = React.useState(false);
-  const [selectedDate, setSelectedDate] = React.useState(
-    getMonthYear(new Date()),
-  );
-  const [queryDate, setQueryDate] = React.useState(
-    getMonthYearNumber(new Date()),
-  );
+  const [selectedDate, setSelectedDate] = React.useState('ALL');
+  const [queryDate, setQueryDate] = React.useState('ALL');
   const [refreshing, setRefreshing] = React.useState(false);
 
   const navigation = useNavigation();
@@ -76,6 +84,7 @@ const RenderWaiting = () => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
+    setQueryDate('ALL');
     getList();
   }, []);
 
@@ -89,7 +98,7 @@ const RenderWaiting = () => {
           <Card.Content>
             <Row>
               <Text variant="labelMedium" style={styles.textDate}>
-                {selectedDate}
+                {queryDate == 'ALL' ? 'Semua' : selectedDate}
               </Text>
               <Icon
                 source={'arrow-down-drop-circle'}
@@ -99,6 +108,11 @@ const RenderWaiting = () => {
             </Row>
           </Card.Content>
         </Card>
+        <MButton
+          disabled={queryDate == 'ALL'}
+          onPress={() => setQueryDate('ALL')}>
+          Hapus Filter
+        </MButton>
       </Row>
       {list?.length ? (
         <FlatList
@@ -139,12 +153,8 @@ const RenderWaiting = () => {
 const RenderDone = () => {
   const [list, setList] = React.useState();
   const [showDateSelector, setShowDateSelector] = React.useState(false);
-  const [selectedDate, setSelectedDate] = React.useState(
-    getMonthYear(new Date()),
-  );
-  const [queryDate, setQueryDate] = React.useState(
-    getMonthYearNumber(new Date()),
-  );
+  const [selectedDate, setSelectedDate] = React.useState('ALL');
+  const [queryDate, setQueryDate] = React.useState('ALL');
   const [refreshing, setRefreshing] = React.useState(false);
 
   const navigation = useNavigation();
@@ -175,6 +185,7 @@ const RenderDone = () => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
+    setQueryDate('ALL');
     getList();
   }, []);
 
@@ -188,7 +199,7 @@ const RenderDone = () => {
           <Card.Content>
             <Row>
               <Text variant="labelMedium" style={styles.textDate}>
-                {selectedDate}
+                {queryDate == 'ALL' ? 'Semua' : selectedDate}
               </Text>
               <Icon
                 source={'arrow-down-drop-circle'}
@@ -198,6 +209,11 @@ const RenderDone = () => {
             </Row>
           </Card.Content>
         </Card>
+        <MButton
+          disabled={queryDate == 'ALL'}
+          onPress={() => setQueryDate('ALL')}>
+          Hapus Filter
+        </MButton>
       </Row>
       {list?.length ? (
         <FlatList

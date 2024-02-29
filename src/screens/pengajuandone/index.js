@@ -10,6 +10,10 @@ import {useNavigation} from '@react-navigation/native';
 const PengajuanDoneScreen = () => {
   const navigation = useNavigation();
 
+  function generateRandomInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'dark-content'} />
@@ -25,7 +29,14 @@ const PengajuanDoneScreen = () => {
         />
       </View>
       <View style={styles.bottomContainer}>
-        <Button onPress={() => navigation.navigate('Home')}>Selesai</Button>
+        <Button
+          onPress={() =>
+            navigation.navigate('Home', {
+              refresh: generateRandomInteger(10, 9999),
+            })
+          }>
+          Selesai
+        </Button>
       </View>
     </SafeAreaView>
   );

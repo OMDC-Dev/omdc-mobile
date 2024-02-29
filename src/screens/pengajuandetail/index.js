@@ -94,6 +94,7 @@ const PengajuanDetailScreen = () => {
   const typeName = data?.jenis_reimbursement;
   const IS_PUSHED = route?.params?.pushed;
   const ID = data?.id;
+  const REQUESTER_ID = data?.requester_id;
 
   // ==== Get Data
 
@@ -109,7 +110,7 @@ const PengajuanDetailScreen = () => {
   async function getSuperUser() {
     try {
       const {state, data, error} = await fetchApi({
-        url: SUPERUSER + '?limit=100',
+        url: SUPERUSER + `?limit=100&exceptId=${REQUESTER_ID}`,
         method: 'GET',
       });
 

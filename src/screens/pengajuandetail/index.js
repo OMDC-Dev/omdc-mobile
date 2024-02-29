@@ -313,6 +313,10 @@ const PengajuanDetailScreen = () => {
       value: data?.kode_cabang,
     },
     {
+      title: 'Jenis Pembayaran',
+      value: data?.payment_type == 'CASH' ? 'Cash' : 'Transfer',
+    },
+    {
       title: 'Deskripsi',
       value: data?.description,
     },
@@ -402,6 +406,7 @@ const PengajuanDetailScreen = () => {
             nominal: data?.nominal,
             cabang: data?.kode_cabang,
             coa: data?.coa,
+            payment_type: data?.payment_type,
           },
         });
       }
@@ -496,7 +501,11 @@ const PengajuanDetailScreen = () => {
               <Gap h={14} />
               <Card mode={'outlined'}>
                 <Card.Content style={{alignItems: 'center'}}>
-                  <Text variant={'bodyMedium'}>Dana sudah ditransfer.</Text>
+                  <Text variant={'bodyMedium'}>
+                    {_.isEmpty(BANK_DATA)
+                      ? 'Selesai'
+                      : 'Dana sudah ditransfer.'}
+                  </Text>
                 </Card.Content>
               </Card>
               {data?.status_finance == 'DONE' &&

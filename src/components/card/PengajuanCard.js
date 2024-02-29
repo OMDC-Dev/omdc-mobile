@@ -17,7 +17,10 @@ const PengajuanCard = ({data, onPress}) => {
         return {title: 'Menunggu Disetujui', style: styles.textStatusWaiting};
         break;
       case 'APPROVED':
-        return {title: 'Disetujui', style: styles.textStatusApproved};
+        return {
+          title: data?.status_finance == 'DONE' ? 'Selesai' : 'Disetujui',
+          style: styles.textStatusApproved,
+        };
         break;
       case 'REJECTED':
         return {title: 'Ditolak', style: styles.textStatusRejected};
@@ -32,17 +35,21 @@ const PengajuanCard = ({data, onPress}) => {
   function renderCashAdvanceStatus() {
     if (data?.jenis_reimbursement !== 'Cash Advance') return;
     if (data?.status_finance !== 'DONE') return;
-    if (user?.type == 'ADMIN' && data?.requester_id !== user?.iduser) return;
+    //if (user?.type == 'ADMIN' && data?.requester_id !== user?.iduser) return;
     if (data?.status !== 'APPROVED') return;
 
     let text = '';
     let color = '';
 
-    if (data?.realisasi?.length > 1 && data?.childId) {
+    if (
+      data?.realisasi?.length > 1 &&
+      data?.childId &&
+      data?.status_finance_child == 'DONE'
+    ) {
       text = 'Sudah dikembalikan';
       color = Colors.COLOR_PRIMARY;
     } else {
-      text = 'Belum dikembalikan';
+      text = data?.childId ? 'Belum dikembalikan' : 'Perlu laporan realisasi';
       color = Colors.COLOR_ORANGE;
     }
 
@@ -75,6 +82,8 @@ const PengajuanCard = ({data, onPress}) => {
               {STATUS_TEXT().title}
             </Text>
           </Row>
+          <Gap h={4} />
+          <Text variant={'labelSmall'}>{data?.kode_cabang}</Text>
           {renderCashAdvanceStatus()}
           <Gap h={14} />
           <Text style={styles.textDate} variant="labelSmall">

@@ -62,6 +62,7 @@ const PengajuanScreen = () => {
   const [admin, setAdmin] = React.useState();
   const [suplier, setSuplier] = React.useState();
   const [suplierDetail, setSuplierDetail] = React.useState();
+  const [paymentType, setPaymentType] = React.useState();
 
   // CAR
   const [needBank, setNeedBank] = React.useState(true);
@@ -254,6 +255,7 @@ const PengajuanScreen = () => {
       setReportData(ROUTE_DATA);
       setCabang(ROUTE_DATA?.cabang);
       setCoa(ROUTE_DATA?.coa);
+      setPaymentType(ROUTE_DATA?.payment_type);
     }
   }, []);
 
@@ -596,6 +598,7 @@ const PengajuanScreen = () => {
                     report: reportData,
                     needBank: needBank,
                     suplier: suplierDetail,
+                    payment_type: paymentType,
                   },
                 });
               }}>

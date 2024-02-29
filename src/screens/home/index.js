@@ -7,6 +7,7 @@ import {
   StatusBar,
   FlatList,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import {Avatar, Text, Button as PaperButton, Icon} from 'react-native-paper';
 import {Colors, Scaler, Size} from '../../styles';
@@ -22,6 +23,7 @@ import {cekAkses} from '../../utils/utils';
 const HomeScreen = () => {
   const [recent, setRecent] = React.useState();
   const [unreadCount, setUnreadCount] = React.useState();
+  const [refreshing, setRefreshing] = React.useState(false);
 
   // navigation
   const navigation = useNavigation();
@@ -39,7 +41,9 @@ const HomeScreen = () => {
 
     if (state == API_STATES.OK) {
       setRecent(data?.rows);
+      setRefreshing(false);
     } else {
+      setRefreshing(false);
       console.log(error);
     }
   }
@@ -63,6 +67,11 @@ const HomeScreen = () => {
       getNotificationCount();
     }, []),
   );
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getRecentRequest();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -134,6 +143,9 @@ const HomeScreen = () => {
               data={recent}
               contentContainerStyle={{paddingBottom: 120}}
               showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
               renderItem={({item, index}) => {
                 return (
                   <Card.PengajuanCard

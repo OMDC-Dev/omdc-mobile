@@ -132,7 +132,7 @@ const LoginScreen = () => {
           </Button>
           <Gap h={16} />
           <Text style={styles.textVersion} variant="labelSmall">
-            Version v.0.7.1
+            Version v.0.7.2
           </Text>
         </View>
         <Snackbar visible={showSnack} onDismiss={() => setShowSnack(false)}>

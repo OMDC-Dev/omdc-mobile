@@ -58,7 +58,7 @@ const PengajuanDetailScreen = () => {
   // Cash Advance
   const [coa, setCoa] = React.useState(data?.coa);
   const [coaLoading, setCoaLoading] = React.useState(false);
-  const [coaUpdate, setCoaUpdate] = React.useState(false);
+  const [coaDisabled, setCoaDisabled] = React.useState(true);
 
   // states
   const [isLoading, setIsLoading] = React.useState(false);
@@ -223,6 +223,7 @@ const PengajuanDetailScreen = () => {
         setIsLoading(false);
         const msg = data?.message;
         setSnakMsg(msg);
+        getStatus();
       } else {
         setIsLoading(false);
         throw error;
@@ -253,6 +254,7 @@ const PengajuanDetailScreen = () => {
       if (state == API_STATES.OK) {
         setIsLoading(false);
         setSnakMsg('Status berhasil diupdate!');
+        setCoaDisabled(true);
       } else {
         setIsLoading(false);
         throw error;
@@ -279,6 +281,7 @@ const PengajuanDetailScreen = () => {
       setCoaLoading(false);
       setSnakMsg('Sukses mengupdate COA');
       setSnak(true);
+      setCoaDisabled(true);
     } else {
       setCoaLoading(false);
       setSnakMsg('Ada kesalahan, mohon coba lagi!');
@@ -398,6 +401,7 @@ const PengajuanDetailScreen = () => {
             no_doc: data?.no_doc,
             nominal: data?.nominal,
             cabang: data?.kode_cabang,
+            coa: data?.coa,
           },
         });
       }
@@ -666,7 +670,7 @@ const PengajuanDetailScreen = () => {
           data?.jenis_reimbursement == 'Cash Advance' &&
           !IS_PUSHED ? (
             <>
-              <Gap h={24} />
+              <Gap h={14} />
               <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
                 {data.childId ? 'Lihat' : 'Buat'} Laporan Realisasi
               </Button>
@@ -676,7 +680,7 @@ const PengajuanDetailScreen = () => {
           data?.jenis_reimbursement == 'Cash Advance Report' &&
           !IS_PUSHED ? (
             <>
-              <Gap h={24} />
+              <Gap h={14} />
               <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
                 Lihat Pengajuan
               </Button>
@@ -710,7 +714,7 @@ const PengajuanDetailScreen = () => {
               numberOfLines={2}
               style={styles.textValue}
               variant={'labelMedium'}>
-              {data?.coa}
+              {coa}
             </Text>
           </Row>
         );
@@ -723,7 +727,7 @@ const PengajuanDetailScreen = () => {
             placeholder={data?.coa}
             onChange={val => {
               setCoa(val);
-              setCoaUpdate(true);
+              setCoaDisabled(false);
             }}
           />
           {financeStatus !== 'WAITING' ? (
@@ -732,7 +736,7 @@ const PengajuanDetailScreen = () => {
               <Button
                 onPress={() => updateCOA()}
                 loading={coaLoading}
-                disabled={!coaUpdate || coaLoading}
+                disabled={coaDisabled}
                 mode={'contained'}>
                 Update COA
               </Button>

@@ -1,4 +1,10 @@
-import {FlatList, Platform, StyleSheet, View} from 'react-native';
+import {
+  FlatList,
+  Platform,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from 'react-native';
 import React from 'react';
 import {BlankScreen, Card, Container, Gap, Header} from '../../components';
 import {Colors, Size} from '../../styles';
@@ -14,6 +20,7 @@ const BarangScreen = () => {
   // state
   const [list, setList] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
 
   // gte list
   useFocusEffect(
@@ -32,19 +39,29 @@ const BarangScreen = () => {
     if (state == API_STATES.OK) {
       setIsLoading(false);
       setList(data?.rows);
+      setRefreshing(false);
     } else {
       setIsLoading(false);
       setList([]);
+      setRefreshing(false);
     }
   }
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getRequestedList();
+  }, []);
 
   return (
     <Container>
       <Header hideBack={true} title={'Permintaan Barang'} />
       <View style={styles.container}>
-        {list && !isLoading ? (
+        {list?.length && !isLoading ? (
           <FlatList
             data={list}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{paddingBottom: 120}}
             renderItem={({item, index}) => (

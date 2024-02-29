@@ -253,6 +253,7 @@ const PengajuanScreen = () => {
       setJenis(ROUTE_TYPE);
       setReportData(ROUTE_DATA);
       setCabang(ROUTE_DATA?.cabang);
+      setCoa(ROUTE_DATA?.coa);
     }
   }, []);
 
@@ -334,7 +335,15 @@ const PengajuanScreen = () => {
 
           <Gap h={6} />
           <InputLabel>COA</InputLabel>
-          <Dropdown.CoaDropdown onChange={val => setCoa(val)} />
+          {jenis == 'CAR' ? (
+            <Card style={styles.card} mode={'outlined'}>
+              <Card.Content>
+                <Text variant="labelLarge">{reportData?.coa}</Text>
+              </Card.Content>
+            </Card>
+          ) : (
+            <Dropdown.CoaDropdown onChange={val => setCoa(val)} />
+          )}
 
           <Gap h={6} />
           <InputLabel>Tanggal</InputLabel>

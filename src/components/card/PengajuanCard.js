@@ -38,7 +38,7 @@ const PengajuanCard = ({data, onPress}) => {
     let text = '';
     let color = '';
 
-    if (data?.realisasi?.length > 1 && data?.childId?.length > 1) {
+    if (data?.realisasi?.length > 1 && data?.childId) {
       text = 'Sudah dikembalikan';
       color = Colors.COLOR_PRIMARY;
     } else {

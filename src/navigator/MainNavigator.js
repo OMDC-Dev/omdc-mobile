@@ -23,6 +23,7 @@ const MainStackNavigator = () => {
     <Tab.Navigator
       initialRouteName="HomeStack"
       screenOptions={({route}) => ({
+        unmountOnBlur: true,
         tabBarActiveTintColor: Colors.COLOR_PRIMARY,
         tabBarStyle: (route => {
           const routeName = getFocusedRouteNameFromRoute(route) ?? '';

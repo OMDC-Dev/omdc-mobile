@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {StatusBar, StyleSheet, View} from 'react-native';
 import React from 'react';
 import {Avatar, Card, Icon, Text} from 'react-native-paper';
 import {Container, Gap, Header, Row} from '../../components';
@@ -11,6 +11,10 @@ const ProfileScreen = () => {
   const {user, signOut} = React.useContext(AuthContext);
   return (
     <Container>
+      <StatusBar
+        backgroundColor={Colors.COLOR_SECONDARY}
+        barStyle={'light-content'}
+      />
       <Header hideBack={true} title={'Profile'} />
       <View style={styles.headerTop}>
         <Avatar.Icon icon={'account'} size={56} />
@@ -74,7 +78,9 @@ const ProfileScreen = () => {
         <Card
           mode={'outlined'}
           style={styles.exitButton}
-          onPress={() => signOut()}>
+          onPress={() => {
+            signOut();
+          }}>
           <Card.Content>
             <Row>
               <Icon source={'exit-to-app'} size={24} color={Colors.COLOR_RED} />
@@ -86,7 +92,7 @@ const ProfileScreen = () => {
           </Card.Content>
         </Card>
         <Text style={styles.textVersion} variant="labelSmall">
-          Version v.0.7.1
+          Version v.0.7.2
         </Text>
       </View>
     </Container>

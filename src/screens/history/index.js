@@ -1,5 +1,6 @@
 import {
   FlatList,
+  RefreshControl,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -48,6 +49,7 @@ const RenderDiajukan = () => {
   const [queryDate, setQueryDate] = React.useState(
     getMonthYearNumber(new Date()),
   );
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const navigation = useNavigation();
 
@@ -69,8 +71,16 @@ const RenderDiajukan = () => {
     const data = await getHistory('00', queryDate);
     if (data !== 'ERROR') {
       setList(data);
+      setRefreshing(false);
+    } else {
+      setRefreshing(false);
     }
   }
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getList();
+  }, []);
 
   return (
     <View style={styles.mainContainer}>
@@ -96,6 +106,9 @@ const RenderDiajukan = () => {
       {list?.length ? (
         <FlatList
           data={list}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           renderItem={({item, index}) => {
             return (
               <CustomCard.PengajuanCard
@@ -135,6 +148,7 @@ const RenderDisetujui = () => {
   const [queryDate, setQueryDate] = React.useState(
     getMonthYearNumber(new Date()),
   );
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const navigation = useNavigation();
 
@@ -156,8 +170,16 @@ const RenderDisetujui = () => {
     const data = await getHistory('01', queryDate);
     if (data !== 'ERROR') {
       setList(data);
+      setRefreshing(false);
+    } else {
+      setRefreshing(false);
     }
   }
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getList();
+  }, []);
 
   return (
     <View style={styles.mainContainer}>
@@ -183,6 +205,9 @@ const RenderDisetujui = () => {
       {list?.length ? (
         <FlatList
           data={list}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           renderItem={({item, index}) => {
             return (
               <CustomCard.PengajuanCard
@@ -241,6 +266,10 @@ const HistoryScreen = () => {
 
   return (
     <Container>
+      <StatusBar
+        backgroundColor={Colors.COLOR_SECONDARY}
+        barStyle={'light-content'}
+      />
       <Header title={'Riwayat Pengajuan'} />
       {renderTab()}
     </Container>

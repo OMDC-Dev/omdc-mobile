@@ -1,5 +1,6 @@
 import {
   FlatList,
+  RefreshControl,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -42,6 +43,7 @@ const RenderWaiting = () => {
   const [queryDate, setQueryDate] = React.useState(
     getMonthYearNumber(new Date()),
   );
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const navigation = useNavigation();
   const {user} = React.useContext(AuthContext);
@@ -66,8 +68,16 @@ const RenderWaiting = () => {
     const data = await getHistory('00', queryDate);
     if (data !== 'ERROR') {
       setList(data);
+      setRefreshing(false);
+    } else {
+      setRefreshing(false);
     }
   }
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getList();
+  }, []);
 
   return (
     <View style={styles.mainContainer}>
@@ -93,6 +103,9 @@ const RenderWaiting = () => {
       {list?.length ? (
         <FlatList
           data={list}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           contentContainerStyle={{paddingBottom: Scaler.scaleSize(90)}}
           renderItem={({item, index}) => {
             return (
@@ -132,6 +145,7 @@ const RenderDone = () => {
   const [queryDate, setQueryDate] = React.useState(
     getMonthYearNumber(new Date()),
   );
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const navigation = useNavigation();
 
@@ -153,8 +167,16 @@ const RenderDone = () => {
     const data = await getHistory('01', queryDate);
     if (data !== 'ERROR') {
       setList(data);
+      setRefreshing(false);
+    } else {
+      setRefreshing(false);
     }
   }
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getList();
+  }, []);
 
   return (
     <View style={styles.mainContainer}>
@@ -180,6 +202,9 @@ const RenderDone = () => {
       {list?.length ? (
         <FlatList
           data={list}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           contentContainerStyle={{paddingBottom: Scaler.scaleSize(90)}}
           renderItem={({item, index}) => {
             return (
@@ -250,6 +275,10 @@ const DiajukanScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar
+        backgroundColor={Colors.COLOR_SECONDARY}
+        barStyle={'light-content'}
+      />
       <View style={styles.header}>
         <Text variant={'titleMedium'} style={styles.textTitle}>
           Pengajuan User

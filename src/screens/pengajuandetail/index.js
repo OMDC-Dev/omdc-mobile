@@ -941,7 +941,7 @@ const PengajuanDetailScreen = () => {
             );
           })}
         </View>
-        {data?.isAdmin ? (
+        {user?.isAdmin && !IS_MINE ? (
           <>
             <Gap h={24} />
             <Text style={styles.subtitle} variant="titleSmall">

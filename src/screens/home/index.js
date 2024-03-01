@@ -29,6 +29,7 @@ import {GET_NOTIFICATION_COUNT, REIMBURSEMENT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {fetchApi} from '../../api/api';
 import {cekAkses} from '../../utils/utils';
+import _ from 'lodash';
 
 const HomeScreen = () => {
   const [recent, setRecent] = React.useState([]);
@@ -37,6 +38,7 @@ const HomeScreen = () => {
   const [listInfo, setListInfo] = React.useState();
   const [page, setPage] = React.useState(1);
   const [moreLoading, setMoreLoading] = React.useState(false);
+  const [firstLoad, setFirstLoad] = React.useState(true);
 
   console.log('PAGE', listInfo);
 
@@ -44,29 +46,40 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const REFRESH_DONE = route?.params?.refresh;
-
   // user context
   const {signOut, user} = React.useContext(AuthContext);
 
   const hasReimbursement = cekAkses('#1', user?.kodeAkses);
 
-  async function getRecentRequest(fromRequest) {
+  async function getRecentRequest() {
     setMoreLoading(true);
     const {state, data, error} = await fetchApi({
-      url: REIMBURSEMENT + `?page=${page}&limit=25&status=00`,
+      url: REIMBURSEMENT + `?page=${page}&limit=4&status=00`,
       method: 'GET',
     });
 
     if (state == API_STATES.OK) {
       setMoreLoading(false);
-      setRecent(prev => {
-        if (fromRequest) {
-          return data?.rows || [];
-        } else {
-          return data?.rows ? [...prev, ...data.rows] : prev;
-        }
-      });
+      setRecent(data?.rows);
+      setListInfo(data?.pageInfo);
+      setRefreshing(false);
+    } else {
+      setMoreLoading(false);
+      setRefreshing(false);
+      console.log(error);
+    }
+  }
+
+  async function getNextRecentRequest() {
+    setMoreLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: REIMBURSEMENT + `?page=${page}&limit=4&status=00`,
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setMoreLoading(false);
+      setRecent(prev => [...prev, ...data.rows]);
       setListInfo(data?.pageInfo);
       setRefreshing(false);
     } else {
@@ -92,13 +105,25 @@ const HomeScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       getNotificationCount();
+      setPage(1);
+      setFirstLoad(true);
     }, []),
   );
 
   React.useEffect(() => {
-    const isNeedUpdate = String(REFRESH_DONE).length > 0;
-    getRecentRequest(isNeedUpdate);
-  }, [page, REFRESH_DONE]);
+    if (firstLoad) {
+      getRecentRequest();
+    }
+  }, [firstLoad]);
+
+  React.useEffect(() => {
+    if (!refreshing && !firstLoad) {
+      // Hanya panggil getNextRecentRequest jika bukan refresh pertama kali
+      getNextRecentRequest();
+    } else {
+      setFirstLoad(false); // Setelah render pertama kali, atur flag firstLoad menjadi false
+    }
+  }, [page]);
 
   // React.useEffect(() => {
 
@@ -106,7 +131,9 @@ const HomeScreen = () => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    getRecentRequest(true);
+    setRecent([]);
+    setPage(1);
+    getRecentRequest();
   }, []);
 
   function onLoadMore() {
@@ -191,7 +218,7 @@ const HomeScreen = () => {
               refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
               }
-              onEndReachedThreshold={0.2}
+              onEndReachedThreshold={0.5}
               onEndReached={onLoadMore}
               ListFooterComponent={
                 moreLoading ? (

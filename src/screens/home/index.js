@@ -40,8 +40,6 @@ const HomeScreen = () => {
   const [moreLoading, setMoreLoading] = React.useState(false);
   const [firstLoad, setFirstLoad] = React.useState(true);
 
-  console.log('PAGE', listInfo);
-
   // navigation
   const navigation = useNavigation();
   const route = useRoute();
@@ -52,6 +50,7 @@ const HomeScreen = () => {
   const hasReimbursement = cekAkses('#1', user?.kodeAkses);
 
   async function getRecentRequest() {
+    console.log('Get Recent On Progress');
     setMoreLoading(true);
     const {state, data, error} = await fetchApi({
       url: REIMBURSEMENT + `?page=${page}&limit=4&status=00`,
@@ -105,16 +104,16 @@ const HomeScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       getNotificationCount();
-      setPage(1);
-      setFirstLoad(true);
+      getRecentRequest();
     }, []),
   );
 
-  React.useEffect(() => {
-    if (firstLoad) {
-      getRecentRequest();
-    }
-  }, [firstLoad]);
+  // React.useEffect(() => {
+  //   if (firstLoad) {
+  //     console.log('IT WAS FIRST LOAD');
+  //     getRecentRequest();
+  //   }
+  // }, [firstLoad]);
 
   React.useEffect(() => {
     if (!refreshing && !firstLoad) {

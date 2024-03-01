@@ -1036,7 +1036,9 @@ const PengajuanDetailScreen = () => {
         </View>
         {renderCoaSelector()}
 
-        {typeName !== 'Petty Cash Report' && !_.isEmpty(BANK_DATA) ? (
+        {typeName !== 'Petty Cash Report' &&
+        !_.isEmpty(BANK_DATA) &&
+        data?.payment_type !== 'CASH' ? (
           <>
             <Gap h={24} />
             <Text style={styles.subtitle} variant="titleSmall">

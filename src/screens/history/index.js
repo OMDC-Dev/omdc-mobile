@@ -274,8 +274,20 @@ const HistoryScreen = () => {
             height: 6,
           },
         }}>
-        <Tab.Screen name="Diajukan" component={RenderDiajukan} />
-        <Tab.Screen name="Disetujui" component={RenderDisetujui} />
+        <Tab.Screen
+          name="Diajukan"
+          component={RenderDiajukan}
+          options={{
+            title: 'Dalam Proses',
+          }}
+        />
+        <Tab.Screen
+          name="Disetujui"
+          component={RenderDisetujui}
+          options={{
+            title: 'Selesai',
+          }}
+        />
       </Tab.Navigator>
     );
   }

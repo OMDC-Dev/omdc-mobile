@@ -105,11 +105,24 @@ const PengajuanBankScreen = () => {
     getBank();
   }, []);
 
-  console.log(PR_TYPE);
+  console.log('PAYMENT FROM ROUTE', PR_TYPE);
+  console.log('IS NEED BANK ', IS_NEED_BANK);
+  console.log('MODE', mode);
+  console.log('JENIS', RR.jenis);
 
   // ON AJUKAN
   async function onPengajuan() {
     setIsLoading(true);
+
+    // let PT = '';
+
+    // if (RR.jenis == 'CAR') {
+    //   PT = !IS_NEED_BANK ? PR_TYPE : mode;
+    // } else {
+    //   PT = mode;
+    // }
+
+    // console.log('PT', PT);
 
     const body = {
       type: RR.jenis,
@@ -125,7 +138,7 @@ const PengajuanBankScreen = () => {
       file: RR.fileInfo,
       approved_by: RR.admin,
       parentId: REPORT_DATA?.id || '',
-      payment_type: !IS_NEED_BANK ? PR_TYPE : mode,
+      payment_type: mode,
     };
 
     const {state, data, error} = await fetchApi({
@@ -145,7 +158,7 @@ const PengajuanBankScreen = () => {
   }
 
   // Handle petty cash report and Cash Advance Report
-  if (RR.jenis == 'PC' || (RR.jenis == 'CAR' && !IS_NEED_BANK)) {
+  if (RR.jenis == 'PC') {
     return (
       <View style={styles.container}>
         <Header title={'Reimbursement'} />
@@ -278,13 +291,13 @@ const PengajuanBankScreen = () => {
             <Text style={styles.subtitle} variant="titleSmall">
               Data Suplier
             </Text>
-            {SUPLIER_DATA.map(item => {
+            {SUPLIER_DATA.map((item, index) => {
               return (
-                <>
+                <View key={item + index}>
                   <Gap h={8} />
                   <InputLabel>{item.label}</InputLabel>
                   <Text variant={'bodyMedium'}>{item.value}</Text>
-                </>
+                </View>
               );
             })}
           </>

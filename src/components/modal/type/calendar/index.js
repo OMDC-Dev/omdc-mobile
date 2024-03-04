@@ -27,6 +27,7 @@ const CalendarModal = ({onSave, onCancel, value}) => {
       <Calendar
         style={{
           height: Scaler.scaleSize(320),
+          margin: Size.SIZE_8,
         }}
         onDayPress={day => {
           setSelected(day.dateString);

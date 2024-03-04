@@ -36,6 +36,7 @@ import ModalView from '../../components/modal';
 import {getDataById} from '../../utils/utils';
 import _ from 'lodash';
 import {SIZE_14} from '../../styles/size';
+import moment from 'moment';
 
 const PengajuanDetailScreen = () => {
   const route = useRoute();
@@ -308,6 +309,10 @@ const PengajuanDetailScreen = () => {
     {
       title: 'Tanggal',
       value: data?.tanggal_reimbursement,
+    },
+    {
+      title: 'Tanggal Dibuat',
+      value: moment(data?.createdAt).format('lll'),
     },
     {
       title: 'Cabang',

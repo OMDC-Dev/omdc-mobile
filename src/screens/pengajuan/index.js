@@ -259,24 +259,24 @@ const PengajuanScreen = () => {
     }
   }, []);
 
-  React.useEffect(() => {
-    if (nominal && jenis == 'CAR') {
-      const _frel = nominal?.replace('Rp. ', '').replace(/\./g, '');
-      const _fnom = reportData?.nominal?.replace('Rp. ', '').replace(/\./g, '');
+  // React.useEffect(() => {
+  //   if (nominal && jenis == 'CAR') {
+  //     const _frel = nominal?.replace('Rp. ', '').replace(/\./g, '');
+  //     const _fnom = reportData?.nominal?.replace('Rp. ', '').replace(/\./g, '');
 
-      const _sal = _fnom - _frel;
+  //     const _sal = _fnom - _frel;
 
-      if (_sal > 0) {
-        console.log('No Need Bank');
-        setNeedBank(false);
-      } else {
-        console.log('Need Bank');
-        setNeedBank(true);
-      }
+  //     if (_sal > 0) {
+  //       console.log('No Need Bank');
+  //       setNeedBank(false);
+  //     } else {
+  //       console.log('Need Bank');
+  //       setNeedBank(true);
+  //     }
 
-      console.log('SAL', _sal);
-    }
-  }, [nominal]);
+  //     console.log('SAL', _sal);
+  //   }
+  // }, [nominal]);
 
   // Get Sup detail
   React.useEffect(() => {
@@ -596,7 +596,7 @@ const PengajuanScreen = () => {
                     fileInfo: fileInfo,
                     admin: admin,
                     report: reportData,
-                    needBank: needBank,
+                    // needBank: needBank,
                     suplier: suplierDetail,
                     payment_type: paymentType,
                   },

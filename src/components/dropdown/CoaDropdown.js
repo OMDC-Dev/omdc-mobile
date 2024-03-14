@@ -22,6 +22,7 @@ const CoaDropdown = ({onChange, placeholder}) => {
   }, []);
 
   async function getCoaList() {
+    console.log('COA LIST');
     const {state, data, error} = await fetchApi({
       url: GET_COA() + '&limit=200',
       method: 'GET',

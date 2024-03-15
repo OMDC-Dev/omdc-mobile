@@ -343,7 +343,7 @@ PODS:
     - React-Core
   - react-native-image-base64 (0.1.4):
     - React
-  - react-native-image-picker (7.1.0):
+  - react-native-image-picker (7.1.1):
     - React-Core
   - react-native-month-year-picker (1.9.0):
     - React
@@ -426,6 +426,8 @@ PODS:
     - FirebaseCoreExtension (= 10.20.0)
     - React-Core
     - RNFBApp
+  - RNPermissions (4.1.4):
+    - React-Core
   - RNScreens (3.18.2):
     - React-Core
     - React-RCTImage
@@ -480,6 +482,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
+  - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -585,6 +588,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBMessaging:
     :path: "../node_modules/@react-native-firebase/messaging"
+  RNPermissions:
+    :path: "../node_modules/react-native-permissions"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   Yoga:
@@ -628,7 +633,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
   react-native-encrypted-storage: e78d848ce0fb663c2ce306e37921d026809322e6
   react-native-image-base64: 2ff9ac788639c87a91361ab6652cc95e871b1e54
-  react-native-image-picker: a82b781c14f1f5c16953290bee2039db43822517
+  react-native-image-picker: 1ced7e130ca01231b64a34822c44410dcb057dbb
   react-native-month-year-picker: 948797e981ca502427024a34b17f545eb321bbff
   react-native-pager-view: c29d484f19c49ff19525a94105e4ab2c4d4ae273
   react-native-pdf: 7c0e91ada997bac8bac3bb5bea5b6b81f5a3caae
@@ -647,9 +652,10 @@ SPEC CHECKSUMS:
   ReactCommon: 095366164a276d91ea704ce53cb03825c487a3f2
   RNFBApp: 9b25191f7a5e72c185b7e43fffb0d906869c4659
   RNFBMessaging: 99621af036e0aa85506390f77d79c9e6353aacca
+  RNPermissions: 89d313f4d48612fc35842f3a21107e163f39a742
   RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
 
-PODFILE CHECKSUM: 5476095208a6d53abfa2acf8c7a95bab84cc27e8
+PODFILE CHECKSUM: db325cc93e6b40cc03dc424fc7e9b66908102e58
 
 COCOAPODS: 1.12.1

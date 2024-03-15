@@ -342,6 +342,10 @@ const PengajuanDetailScreen = () => {
       value: USER?.departemen,
     },
     {
+      title: 'Jabatan',
+      value: USER?.level_user,
+    },
+    {
       title: 'Nomor WA',
       value: USER?.nomorwa,
     },

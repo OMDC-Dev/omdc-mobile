@@ -1,7 +1,8 @@
-import {StyleSheet, View} from 'react-native';
+import {Alert, Platform, StyleSheet, View} from 'react-native';
 import React from 'react';
 import {Button, Card, Text} from 'react-native-paper';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {check, PERMISSIONS, request} from 'react-native-permissions';
 
 // OPT
 const pickOpts = {
@@ -59,6 +60,64 @@ async function pickFromGalery(cb) {
 const SelectFileModal = ({toggle, pickFromfile, value}) => {
   const [selected, setSelected] = React.useState();
 
+  function checkPermission(type = '') {
+    if (type == 'GALLERY') {
+      check(PERMISSIONS.IOS.PHOTO_LIBRARY).then(result => {
+        if (result == 'granted') {
+          pickFromGalery(val => setSelected(val));
+        } else {
+          request(PERMISSIONS.IOS.PHOTO_LIBRARY).then(result => {
+            if (result == 'granted') {
+              pickFromGalery(val => setSelected(val));
+            } else {
+              Alert.alert(
+                'Aplikasi tidak diberikan izin',
+                'Tidak memiliki izin untuk mengakses galeri, silahkan izinkan untuk dapat mengakses galeri',
+                [
+                  {
+                    text: 'Minta Izin',
+                    onPress: () => checkPermission('GALLERY'),
+                  },
+                  {
+                    text: 'Batalkan',
+                    style: 'cancel',
+                  },
+                ],
+              );
+            }
+          });
+        }
+      });
+    } else {
+      check(PERMISSIONS.IOS.CAMERA).then(result => {
+        if (result == 'granted') {
+          pickFromCamera(val => setSelected(val));
+        } else {
+          request(PERMISSIONS.IOS.CAMERA).then(result => {
+            if (result == 'granted') {
+              pickFromCamera(val => setSelected(val));
+            } else {
+              Alert.alert(
+                'Aplikasi tidak diberikan izin',
+                'Tidak memiliki izin untuk mengakses galeri, silahkan izinkan untuk dapat mengakses galeri',
+                [
+                  {
+                    text: 'Minta Izin',
+                    onPress: () => checkPermission('CAMERA'),
+                  },
+                  {
+                    text: 'Batalkan',
+                    style: 'cancel',
+                  },
+                ],
+              );
+            }
+          });
+        }
+      });
+    }
+  }
+
   React.useEffect(() => {
     if (selected) {
       value(selected);
@@ -72,7 +131,11 @@ const SelectFileModal = ({toggle, pickFromfile, value}) => {
           <Button
             onPress={() => {
               toggle();
-              pickFromGalery(val => setSelected(val));
+              setTimeout(() => {
+                Platform.OS == 'ios'
+                  ? checkPermission('GALLERY')
+                  : pickFromGalery(val => setSelected(val));
+              }, 1000);
             }}
             style={styles.button}
             mode={'contained-tonal'}>
@@ -81,7 +144,11 @@ const SelectFileModal = ({toggle, pickFromfile, value}) => {
           <Button
             onPress={() => {
               toggle();
-              pickFromCamera(val => setSelected(val));
+              setTimeout(() => {
+                Platform.OS == 'ios'
+                  ? checkPermission('CAMERA')
+                  : pickFromCamera(val => setSelected(val));
+              }, 1000);
             }}
             style={styles.button}
             mode={'contained-tonal'}>
@@ -90,7 +157,9 @@ const SelectFileModal = ({toggle, pickFromfile, value}) => {
           <Button
             onPress={() => {
               toggle();
-              pickFromfile();
+              setTimeout(() => {
+                pickFromfile();
+              }, 1000);
             }}
             style={styles.button}
             mode={'contained-tonal'}>

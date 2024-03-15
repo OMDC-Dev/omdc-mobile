@@ -1,5 +1,6 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require_relative '../node_modules/react-native-permissions/scripts/setup'
 
 platform :ios, '12.4'
 install! 'cocoapods', :deterministic_uuids => false
@@ -8,6 +9,13 @@ pod 'Firebase', :modular_headers => true
 pod 'FirebaseCoreInternal', :modular_headers => true
 pod 'GoogleUtilities', :modular_headers => true
 pod 'FirebaseCore', :modular_headers => true
+
+# Permisson
+setup_permissions([
+  'Camera',
+  'Notifications',
+  'PhotoLibrary',
+])
 
 
 $RNFirebaseAsStaticFramework = true
@@ -46,11 +54,14 @@ target 'OMDCMobile' do
     react_native_post_install(installer)
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
     installer.pods_project.targets.each do |target|
-      if target.name == "React-Codegen"
-        target.build_configurations.each do |config|
-            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
-        end
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
       end
+      #if target.name == "React-Codegen"
+      #  target.build_configurations.each do |config|
+      #      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
+      #  end
+      #end
     end
     installer.pods_project.build_configurations.each do |config|
       config.build_settings["CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES"] = true

@@ -15,6 +15,8 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		453F85180DB8CC52E5EAC59E /* Pods_OMDCMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F78E07615C53F6C66170258 /* Pods_OMDCMobile.framework */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		82ABD14A2BA378BC00623C45 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 82ABD1492BA378BC00623C45 /* PrivacyInfo.xcprivacy */; };
+		82ABD14B2BA378BC00623C45 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 82ABD1492BA378BC00623C45 /* PrivacyInfo.xcprivacy */; };
 		82C33C7128FE683D00F15D41 /* Fontisto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 82C33C6128FE683D00F15D41 /* Fontisto.ttf */; };
 		82C33C7228FE683D00F15D41 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 82C33C6228FE683D00F15D41 /* Octicons.ttf */; };
 		82C33C7328FE683D00F15D41 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 82C33C6328FE683D00F15D41 /* Feather.ttf */; };
@@ -60,6 +62,7 @@
 		5709B34CF0A7D63546082F79 /* Pods-OMDCMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OMDCMobile.release.xcconfig"; path = "Target Support Files/Pods-OMDCMobile/Pods-OMDCMobile.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-OMDCMobile-OMDCMobileTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OMDCMobile-OMDCMobileTests.debug.xcconfig"; path = "Target Support Files/Pods-OMDCMobile-OMDCMobileTests/Pods-OMDCMobile-OMDCMobileTests.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = OMDCMobile/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		82ABD1492BA378BC00623C45 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = OMDCMobile/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		82C33C6128FE683D00F15D41 /* Fontisto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fontisto.ttf; sourceTree = "<group>"; };
 		82C33C6228FE683D00F15D41 /* Octicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Octicons.ttf; sourceTree = "<group>"; };
 		82C33C6328FE683D00F15D41 /* Feather.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Feather.ttf; sourceTree = "<group>"; };
@@ -130,6 +133,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				82ABD1492BA378BC00623C45 /* PrivacyInfo.xcprivacy */,
 			);
 			name = OMDCMobile;
 			sourceTree = "<group>";
@@ -273,7 +277,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1530;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
@@ -308,6 +312,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				82ABD14B2BA378BC00623C45 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +335,7 @@
 				82C33C7528FE683D00F15D41 /* FontAwesome5_Brands.ttf in Resources */,
 				82C33C7728FE683D00F15D41 /* AntDesign.ttf in Resources */,
 				82C33C8028FE683D00F15D41 /* MaterialIcons.ttf in Resources */,
+				82ABD14A2BA378BC00623C45 /* PrivacyInfo.xcprivacy in Resources */,
 				82C33C7A28FE683D00F15D41 /* FontAwesome5_Solid.ttf in Resources */,
 				82C33C7628FE683D00F15D41 /* MaterialCommunityIcons.ttf in Resources */,
 				82D418982B88FD8A001B843C /* GoogleService-Info.plist in Resources */,
@@ -559,6 +565,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7SF3K5BZ2S;
 				ENABLE_BITCODE = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = OMDCMobile/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "OMDC Mobile";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
@@ -566,7 +573,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1;
+				MARKETING_VERSION = 1.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -577,6 +584,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -597,6 +605,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = J8VQ67HZ56;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = OMDCMobile/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "OMDC Mobile";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
@@ -604,7 +613,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1;
+				MARKETING_VERSION = 1.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -617,6 +626,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -627,6 +637,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -656,6 +667,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -698,6 +710,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -727,6 +740,7 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;

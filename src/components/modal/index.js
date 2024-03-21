@@ -27,6 +27,7 @@ const ModalView = ({
   toggle,
   pickFromFile,
   fileCallback,
+  command,
 }) => {
   //render modal children
   const renderContent = () => {
@@ -55,6 +56,7 @@ const ModalView = ({
             value={fileCallback}
             pickFromfile={pickFromFile}
             toggle={toggle}
+            command={command}
           />
         );
         break;

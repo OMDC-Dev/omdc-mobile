@@ -57,18 +57,74 @@ async function pickFromGalery(cb) {
   }
 }
 
-const SelectFileModal = ({toggle, pickFromfile, value}) => {
+// IOS
+async function pickFromGaleryIOS() {
+  try {
+    const result = await launchImageLibrary(pickOpts);
+
+    if (!result.didCancel) {
+      const dataResult = {
+        base64: result.assets[0].base64,
+        fileName: result.assets[0].fileName,
+        fileType: result.assets[0].type,
+        fileSize: result.assets[0].fileSize,
+        from: 'GALLERY',
+      };
+      return dataResult;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    return null;
+  }
+}
+
+// FROM CAMERA IOS
+async function pickFromCameraIOS() {
+  try {
+    const result = await launchCamera(pickOpts);
+
+    if (!result.didCancel) {
+      const dataResult = {
+        base64: result.assets[0].base64,
+        fileName: result.assets[0].fileName,
+        fileType: result.assets[0].type,
+        fileSize: result.assets[0].fileSize,
+        from: 'CAMERA',
+      };
+      return dataResult;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    return null;
+  }
+}
+
+const SelectFileModal = ({toggle, pickFromfile, value, command}) => {
   const [selected, setSelected] = React.useState();
+
+  console.log(selected);
 
   function checkPermission(type = '') {
     if (type == 'GALLERY') {
-      check(PERMISSIONS.IOS.PHOTO_LIBRARY).then(result => {
+      check(PERMISSIONS.IOS.PHOTO_LIBRARY).then(async result => {
         if (result == 'granted') {
-          pickFromGalery(val => setSelected(val));
+          // pickFromGaleryIOS(setSelected);
+          //command('GALLERY');
+          const pickResult = await pickFromGaleryIOS();
+          if (pickResult) {
+            command(pickResult);
+          }
         } else {
-          request(PERMISSIONS.IOS.PHOTO_LIBRARY).then(result => {
+          request(PERMISSIONS.IOS.PHOTO_LIBRARY).then(async result => {
             if (result == 'granted') {
-              pickFromGalery(val => setSelected(val));
+              //pickFromGaleryIOS(setSelected);
+              //command('GALLERY');
+              const pickResult = await pickFromGaleryIOS();
+              if (pickResult) {
+                command(pickResult);
+              }
             } else {
               Alert.alert(
                 'Aplikasi tidak diberikan izin',
@@ -89,13 +145,19 @@ const SelectFileModal = ({toggle, pickFromfile, value}) => {
         }
       });
     } else {
-      check(PERMISSIONS.IOS.CAMERA).then(result => {
+      check(PERMISSIONS.IOS.CAMERA).then(async result => {
         if (result == 'granted') {
-          pickFromCamera(val => setSelected(val));
+          const pickResult = await pickFromCameraIOS();
+          if (pickResult) {
+            command(pickResult);
+          }
         } else {
-          request(PERMISSIONS.IOS.CAMERA).then(result => {
+          request(PERMISSIONS.IOS.CAMERA).then(async result => {
             if (result == 'granted') {
-              pickFromCamera(val => setSelected(val));
+              const pickResult = await pickFromCameraIOS();
+              if (pickResult) {
+                command(pickResult);
+              }
             } else {
               Alert.alert(
                 'Aplikasi tidak diberikan izin',
@@ -119,7 +181,7 @@ const SelectFileModal = ({toggle, pickFromfile, value}) => {
   }
 
   React.useEffect(() => {
-    if (selected) {
+    if (selected && Platform.OS == 'android') {
       value(selected);
     }
   }, [selected]);

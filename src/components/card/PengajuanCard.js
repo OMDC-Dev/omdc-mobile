@@ -3,7 +3,7 @@ import React from 'react';
 import {Card, Chip, Text} from 'react-native-paper';
 import Row from '../Row';
 import Gap from '../Gap';
-import {Colors, Size} from '../../styles';
+import {Colors, Scaler, Size} from '../../styles';
 import {getDate} from '../../utils/utils';
 import {AuthContext} from '../../context';
 
@@ -84,6 +84,9 @@ const PengajuanCard = ({data, onPress}) => {
           </Row>
           <Gap h={4} />
           <Text variant={'labelSmall'}>{data?.kode_cabang}</Text>
+          <Text style={styles.textRequester} variant={'labelSmall'}>
+            Diajukan oleh {data?.requester?.nm_user}
+          </Text>
           {renderCashAdvanceStatus()}
           <Gap h={14} />
           <Text style={styles.textDate} variant="labelSmall">
@@ -122,5 +125,10 @@ const styles = StyleSheet.create({
 
   textStatusRejected: {
     color: Colors.COLOR_RED,
+  },
+
+  textRequester: {
+    fontSize: Scaler.scaleFont(10),
+    marginVertical: 4,
   },
 });

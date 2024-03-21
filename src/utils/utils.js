@@ -54,7 +54,7 @@ export const uriToBas64 = async (uri, android) => {
       return data;
     })
     .catch(err => {
-      console.log(err);
+      console.log('URI TO BASE 64', err);
     });
 };
 

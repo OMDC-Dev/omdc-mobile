@@ -157,10 +157,10 @@ const PengajuanScreen = () => {
           : pickerResult.fileCopyUri.split('Caches/')[1];
 
       if (pickerResult.type == 'application/pdf') {
-        const picker = await uriToBas64(path, true);
+        const picker = await uriToBas64(path, Platform.OS == 'android');
         setResult(picker);
       } else {
-        const base64 = await imgToBase64(path, true);
+        const base64 = await imgToBase64(path, Platform.OS == 'android');
         setResult(base64);
       }
     } catch (error) {
@@ -615,6 +615,7 @@ const PengajuanScreen = () => {
         toggle={() => setShowSelectFile(!showSelectFile)}
         pickFromFile={() => pickFile()}
         fileCallback={cb => onPickFromRes(cb)}
+        command={cmd => (Platform.OS == 'ios' ? onPickFromRes(cmd) : null)}
       />
 
       <ModalView

@@ -36,11 +36,11 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow access to camera to upload photos as attachment from photos captured by the camera</string>
+	<string>Allow access to camera to capture proof of transaction required in making a reimbursement request</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow access to photos to upload photos as attachment from your library</string>
+	<string>Allow access to photos to upload photos proof of transaction required in making a reimbursement request</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Poppins-Regular.ttf</string>

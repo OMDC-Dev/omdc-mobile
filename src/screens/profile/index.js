@@ -5,6 +5,7 @@ import {Container, Gap, Header, Row} from '../../components';
 import {Colors, Scaler, Size} from '../../styles';
 import {AuthContext} from '../../context';
 import {useNavigation} from '@react-navigation/native';
+import packageInfo from '../../../package.json';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -92,7 +93,7 @@ const ProfileScreen = () => {
           </Card.Content>
         </Card>
         <Text style={styles.textVersion} variant="labelSmall">
-          Version v.0.7.8
+          Version v.{packageInfo.version}
         </Text>
       </View>
     </Container>

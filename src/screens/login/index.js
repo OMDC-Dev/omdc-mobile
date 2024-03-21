@@ -18,6 +18,7 @@ import {LOGIN} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {useNavigation} from '@react-navigation/native';
 import messaging from '@react-native-firebase/messaging';
+import packageInfo from '../../../package.json';
 
 const LoginScreen = () => {
   const [userId, setUserId] = React.useState('');
@@ -37,11 +38,9 @@ const LoginScreen = () => {
 
   // API
   const login = async () => {
-    if (Platform.OS == 'android') {
-      await messaging().registerDeviceForRemoteMessages();
-    }
-
     const token = await messaging().getToken();
+
+    console.log('TOKENS', token);
 
     setIsLoading(true);
     // request body
@@ -132,7 +131,7 @@ const LoginScreen = () => {
           </Button>
           <Gap h={16} />
           <Text style={styles.textVersion} variant="labelSmall">
-            Version v.0.7.9
+            Version v.{packageInfo.version}
           </Text>
         </View>
         <Snackbar visible={showSnack} onDismiss={() => setShowSnack(false)}>

@@ -1028,18 +1028,16 @@ const PengajuanDetailScreen = () => {
                     type: FILE_INFO?.type,
                   })
             }>
-            <Row>
-              <Row style={styles.fileLeft}>
-                <Icon
-                  source={'file-document-outline'}
-                  size={40}
-                  color={Colors.COLOR_DARK_GRAY}
-                />
-                <Gap w={8} />
-                <Text numberOfLines={1} variant={'labelLarge'}>
-                  {FILE_INFO?.name}
-                </Text>
-              </Row>
+            <Row style={styles.fileLeft}>
+              <Icon
+                source={'file-document-outline'}
+                size={40}
+                color={Colors.COLOR_DARK_GRAY}
+              />
+              <Gap w={8} />
+              <Text numberOfLines={1} variant={'labelLarge'}>
+                Lampiran
+              </Text>
             </Row>
           </TouchableOpacity>
         </View>

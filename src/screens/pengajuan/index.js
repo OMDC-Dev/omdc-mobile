@@ -461,7 +461,9 @@ const PengajuanScreen = () => {
                       style={{marginRight: Size.SIZE_24}}
                       numberOfLines={1}
                       variant={'labelLarge'}>
-                      {fileInfo?.name}
+                      {fileInfo?.name?.length <= 30
+                        ? fileInfo?.name
+                        : 'Lampiran'}
                     </Text>
                   </Row>
                   <IconButton

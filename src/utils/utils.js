@@ -124,6 +124,7 @@ export const cekAkses = (akses, userAkses = []) => {
    * REIMBURSEMENT -> 1170 -> #1
    * PERMINTAAN BARANG -> 1157 -> #2
    * PENGUMUMAN -> 1171 -> #3
+   * DETAIL BARANG -> 1151 -> #4
    */
 
   if (akses == '#1') {
@@ -136,5 +137,9 @@ export const cekAkses = (akses, userAkses = []) => {
 
   if (akses == '#3') {
     return userAkses.findIndex(item => item == '1171') !== -1;
+  }
+
+  if (akses == '#4') {
+    return userAkses.findIndex(item => item == '1151') !== -1;
   }
 };

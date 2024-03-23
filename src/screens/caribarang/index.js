@@ -9,6 +9,8 @@ import {API_STATES} from '../../utils/constant';
 import ModalView from '../../components/modal';
 import _ from 'lodash';
 import {useNavigation} from '@react-navigation/native';
+import {AuthContext} from '../../context';
+import {cekAkses} from '../../utils/utils';
 
 const BarangCariScreen = () => {
   const navigation = useNavigation();
@@ -24,6 +26,11 @@ const BarangCariScreen = () => {
   const [page, setPage] = React.useState(1);
   const [moreLoading, setMoreLoading] = React.useState(false);
   const [lastPage, setLastPage] = React.useState();
+
+  // cek akses
+  const {user} = React.useContext(AuthContext);
+
+  const hasBarangDetailAkses = cekAkses('#4', user?.kodeAkses);
 
   // get all barang
   React.useEffect(() => {
@@ -119,7 +126,9 @@ const BarangCariScreen = () => {
             renderItem={({item, index}) => (
               <Card.BarangCard
                 data={item}
-                onPress={() => setSelectBarang(item)}
+                onPress={() =>
+                  hasBarangDetailAkses ? setSelectBarang(item) : null
+                }
                 onAddPress={() => {
                   setDataBarang(item);
                   setShowAddBarang(true);

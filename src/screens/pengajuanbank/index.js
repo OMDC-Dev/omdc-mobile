@@ -231,11 +231,22 @@ const PengajuanBankScreen = () => {
             <InputLabel>Bank</InputLabel>
             {IS_PRE_BANK ? (
               <Text variant={'bodyMedium'}>{PR_BANK?.nm_bank}</Text>
+            ) : acc?.accountname?.length ? (
+              <TextInput
+                disabled
+                editable={false}
+                style={styles.inputNormal}
+                mode={'outlined'}
+                placeholder={'Bank'}
+                placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                value={acc?.bankname || ''}
+              />
             ) : (
               <Dropdown.BankDropdown
                 disabled={checkLoading || isLoading || acc?.accountname?.length}
                 data={banks}
                 onChange={val => setSelectBank(val)}
+                placeholder={acc?.accountname?.length || 'Pilih bank'}
               />
             )}
 
@@ -259,7 +270,12 @@ const PengajuanBankScreen = () => {
                 />
                 <View style={styles.checkerView}>
                   <PaperButton
-                    disabled={!noBank || acc?.accountname?.length}
+                    disabled={
+                      !noBank ||
+                      acc?.accountname?.length ||
+                      checkLoading ||
+                      !selectedBank
+                    }
                     loading={checkLoading}
                     onPress={() => getBankName()}>
                     {checkLoading ? '' : 'Cek Nomor'}
@@ -282,6 +298,19 @@ const PengajuanBankScreen = () => {
                 value={acc?.accountname || ''}
               />
             )}
+            {!IS_PRE_BANK && acc?.accountname?.length ? (
+              <>
+                <Gap h={24} />
+                <PaperButton
+                  mode={'outlined'}
+                  onPress={() => {
+                    setAcc();
+                    setNoBank('');
+                  }}>
+                  Ganti Data Bank
+                </PaperButton>
+              </>
+            ) : null}
           </>
         )}
         {/* Suplier Section */}

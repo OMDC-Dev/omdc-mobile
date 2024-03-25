@@ -2,6 +2,7 @@ import {
   FlatList,
   Platform,
   RefreshControl,
+  StatusBar,
   StyleSheet,
   View,
 } from 'react-native';
@@ -54,6 +55,10 @@ const BarangScreen = () => {
 
   return (
     <Container>
+      <StatusBar
+        backgroundColor={Colors.COLOR_SECONDARY}
+        barStyle={'light-content'}
+      />
       <Header hideBack={true} title={'Permintaan Barang'} />
       <View style={styles.container}>
         {list?.length && !isLoading ? (

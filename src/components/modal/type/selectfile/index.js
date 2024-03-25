@@ -106,6 +106,20 @@ const SelectFileModal = ({toggle, pickFromfile, value, command}) => {
 
   console.log(selected);
 
+  async function onPickFileCamera() {
+    const pickResult = await pickFromCameraIOS();
+    if (pickResult) {
+      command(pickResult);
+    }
+  }
+
+  async function onPickFileGallery() {
+    const pickResult = await pickFromGaleryIOS();
+    if (pickResult) {
+      command(pickResult);
+    }
+  }
+
   function checkPermission(type = '') {
     if (type == 'GALLERY') {
       check(PERMISSIONS.IOS.PHOTO_LIBRARY).then(async result => {
@@ -196,7 +210,7 @@ const SelectFileModal = ({toggle, pickFromfile, value, command}) => {
               setTimeout(() => {
                 Platform.OS == 'ios'
                   ? checkPermission('GALLERY')
-                  : pickFromGalery(val => setSelected(val));
+                  : onPickFileGallery();
               }, 1000);
             }}
             style={styles.button}
@@ -209,7 +223,7 @@ const SelectFileModal = ({toggle, pickFromfile, value, command}) => {
               setTimeout(() => {
                 Platform.OS == 'ios'
                   ? checkPermission('CAMERA')
-                  : pickFromCamera(val => setSelected(val));
+                  : onPickFileCamera();
               }, 1000);
             }}
             style={styles.button}

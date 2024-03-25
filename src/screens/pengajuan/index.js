@@ -300,6 +300,14 @@ const PengajuanScreen = () => {
     }
   }
 
+  // reset supplier
+  React.useEffect(() => {
+    if (jenis !== 'PR') {
+      setSuplier();
+      setSuplierDetail();
+    }
+  }, [jenis]);
+
   // =========================================
   //
   // ==================================== GAP
@@ -616,8 +624,8 @@ const PengajuanScreen = () => {
         visible={showSelectFile}
         toggle={() => setShowSelectFile(!showSelectFile)}
         pickFromFile={() => pickFile()}
-        fileCallback={cb => onPickFromRes(cb)}
-        command={cmd => (Platform.OS == 'ios' ? onPickFromRes(cmd) : null)}
+        //fileCallback={cb => onPickFromRes(cb)}
+        command={cmd => onPickFromRes(cmd)}
       />
 
       <ModalView

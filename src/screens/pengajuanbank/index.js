@@ -139,6 +139,7 @@ const PengajuanBankScreen = () => {
       approved_by: RR.admin,
       parentId: REPORT_DATA?.id || '',
       payment_type: mode,
+      tipePembayaran: RR.tipePembayaran,
     };
 
     const {state, data, error} = await fetchApi({

@@ -64,6 +64,7 @@ const PengajuanScreen = () => {
   const [suplier, setSuplier] = React.useState();
   const [suplierDetail, setSuplierDetail] = React.useState();
   const [paymentType, setPaymentType] = React.useState();
+  const [tipePembayaran, setTipePembayaran] = React.useState();
 
   // CAR
   const [needBank, setNeedBank] = React.useState(true);
@@ -104,6 +105,7 @@ const PengajuanScreen = () => {
     !selectDate ||
     !admin ||
     !item.length ||
+    !tipePembayaran ||
     disabledByType();
 
   // handle on add item
@@ -343,6 +345,10 @@ const PengajuanScreen = () => {
           ) : (
             <Dropdown.TypeDropdown onChange={val => setJenis(val)} />
           )}
+
+          <Gap h={14} />
+          <InputLabel>Tipe Pembayaran</InputLabel>
+          <Dropdown.PaymentDropdown onChange={val => setTipePembayaran(val)} />
 
           <Gap h={6} />
           <InputLabel>COA</InputLabel>
@@ -610,6 +616,7 @@ const PengajuanScreen = () => {
                     // needBank: needBank,
                     suplier: suplierDetail,
                     payment_type: paymentType,
+                    tipePembayaran: tipePembayaran,
                   },
                 });
               }}>

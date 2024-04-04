@@ -66,22 +66,27 @@ const PengajuanCard = ({data, onPress}) => {
   return (
     <Card style={styles.container} onPress={onPress}>
       <Card.Content>
+        <Row>
+          <Text
+            style={{
+              flex: 1,
+              fontWeight: 'bold',
+              color: Colors.COLOR_PRIMARY,
+            }}
+            variant="titleSmall">
+            {data.tipePembayaran}
+          </Text>
+          <Text style={STATUS_TEXT().style} variant="bodyMedium">
+            {STATUS_TEXT().title}
+          </Text>
+        </Row>
+        <Gap h={12} />
         <View style={styles.cardLeft}>
-          <Row>
-            <Text style={{flex: 1}} variant="titleSmall">
-              {data.jenis_reimbursement}
-            </Text>
-            <Text variant="labelSmall">{data.no_doc}</Text>
-          </Row>
+          <Text variant="titleSmall">{data.jenis_reimbursement}</Text>
           <Gap h={4} />
-          <Row>
-            <Text style={{flex: 1, fontWeight: 'bold'}} variant="bodyLarge">
-              {data.nominal}
-            </Text>
-            <Text style={STATUS_TEXT().style} variant="bodyMedium">
-              {STATUS_TEXT().title}
-            </Text>
-          </Row>
+          <Text style={{flex: 1, fontWeight: 'bold'}} variant="bodyLarge">
+            {data.nominal}
+          </Text>
           <Gap h={4} />
           <Text variant={'labelSmall'}>{data?.kode_cabang}</Text>
           <Text style={styles.textRequester} variant={'labelSmall'}>
@@ -90,7 +95,7 @@ const PengajuanCard = ({data, onPress}) => {
           {renderCashAdvanceStatus()}
           <Gap h={14} />
           <Text style={styles.textDate} variant="labelSmall">
-            {getDate(data?.createdDate)}
+            {getDate(data?.createdDate)} #{data.no_doc}
           </Text>
         </View>
       </Card.Content>

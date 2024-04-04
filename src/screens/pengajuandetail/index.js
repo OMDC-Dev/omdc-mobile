@@ -56,6 +56,7 @@ const PengajuanDetailScreen = () => {
   const [accMode, setAccMode] = React.useState('IDLE'); // IDLE || ACC || REJ
   const [note, setNote] = React.useState();
   const [realisasi, setRealisasi] = React.useState(data?.realisasi);
+  const [selectedBank, setSelectedBank] = React.useState();
   // Cash Advance
   const [coa, setCoa] = React.useState(data?.coa);
   const [coaLoading, setCoaLoading] = React.useState(false);
@@ -72,6 +73,7 @@ const PengajuanDetailScreen = () => {
   const ITEMS = data?.item;
   const ADMINS = data?.accepted_by;
   const USER = data?.requester;
+  const FINANCE_BANK = data?.finance_bank;
 
   // acceptance
   const [adminStatus, setAdminStatus] = React.useState(ADMINS);
@@ -303,6 +305,10 @@ const PengajuanDetailScreen = () => {
       value: data?.jenis_reimbursement,
     },
     {
+      title: 'Tipe Pembayaran',
+      value: data?.tipePembayaran,
+    },
+    {
       title: 'Nama Vendor / Client',
       value: data?.name,
     },
@@ -472,7 +478,19 @@ const PengajuanDetailScreen = () => {
         if (financeStatus == 'WAITING') {
           return (
             <View>
-              <Gap h={38} />
+              {data?.payment_type !== 'CASH' ? (
+                <>
+                  <Gap h={14} />
+                  <InputLabel>Bank Pengirim</InputLabel>
+                  <Dropdown.BankDropdown
+                    disabled={isLoading}
+                    onChange={val => setSelectedBank(val)}
+                    placeholder={'Pilih bank'}
+                  />
+                </>
+              ) : null}
+
+              <Gap h={14} />
               <InputLabel>Catatan ( opsional ) </InputLabel>
               <TextInput
                 disabled={isLoading}
@@ -483,10 +501,13 @@ const PengajuanDetailScreen = () => {
                 onChangeText={text => setNote(text)}
                 value={note}
               />
-              <Gap h={24} />
+              <Gap h={38} />
               <Button
                 loading={isLoading}
-                disabled={isLoading}
+                disabled={
+                  isLoading ||
+                  (!selectedBank && data?.payment_type == 'TRANSFER')
+                }
                 mode={'contained'}
                 onPress={() => setFinanceDialog(true)}>
                 {_.isEmpty(BANK_DATA)
@@ -1075,6 +1096,17 @@ const PengajuanDetailScreen = () => {
               </Text>
               <Gap h={6} />
             </Row>
+            {data?.payment_type != 'CASH' ? (
+              <Row>
+                <InputLabel style={styles.rowLeft}>
+                  Dikirim oleh Finance dari
+                </InputLabel>
+                <Text style={styles.textValue} variant={'labelMedium'}>
+                  {FINANCE_BANK}
+                </Text>
+                <Gap h={6} />
+              </Row>
+            ) : null}
           </>
         ) : null}
 

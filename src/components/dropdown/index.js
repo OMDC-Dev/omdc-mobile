@@ -6,6 +6,7 @@ import DeptDropdown from './DeptDropdown';
 import ApprovalDropdown from './ApprovalDropdown';
 import KemasanDropdown from './KemasanDropdown';
 import SuplierDropdown from './SuplierDropdown';
+import PaymentDropdown from './PaymentDropdown';
 
 export {
   TypeDropdown,
@@ -16,4 +17,5 @@ export {
   ApprovalDropdown,
   KemasanDropdown,
   SuplierDropdown,
+  PaymentDropdown,
 };

@@ -15,6 +15,7 @@ import {
   Button as PaperButton,
   Icon,
   ActivityIndicator,
+  Searchbar,
 } from 'react-native-paper';
 import {Colors, Scaler, Size} from '../../styles';
 import {BlankScreen, Button, Card, Gap, Row} from '../../components';
@@ -39,6 +40,7 @@ const HomeScreen = () => {
   const [page, setPage] = React.useState(1);
   const [moreLoading, setMoreLoading] = React.useState(false);
   const [firstLoad, setFirstLoad] = React.useState(true);
+  const [search, setSearch] = React.useState('');
 
   // navigation
   const navigation = useNavigation();
@@ -49,11 +51,13 @@ const HomeScreen = () => {
 
   const hasReimbursement = cekAkses('#1', user?.kodeAkses);
 
-  async function getRecentRequest() {
+  async function getRecentRequest(clear) {
     console.log('Get Recent On Progress');
     setMoreLoading(true);
     const {state, data, error} = await fetchApi({
-      url: REIMBURSEMENT + `?page=${page}&limit=4&status=00`,
+      url:
+        REIMBURSEMENT +
+        `?page=${page}&limit=4&status=00&cari=${clear ? '' : search}`,
       method: 'GET',
     });
 
@@ -72,7 +76,7 @@ const HomeScreen = () => {
   async function getNextRecentRequest() {
     setMoreLoading(true);
     const {state, data, error} = await fetchApi({
-      url: REIMBURSEMENT + `?page=${page}&limit=4&status=00`,
+      url: REIMBURSEMENT + `?page=${page}&limit=4&status=00&cari=${search}`,
       method: 'GET',
     });
 
@@ -209,43 +213,55 @@ const HomeScreen = () => {
               Riwayat Pengajuan
             </Text>
           </Row>
+          <Searchbar
+            placeholder="Cari no. dokumen, jenis, coa..."
+            value={search}
+            onChangeText={text => setSearch(text)}
+            onBlur={() => getRecentRequest()}
+            onClearIconPress={() => getRecentRequest(true)}
+          />
           {recent?.length ? (
-            <FlatList
-              data={recent}
-              contentContainerStyle={{paddingBottom: 120}}
-              showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-              }
-              onEndReachedThreshold={0.5}
-              onEndReached={onLoadMore}
-              ListFooterComponent={
-                moreLoading ? (
-                  <View style={styles.footerLoading}>
-                    <Gap h={24} />
-                    <ActivityIndicator />
-                    <Gap h={14} />
-                    <Text variant={'bodySmall'}>Memuat lebih banyak...</Text>
-                  </View>
-                ) : null
-              }
-              renderItem={({item, index}) => {
-                return (
-                  <Card.PengajuanCard
-                    data={item}
-                    onPress={() =>
-                      navigation.navigate('PengajuanStack', {
-                        screen: 'PengajuanDetail',
-                        params: {
-                          data: item,
-                          type: 'MINE',
-                        },
-                      })
-                    }
+            <>
+              <FlatList
+                data={recent}
+                contentContainerStyle={{paddingBottom: 120}}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
                   />
-                );
-              }}
-            />
+                }
+                onEndReachedThreshold={0.5}
+                onEndReached={onLoadMore}
+                ListFooterComponent={
+                  moreLoading ? (
+                    <View style={styles.footerLoading}>
+                      <Gap h={24} />
+                      <ActivityIndicator />
+                      <Gap h={14} />
+                      <Text variant={'bodySmall'}>Memuat lebih banyak...</Text>
+                    </View>
+                  ) : null
+                }
+                renderItem={({item, index}) => {
+                  return (
+                    <Card.PengajuanCard
+                      data={item}
+                      onPress={() =>
+                        navigation.navigate('PengajuanStack', {
+                          screen: 'PengajuanDetail',
+                          params: {
+                            data: item,
+                            type: 'MINE',
+                          },
+                        })
+                      }
+                    />
+                  );
+                }}
+              />
+            </>
           ) : (
             <BlankScreen>Anda tidak memiliki pengajuan terbaru</BlankScreen>
           )}

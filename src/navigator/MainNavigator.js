@@ -25,6 +25,7 @@ const MainStackNavigator = () => {
       screenOptions={({route}) => ({
         unmountOnBlur: true,
         tabBarActiveTintColor: Colors.COLOR_PRIMARY,
+        tabBarHideOnKeyboard: true,
         tabBarStyle: (route => {
           const routeName = getFocusedRouteNameFromRoute(route) ?? '';
           if (

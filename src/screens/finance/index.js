@@ -13,10 +13,17 @@ import {
   IconButton,
   Text,
   Button as MButton,
+  Searchbar,
 } from 'react-native-paper';
 import {Colors, Scaler, Size} from '../../styles';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import {BlankScreen, Button, Row, Card as CustomCard} from '../../components';
+import {
+  BlankScreen,
+  Button,
+  Row,
+  Card as CustomCard,
+  Gap,
+} from '../../components';
 import ModalView from '../../components/modal';
 import {getMonthYear, getMonthYearNumber} from '../../utils/utils';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -25,14 +32,16 @@ import {FINANCE_PENGAJUAN} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
 
-async function getHistory(type = '00', monthyear) {
+async function getHistory(type = '00', monthyear, search, clear) {
   let useMonthFilter = '';
 
   if (monthyear !== 'ALL') {
     useMonthFilter = `&monthyear=${monthyear}`;
   }
 
-  const query = `?status=${type}&limit=100&page=1${useMonthFilter}`;
+  const query = `?status=${type}&limit=300&page=1${useMonthFilter}&cari=${
+    clear ? '' : search
+  }`;
   const {state, data, error} = await fetchApi({
     url: FINANCE_PENGAJUAN + query,
     method: 'GET',
@@ -52,6 +61,7 @@ const RenderWaiting = () => {
   const [selectedDate, setSelectedDate] = React.useState('ALL');
   const [queryDate, setQueryDate] = React.useState('ALL');
   const [refreshing, setRefreshing] = React.useState(false);
+  const [search, setSearch] = React.useState('');
 
   const navigation = useNavigation();
   const {user} = React.useContext(AuthContext);
@@ -69,11 +79,12 @@ const RenderWaiting = () => {
   useFocusEffect(
     React.useCallback(() => {
       getList();
+      setSearch('');
     }, [queryDate]),
   );
 
-  async function getList() {
-    const data = await getHistory('00', queryDate);
+  async function getList(clear) {
+    const data = await getHistory('00', queryDate, search, clear);
     if (data !== 'ERROR') {
       setList(data);
       setRefreshing(false);
@@ -114,6 +125,14 @@ const RenderWaiting = () => {
           Hapus Filter
         </MButton>
       </Row>
+      <Gap h={14} />
+      <Searchbar
+        placeholder="Cari no. dokumen, jenis, coa..."
+        value={search}
+        onChangeText={text => setSearch(text)}
+        onBlur={() => getList()}
+        onClearIconPress={() => getList(true)}
+      />
       {list?.length ? (
         <FlatList
           data={list}
@@ -156,6 +175,7 @@ const RenderDone = () => {
   const [selectedDate, setSelectedDate] = React.useState('ALL');
   const [queryDate, setQueryDate] = React.useState('ALL');
   const [refreshing, setRefreshing] = React.useState(false);
+  const [search, setSearch] = React.useState('');
 
   const navigation = useNavigation();
 
@@ -170,11 +190,13 @@ const RenderDone = () => {
   useFocusEffect(
     React.useCallback(() => {
       getList();
+      setSearch('');
     }, [queryDate]),
   );
 
-  async function getList() {
-    const data = await getHistory('01', queryDate);
+  async function getList(clear) {
+    console.log('GET LIST');
+    const data = await getHistory('01', queryDate, search, clear);
     if (data !== 'ERROR') {
       setList(data);
       setRefreshing(false);
@@ -215,6 +237,14 @@ const RenderDone = () => {
           Hapus Filter
         </MButton>
       </Row>
+      <Gap h={14} />
+      <Searchbar
+        placeholder="Cari no. dokumen, jenis, coa..."
+        value={search}
+        onChangeText={text => setSearch(text)}
+        onBlur={() => getList()}
+        onClearIconPress={() => getList(true)}
+      />
       {list?.length ? (
         <FlatList
           data={list}

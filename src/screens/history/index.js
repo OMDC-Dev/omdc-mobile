@@ -40,7 +40,7 @@ async function getHistory(type = '00', monthyear, search = '', clear) {
     useMonthFilter = `&monthyear=${monthyear}`;
   }
 
-  const query = `?status=${type}&page=1&limit=30${useMonthFilter}&cari=${
+  const query = `?status=${type}&page=1&limit=300${useMonthFilter}&cari=${
     clear ? '' : search
   }`;
   const {state, data, error} = await fetchApi({

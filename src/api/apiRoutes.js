@@ -8,6 +8,7 @@ export const BASE_URL = DEV;
 
 // AUTH
 export const LOGIN = 'user/login';
+export const LOGOUT = 'user/logout';
 export const USER_COMPLETE = 'user/complete';
 export const UPDATE_PASSWORD = 'user/update-password';
 export const GET_NOTIFICATION = 'pengumuman';

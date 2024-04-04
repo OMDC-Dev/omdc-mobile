@@ -1,15 +1,36 @@
 import {StatusBar, StyleSheet, View} from 'react-native';
 import React from 'react';
-import {Avatar, Card, Icon, Text} from 'react-native-paper';
+import {Avatar, Card, Icon, Snackbar, Text} from 'react-native-paper';
 import {Container, Gap, Header, Row} from '../../components';
 import {Colors, Scaler, Size} from '../../styles';
 import {AuthContext} from '../../context';
 import {useNavigation} from '@react-navigation/native';
 import packageInfo from '../../../package.json';
+import {fetchApi} from '../../api/api';
+import {LOGOUT} from '../../api/apiRoutes';
+import {API_STATES} from '../../utils/constant';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const {user, signOut} = React.useContext(AuthContext);
+
+  const [showSnack, setShowSnack] = React.useState(false);
+  const [snackMessage, setSnackMessage] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  async function onLogout() {
+    setIsLoading(true);
+    const {state, data, error} = await fetchApi({url: LOGOUT, method: 'POST'});
+    if (state == API_STATES.OK) {
+      setIsLoading(false);
+      signOut();
+    } else {
+      setIsLoading(false);
+      setSnackMessage('Ada sesuatu yang tidak beres, mohon coba lagi!');
+      setShowSnack(true);
+    }
+  }
+
   return (
     <Container>
       <StatusBar
@@ -32,6 +53,7 @@ const ProfileScreen = () => {
       <View style={styles.mainContainer}>
         <Card
           mode={'outlined'}
+          disabled={isLoading}
           onPress={() => navigation.navigate('UpdatePassword')}>
           <Card.Content>
             <Row>
@@ -55,6 +77,7 @@ const ProfileScreen = () => {
         <Gap h={14} />
         <Card
           mode={'outlined'}
+          disabled={isLoading}
           onPress={() => navigation.navigate('UpdateUser')}>
           <Card.Content>
             <Row>
@@ -78,10 +101,9 @@ const ProfileScreen = () => {
         <Gap h={14} />
         <Card
           mode={'outlined'}
+          disabled={isLoading}
           style={styles.exitButton}
-          onPress={() => {
-            signOut();
-          }}>
+          onPress={() => onLogout()}>
           <Card.Content>
             <Row>
               <Icon source={'exit-to-app'} size={24} color={Colors.COLOR_RED} />
@@ -96,6 +118,9 @@ const ProfileScreen = () => {
           Version v.{packageInfo.version}
         </Text>
       </View>
+      <Snackbar visible={showSnack} onDismiss={() => setShowSnack(false)}>
+        {snackMessage}
+      </Snackbar>
     </Container>
   );
 };

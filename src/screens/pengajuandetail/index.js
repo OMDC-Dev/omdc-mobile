@@ -33,7 +33,7 @@ import {
 import {API_STATES} from '../../utils/constant';
 import {formatRupiah} from '../../utils/rupiahFormatter';
 import ModalView from '../../components/modal';
-import {getDataById} from '../../utils/utils';
+import {getDataById, getLabelByValue} from '../../utils/utils';
 import _ from 'lodash';
 import {SIZE_14} from '../../styles/size';
 import moment from 'moment';
@@ -246,6 +246,7 @@ const PengajuanDetailScreen = () => {
       nominal: data?.nominal,
       note: note,
       coa: coa,
+      bank: selectedBank,
     };
 
     try {
@@ -469,6 +470,8 @@ const PengajuanDetailScreen = () => {
     return 'Rp. ' + formatRupiah(saldo);
   };
 
+  console.log('SELECTED BANK', selectedBank);
+
   // ========= rendering
   function renderBottomButton() {
     if (user.isAdmin && !IS_MINE) {
@@ -484,7 +487,7 @@ const PengajuanDetailScreen = () => {
                   <InputLabel>Bank Pengirim</InputLabel>
                   <Dropdown.BankDropdown
                     disabled={isLoading}
-                    onChange={val => setSelectedBank(val)}
+                    onChange={val => setSelectedBank(getLabelByValue(val))}
                     placeholder={'Pilih bank'}
                   />
                 </>

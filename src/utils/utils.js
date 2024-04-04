@@ -1,6 +1,7 @@
 import moment from 'moment';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import ImgToBase64 from 'react-native-image-base64';
+import BANKS from '../../assets/files/banks.json';
 
 //create simple log
 export const cLog = (log = '', color) => {
@@ -143,3 +144,8 @@ export const cekAkses = (akses, userAkses = []) => {
     return userAkses.findIndex(item => item == '1151') !== -1;
   }
 };
+
+export function getLabelByValue(value) {
+  const item = BANKS.find(item => item.value === value);
+  return item ? item.label : null;
+}

@@ -18,6 +18,8 @@ const ProfileScreen = () => {
   const [snackMessage, setSnackMessage] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
+  console.log(user);
+
   async function onLogout() {
     setIsLoading(true);
     const {state, data, error} = await fetchApi({url: LOGOUT, method: 'POST'});
@@ -46,7 +48,7 @@ const ProfileScreen = () => {
         </Text>
         <Gap h={4} />
         <Text variant={'labelSmall'} style={styles.textDepart}>
-          {user?.departemen}
+          {user?.departemen} - {user?.level_user}
         </Text>
       </View>
       <Gap h={8} />

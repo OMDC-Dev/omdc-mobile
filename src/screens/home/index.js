@@ -31,6 +31,7 @@ import {API_STATES} from '../../utils/constant';
 import {fetchApi} from '../../api/api';
 import {cekAkses} from '../../utils/utils';
 import _ from 'lodash';
+import {retrieveData} from '../../utils/store';
 
 const HomeScreen = () => {
   const [recent, setRecent] = React.useState([]);
@@ -41,6 +42,7 @@ const HomeScreen = () => {
   const [moreLoading, setMoreLoading] = React.useState(false);
   const [firstLoad, setFirstLoad] = React.useState(true);
   const [search, setSearch] = React.useState('');
+  const [icon, setIcon] = React.useState();
 
   // navigation
   const navigation = useNavigation();
@@ -148,6 +150,15 @@ const HomeScreen = () => {
     }
   }
 
+  React.useEffect(() => {
+    loadIcon();
+  }, []);
+
+  async function loadIcon() {
+    const getIcon = await retrieveData('APP_ICON');
+    setIcon(getIcon);
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
@@ -157,7 +168,7 @@ const HomeScreen = () => {
       <View style={styles.main}>
         <View style={styles.topContent}>
           <Image
-            source={ASSETS.logo}
+            source={{uri: `data:image/png;base64,${icon}`}}
             style={styles.logo}
             resizeMode={'contain'}
           />
@@ -293,7 +304,7 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: Scaler.scaleSize(60),
+    width: Scaler.scaleSize(54),
     height: Scaler.scaleSize(24),
   },
 

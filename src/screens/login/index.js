@@ -19,6 +19,7 @@ import {API_STATES} from '../../utils/constant';
 import {useNavigation} from '@react-navigation/native';
 import messaging from '@react-native-firebase/messaging';
 import packageInfo from '../../../package.json';
+import {retrieveData} from '../../utils/store';
 
 const LoginScreen = () => {
   const [userId, setUserId] = React.useState('');
@@ -30,11 +31,22 @@ const LoginScreen = () => {
 
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const [icon, setIcon] = React.useState();
+
   const {signIn} = React.useContext(AuthContext);
 
   const passwordRef = React.useRef();
 
   const navigation = useNavigation();
+
+  React.useEffect(() => {
+    loadIcon();
+  }, []);
+
+  async function loadIcon() {
+    const getIcon = await retrieveData('APP_ICON');
+    setIcon(getIcon);
+  }
 
   // API
   const login = async () => {
@@ -84,7 +96,7 @@ const LoginScreen = () => {
         <View style={styles.main}>
           <Image
             style={styles.logo}
-            source={ASSETS.loginLogo}
+            source={{uri: `data:image/png;base64,${icon}`}}
             resizeMode={'contain'}
           />
           <TextInput
@@ -149,8 +161,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    height: Scaler.scaleSize(170),
-    width: Scaler.scaleSize(180),
+    height: Scaler.scaleSize(120),
+    width: Scaler.scaleSize(120),
     alignSelf: 'center',
     marginBottom: Scaler.scaleSize(24),
   },

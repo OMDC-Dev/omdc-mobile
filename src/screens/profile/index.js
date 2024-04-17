@@ -48,7 +48,7 @@ const ProfileScreen = () => {
         </Text>
         <Gap h={4} />
         <Text variant={'labelSmall'} style={styles.textDepart}>
-          {user?.departemen} - {user?.level_user}
+          {user?.level_user}
         </Text>
       </View>
       <Gap h={8} />

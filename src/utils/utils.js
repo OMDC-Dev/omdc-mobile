@@ -126,6 +126,7 @@ export const cekAkses = (akses, userAkses = []) => {
    * PERMINTAAN BARANG -> 1157 -> #2
    * PENGUMUMAN -> 1171 -> #3
    * DETAIL BARANG -> 1151 -> #4
+   * SUPER REIMBURSEMENT -> 1175 -> #5
    */
 
   if (akses == '#1') {
@@ -143,9 +144,24 @@ export const cekAkses = (akses, userAkses = []) => {
   if (akses == '#4') {
     return userAkses.findIndex(item => item == '1151') !== -1;
   }
+
+  if (akses == '#5') {
+    return userAkses.findIndex(item => item == '1175') !== -1;
+  }
 };
 
 export function getLabelByValue(value) {
   const item = BANKS.find(item => item.value === value);
   return item ? item.label : null;
+}
+
+export function hitungSelisihHari(tanggalAwal, tanggalAkhir) {
+  // Menggunakan moment untuk membuat objek tanggal dari string atau tipe data tanggal JavaScript
+  const awal = moment(tanggalAwal);
+  const akhir = moment(tanggalAkhir);
+
+  // Menghitung selisih dalam hari
+  const selisih = akhir.diff(awal, 'days');
+
+  return selisih;
 }

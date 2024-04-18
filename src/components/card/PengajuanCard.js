@@ -95,7 +95,7 @@ const PengajuanCard = ({data, onPress}) => {
           {renderCashAdvanceStatus()}
           <Gap h={14} />
           <Text style={styles.textDate} variant="labelSmall">
-            {getDate(data?.createdDate)} #{data.no_doc}
+            {getDate(data?.createdAt)} #{data.no_doc}
           </Text>
         </View>
       </Card.Content>

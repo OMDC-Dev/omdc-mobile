@@ -12,12 +12,14 @@ import {BarangStack} from './BarangNavigator';
 import {cekAkses} from '../utils/utils';
 import {FinanceStack} from './FinanceStack';
 import {ProfileStack} from './ProfileStack';
+import {SuperReimbursementStack} from './ReportReimbursement';
 
 const Tab = createBottomTabNavigator();
 
 const MainStackNavigator = () => {
   const {user} = React.useContext(AuthContext);
   const hasRequestBarang = cekAkses('#2', user.kodeAkses);
+  const hasSuperReimbursement = cekAkses('#5', user.kodeAkses);
 
   return (
     <Tab.Navigator
@@ -34,6 +36,7 @@ const MainStackNavigator = () => {
             routeName === 'DiajukanInit' ||
             routeName === 'FinanceInit' ||
             routeName === 'Barang' ||
+            routeName === 'SuperReimbursementInit' ||
             routeName === 'ProfileInit' ||
             !routeName
           ) {
@@ -100,6 +103,19 @@ const MainStackNavigator = () => {
             headerShown: false,
             tabBarIcon: ({color, size}) => (
               <Icon source={'basket-unfill'} color={color} size={size} />
+            ),
+          }}
+        />
+      )}
+      {hasSuperReimbursement && (
+        <Tab.Screen
+          name="SuperReimbursementStack"
+          component={SuperReimbursementStack}
+          options={{
+            title: 'Report Reimbursement',
+            headerShown: false,
+            tabBarIcon: ({color, size}) => (
+              <Icon source={'clipboard-flow'} color={color} size={size} />
             ),
           }}
         />

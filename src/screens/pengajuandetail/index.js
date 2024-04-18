@@ -47,6 +47,7 @@ const PengajuanDetailScreen = () => {
 
   // IS MINE
   const IS_MINE = route?.params?.type == 'MINE';
+  const IS_REPORT = route.params?.type == 'REPORT';
 
   // state
   const [adminList, setAdminList] = React.useState([]);
@@ -814,7 +815,9 @@ const PengajuanDetailScreen = () => {
           onPress={() =>
             isLoading
               ? null
-              : user?.isAdmin && ACCEPTANCE_STATUS_BY_ID == 'WAITING'
+              : user?.isAdmin &&
+                ACCEPTANCE_STATUS_BY_ID == 'WAITING' &&
+                !IS_REPORT
               ? setNomEdit(true)
               : null
           }>
@@ -882,7 +885,9 @@ const PengajuanDetailScreen = () => {
                     </Text>
                   </>
                 ) : null}
-                {user?.isAdmin && ACCEPTANCE_STATUS_BY_ID == 'WAITING' ? (
+                {user?.isAdmin &&
+                ACCEPTANCE_STATUS_BY_ID == 'WAITING' &&
+                !IS_REPORT ? (
                   <>
                     <Gap h={8} />
                     <Text style={styles.textTotal} variant={'labelMedium'}>
@@ -974,7 +979,7 @@ const PengajuanDetailScreen = () => {
             );
           })}
         </View>
-        {user?.isAdmin && !IS_MINE ? (
+        {(user?.isAdmin && !IS_MINE) || IS_REPORT ? (
           <>
             <Gap h={24} />
             <Text style={styles.subtitle} variant="titleSmall">
@@ -1065,7 +1070,7 @@ const PengajuanDetailScreen = () => {
             </Row>
           </TouchableOpacity>
         </View>
-        {renderCoaSelector()}
+        {IS_REPORT ? null : renderCoaSelector()}
 
         {typeName !== 'Petty Cash Report' &&
         !_.isEmpty(BANK_DATA) &&
@@ -1105,7 +1110,7 @@ const PengajuanDetailScreen = () => {
                   Dikirim oleh Finance dari
                 </InputLabel>
                 <Text style={styles.textValue} variant={'labelMedium'}>
-                  {FINANCE_BANK}
+                  {FINANCE_BANK || '-'}
                 </Text>
                 <Gap h={6} />
               </Row>
@@ -1130,7 +1135,7 @@ const PengajuanDetailScreen = () => {
           </>
         )}
 
-        {renderBottomButton()}
+        {IS_REPORT ? null : renderBottomButton()}
       </ScrollView>
       <Snackbar visible={snak} onDismiss={() => setSnak(false)}>
         {snakMsg || ''}

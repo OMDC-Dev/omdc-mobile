@@ -207,7 +207,7 @@ const HomeScreen = () => {
               <Button
                 style={styles.buttonRequest}
                 onPress={() => navigation.navigate('PengajuanStack')}>
-                Ajukan Reimbursement
+                Ajukan Request of Payment
               </Button>
             </>
           )}

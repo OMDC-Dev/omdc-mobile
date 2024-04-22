@@ -19,7 +19,7 @@ const PengajuanDoneScreen = () => {
       <StatusBar barStyle={'dark-content'} />
       <View style={styles.mainContainer}>
         <Text style={styles.textTitle} variant={'headlineSmall'}>
-          Pengajuan Reimbursement Berhasil!
+          Pengajuan Request of Payment Berhasil!
         </Text>
         <LottieView
           source={ASSETS.animation.done2}

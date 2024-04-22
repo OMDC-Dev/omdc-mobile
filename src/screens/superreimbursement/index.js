@@ -81,7 +81,7 @@ const SuperReimbursementScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <Header hideBack={true} title={'Report Reimbursement'} />
+      <Header hideBack={true} title={'Report Request of Payment'} />
       <View style={styles.container}>
         <InputLabel>Periode Awal</InputLabel>
         <Card

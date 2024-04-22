@@ -303,7 +303,7 @@ const PengajuanDetailScreen = () => {
       value: data?.no_doc,
     },
     {
-      title: 'Jenis Reimbursement',
+      title: 'Jenis Request of Payment',
       value: data?.jenis_reimbursement,
     },
     {
@@ -805,7 +805,7 @@ const PengajuanDetailScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Header title={'Detail Reimbursement'} />
+      <Header title={'Detail Request of Payment'} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.mainContainer}
@@ -1005,7 +1005,7 @@ const PengajuanDetailScreen = () => {
 
         <Gap h={24} />
         <Text style={styles.subtitle} variant="titleSmall">
-          Data Reimbursement
+          Data Request of Payment
         </Text>
         <Gap h={14} />
         {data?.jenis_reimbursement == 'Cash Advance Report' ? (

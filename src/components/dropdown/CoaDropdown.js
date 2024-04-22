@@ -55,7 +55,7 @@ const CoaDropdown = ({onChange, placeholder}) => {
         searchPlaceholder="Cari coa..."
         searchTextInputStyle={styles.searchInput}
         listMode={Platform.OS == 'android' ? 'MODAL' : 'SCROLLVIEW'}
-        placeholder={placeholder || 'Pilih COA'}
+        placeholder={placeholder || 'Pilih COA / Grup Biaya'}
         placeholderStyle={styles.placeholderStyle}
         open={open}
         value={value}

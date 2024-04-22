@@ -50,7 +50,7 @@ const MainStackNavigator = () => {
         name="HomeStack"
         component={HomeStack}
         options={{
-          title: 'Reimbursement',
+          title: 'R.O.P',
           headerShown: false,
           tabBarIcon: ({color, size}) => (
             <Icon source={'home-variant'} color={color} size={size} />
@@ -112,7 +112,7 @@ const MainStackNavigator = () => {
           name="SuperReimbursementStack"
           component={SuperReimbursementStack}
           options={{
-            title: 'Report Reimbursement',
+            title: 'Report',
             headerShown: false,
             tabBarIcon: ({color, size}) => (
               <Icon source={'clipboard-flow'} color={color} size={size} />

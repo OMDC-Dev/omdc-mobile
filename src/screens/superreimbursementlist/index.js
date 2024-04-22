@@ -117,7 +117,7 @@ const SuperReimbursementListScreen = () => {
 
   return (
     <Container>
-      <Header title={'Reimbursement'} />
+      <Header title={'Request of Payment'} />
       <View style={styles.mainContainer}>
         <Searchbar
           placeholder="Cari no. dokumen, jenis, coa..."

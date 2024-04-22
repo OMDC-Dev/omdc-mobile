@@ -318,7 +318,7 @@ const PengajuanScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Header title={'Reimbursement'} />
+      <Header title={'Request of Payment'} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{flex: 1}}>
@@ -331,11 +331,11 @@ const PengajuanScreen = () => {
             paddingBottom: Scaler.scaleSize(60),
           }}>
           <Text style={styles.subtitle} variant="titleSmall">
-            Data Reimbursement
+            Data Request of Payment
           </Text>
 
           <Gap h={14} />
-          <InputLabel>Jenis Reimbursement</InputLabel>
+          <InputLabel>Jenis Request of Payment</InputLabel>
           {jenis == 'CAR' ? (
             <Card style={styles.card} mode={'outlined'}>
               <Card.Content>
@@ -343,15 +343,18 @@ const PengajuanScreen = () => {
               </Card.Content>
             </Card>
           ) : (
-            <Dropdown.TypeDropdown onChange={val => setJenis(val)} />
+            <Dropdown.TypeDropdown
+              user={user}
+              onChange={val => setJenis(val)}
+            />
           )}
 
           <Gap h={14} />
-          <InputLabel>Tipe Pembayaran</InputLabel>
+          <InputLabel>Kategori Permintaan</InputLabel>
           <Dropdown.PaymentDropdown onChange={val => setTipePembayaran(val)} />
 
           <Gap h={6} />
-          <InputLabel>COA</InputLabel>
+          <InputLabel>COA / Grup Biaya</InputLabel>
           {jenis == 'CAR' ? (
             <Card style={styles.card} mode={'outlined'}>
               <Card.Content>

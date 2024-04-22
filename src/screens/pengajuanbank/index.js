@@ -162,7 +162,7 @@ const PengajuanBankScreen = () => {
   if (RR.jenis == 'PC') {
     return (
       <View style={styles.container}>
-        <Header title={'Reimbursement'} />
+        <Header title={'Request of Payment'} />
         <ScrollView
           style={styles.mainContainer}
           contentContainerStyle={{flexGrow: 1}}>
@@ -178,7 +178,7 @@ const PengajuanBankScreen = () => {
               loading={isLoading}
               disabled={isLoading}
               onPress={() => onPengajuan()}>
-              Ajukan Reimbursement
+              Ajukan Request of Payment
             </Button>
           </View>
         </ScrollView>
@@ -191,7 +191,7 @@ const PengajuanBankScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Header title={'Reimbursement'} />
+      <Header title={'Request of Payment'} />
       <ScrollView
         style={styles.mainContainer}
         contentContainerStyle={{flexGrow: 1}}>
@@ -337,7 +337,7 @@ const PengajuanBankScreen = () => {
             loading={isLoading}
             disabled={IS_PRE_BANK || mode == 'CASH' ? false : !acc || isLoading}
             onPress={() => onPengajuan()}>
-            Ajukan Reimbursement
+            Ajukan Request of Payment
           </Button>
         </View>
       </ScrollView>

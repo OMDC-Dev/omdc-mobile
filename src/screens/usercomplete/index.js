@@ -12,8 +12,6 @@ import {AuthContext} from '../../context';
 const UserCompleteScreen = () => {
   const {signIn, user} = React.useContext(AuthContext);
 
-  console.log(user);
-
   const navigation = useNavigation();
 
   const route = useRoute();
@@ -42,20 +40,20 @@ const UserCompleteScreen = () => {
       departemen: dept,
     };
 
-    // headers
-    const headers = {
-      Authorization: `Bearer ${userToken}`,
-    };
     const {state, data, error} = await fetchApi({
-      url: USER_COMPLETE,
+      url: USER_COMPLETE + `/${USER.iduser}`,
       method: 'POST',
       data: body,
-      headers,
     });
 
     if (state == API_STATES.OK) {
       setIsLoading(false);
-      signIn({...USER, nomorWA: nomorWA, departemen: dept});
+      signIn({
+        ...USER,
+        nomorWA: nomorWA,
+        departemen: dept,
+        userToken: data.userToken,
+      });
       if (IS_FROM_EDIT) {
         Alert.alert('Sukses', 'Data anda telah diupdate!', [
           {

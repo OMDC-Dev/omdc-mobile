@@ -3,7 +3,13 @@ import React from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Colors, Scaler, Size} from '../../styles';
 
-const ApprovalDropdown = ({data = [], onChange, loading, disabled}) => {
+const ApprovalDropdown = ({
+  data = [],
+  onChange,
+  loading,
+  disabled,
+  placeholder,
+}) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(null);
   const [items, setItems] = React.useState([]);
@@ -25,7 +31,7 @@ const ApprovalDropdown = ({data = [], onChange, loading, disabled}) => {
         searchPlaceholder="Cari..."
         searchTextInputStyle={styles.searchInput}
         listMode={Platform.OS == 'android' ? 'MODAL' : 'SCROLLVIEW'}
-        placeholder="Pilih approval"
+        placeholder={placeholder || 'Pilih approval'}
         placeholderStyle={styles.placeholderStyle}
         open={open}
         value={value}

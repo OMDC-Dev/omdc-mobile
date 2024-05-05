@@ -2,16 +2,16 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import * as React from 'react';
 import PengajuanDetailScreen from '../screens/pengajuandetail';
 import PreviewScreen from '../screens/preview';
-import DiajukanScreen from '../screens/diajukan';
+import NeedReviewScreen from '../screens/needreview';
 
 const Stack = createNativeStackNavigator();
 
-export const DiajukanStack = () => {
+export const ReviewerStack = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="DiajukanInit"
-        component={DiajukanScreen}
+        name="ReviewerInit"
+        component={NeedReviewScreen}
         options={{
           headerShown: false,
         }}

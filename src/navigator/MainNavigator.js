@@ -1,11 +1,9 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import * as React from 'react';
 import {HomeStack} from './HomeStack';
-import HistoryScreen from '../screens/history';
 import {Icon} from 'react-native-paper';
 import {Colors} from '../styles';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
-import {HistoryStack} from './HistoryStack';
 import {DiajukanStack} from './DiajukanStack';
 import {AuthContext} from '../context';
 import {BarangStack} from './BarangNavigator';
@@ -13,6 +11,7 @@ import {cekAkses} from '../utils/utils';
 import {FinanceStack} from './FinanceStack';
 import {ProfileStack} from './ProfileStack';
 import {SuperReimbursementStack} from './ReportReimbursement';
+import {ReviewerStack} from './ReviewerStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,6 +19,64 @@ const MainStackNavigator = () => {
   const {user} = React.useContext(AuthContext);
   const hasRequestBarang = cekAkses('#2', user.kodeAkses);
   const hasSuperReimbursement = cekAkses('#5', user.kodeAkses);
+
+  // select admin type
+  function renderAdminPengajuan() {
+    let screen;
+
+    switch (user.type) {
+      case 'ADMIN':
+        screen = (
+          <Tab.Screen
+            name="DiajukanStack"
+            component={DiajukanStack}
+            options={{
+              title: 'Pengajuan',
+              headerShown: false,
+              tabBarIcon: ({color, size}) => (
+                <Icon source={'clipboard-flow'} color={color} size={size} />
+              ),
+            }}
+          />
+        );
+        break;
+      case 'FINANCE':
+        screen = (
+          <Tab.Screen
+            name="FiananceStack"
+            component={FinanceStack}
+            options={{
+              title: 'Pengajuan',
+              headerShown: false,
+              tabBarIcon: ({color, size}) => (
+                <Icon source={'clipboard-flow'} color={color} size={size} />
+              ),
+            }}
+          />
+        );
+        break;
+      case 'REVIEWER':
+        screen = (
+          <Tab.Screen
+            name="DiajukanStack"
+            component={ReviewerStack}
+            options={{
+              title: 'Pengajuan',
+              headerShown: false,
+              tabBarIcon: ({color, size}) => (
+                <Icon source={'clipboard-flow'} color={color} size={size} />
+              ),
+            }}
+          />
+        );
+        break;
+      default:
+        screen = null;
+        break;
+    }
+
+    return user.isAdmin ? screen : null;
+  }
 
   return (
     <Tab.Navigator
@@ -57,43 +114,7 @@ const MainStackNavigator = () => {
           ),
         }}
       />
-      {user.isAdmin &&
-        (user.type == 'ADMIN' ? (
-          <Tab.Screen
-            name="DiajukanStack"
-            component={DiajukanStack}
-            options={{
-              title: 'Pengajuan',
-              headerShown: false,
-              tabBarIcon: ({color, size}) => (
-                <Icon source={'clipboard-flow'} color={color} size={size} />
-              ),
-            }}
-          />
-        ) : (
-          <Tab.Screen
-            name="FiananceStack"
-            component={FinanceStack}
-            options={{
-              title: 'Pengajuan',
-              headerShown: false,
-              tabBarIcon: ({color, size}) => (
-                <Icon source={'clipboard-flow'} color={color} size={size} />
-              ),
-            }}
-          />
-        ))}
-      {/* <Tab.Screen
-        name="HistoryStack"
-        component={HistoryStack}
-        options={{
-          title: 'Riwayat Reimbursement',
-          headerShown: false,
-          tabBarIcon: ({color, size}) => (
-            <Icon source={'clipboard-flow'} color={color} size={size} />
-          ),
-        }}
-      /> */}
+      {renderAdminPengajuan()}
       {hasRequestBarang && (
         <Tab.Screen
           name="BarangStack"

@@ -77,3 +77,7 @@ export const GET_SUPLIER = '/suplier';
 
 // ICON
 export const GET_ICON = '/icon';
+
+// Reviwer
+export const GET_UNREVIEW_REIMBURSEMENT = 'reviewer/reimbursement';
+export const ACCEPT_REVIEW_REIMBURSEMENT = id => `reviewer/accept/${id}`;

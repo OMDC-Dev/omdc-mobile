@@ -33,6 +33,7 @@ const AuthProvider = ({children}) => {
             ...prevState,
             isSignout: true,
             userToken: null,
+            user: null,
           };
       }
     },

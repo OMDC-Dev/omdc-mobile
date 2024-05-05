@@ -17,8 +17,6 @@ const UserCompleteScreen = () => {
   const route = useRoute();
 
   const IS_FROM_EDIT = route.name == 'UpdateUser';
-
-  const {userToken} = IS_FROM_EDIT ? user : route?.params?.user;
   const USER = IS_FROM_EDIT ? user : route.params.user;
 
   // === STATE

@@ -95,6 +95,7 @@ const MainStackNavigator = () => {
             routeName === 'Barang' ||
             routeName === 'SuperReimbursementInit' ||
             routeName === 'ProfileInit' ||
+            routeName === 'ReviewerInit' ||
             !routeName
           ) {
             return {display: 'flex', position: 'absolute'};

@@ -41,8 +41,8 @@ export const SUPERUSER = 'superuser';
 export const SUPERUSER_REIMBURSEMENT = 'superuser/reimbursement';
 export const PENGAJUAN = 'superuser/pengajuan';
 export const FINANCE_PENGAJUAN = 'finance/pengajuan';
-export const FINANCE_ACCEPTANCE = id => {
-  return `finance/acceptance/${id}?status=DONE`;
+export const FINANCE_ACCEPTANCE = (id, status) => {
+  return `finance/acceptance/${id}?status=${status}`;
 };
 export const FINANCE_UPDATE_COA = id => {
   return `finance/update-coa/${id}`;

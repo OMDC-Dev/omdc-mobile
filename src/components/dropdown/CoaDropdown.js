@@ -8,7 +8,7 @@ import {API_STATES} from '../../utils/constant';
 
 const COA_LIST = require('../../../assets/files/coa.json');
 
-const CoaDropdown = ({onChange, placeholder}) => {
+const CoaDropdown = ({onChange, placeholder, disabled}) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(null);
   const [coa, setCoa] = React.useState([]);
@@ -24,7 +24,7 @@ const CoaDropdown = ({onChange, placeholder}) => {
   async function getCoaList() {
     console.log('COA LIST');
     const {state, data, error} = await fetchApi({
-      url: GET_COA() + '&limit=200',
+      url: GET_COA() + '&limit=1000',
       method: 'GET',
     });
 
@@ -60,7 +60,7 @@ const CoaDropdown = ({onChange, placeholder}) => {
         open={open}
         value={value}
         items={coa}
-        setOpen={setOpen}
+        setOpen={disabled ? undefined : setOpen}
         setValue={setValue}
       />
     </View>

@@ -1,5 +1,6 @@
 import {
   Alert,
+  FlatList,
   Platform,
   ScrollView,
   StyleSheet,
@@ -56,7 +57,7 @@ const PengajuanDetailScreen = () => {
   const [nominal, setNominal] = React.useState(removeRps(data?.nominal));
   const [nomEdit, setNomEdit] = React.useState(false);
   const [accMode, setAccMode] = React.useState('IDLE'); // IDLE || ACC || REJ
-  const [note, setNote] = React.useState();
+  const [note, setNote] = React.useState('');
   const [realisasi, setRealisasi] = React.useState(data?.realisasi);
   const [selectedBank, setSelectedBank] = React.useState();
   // Cash Advance
@@ -84,19 +85,15 @@ const PengajuanDetailScreen = () => {
     data?.status_finance,
   );
   const [financeData, setFinanceData] = React.useState(data?.finance_by);
-  const [financeNote, setFinanceNote] = React.useState();
 
   // reviewer
   const [reviewStatus, setReviewStatus] = React.useState(data.reviewStatus);
   const [updateAdmin, setUpdateAdmin] = React.useState(
     data?.accepted_by[0].iduser,
   );
-  const [reviewerNote, setReviewerNote] = React.useState();
-
-  console.log('ADMIN', updateAdmin);
+  const [noteList, setNoteList] = React.useState([]);
 
   // dialog
-  const [financeDialog, setFinanceDialog] = React.useState(false);
   const [cancelDialog, setCancelDialog] = React.useState(false);
 
   const ACCEPTANCE_STATUS_BY_ID = getDataById(
@@ -169,9 +166,7 @@ const PengajuanDetailScreen = () => {
         setRealisasi(data?.realisasi);
         setCoa(data?.coa);
         setReviewStatus(data?.reviewStatus);
-        setReviewerNote(data.review_note);
-        setFinanceNote(data.finance_note);
-        setNote(data.note);
+        setNoteList(data.notes);
       }
     } catch (error) {
       console.log(error);
@@ -206,14 +201,12 @@ const PengajuanDetailScreen = () => {
   async function acceptance(status) {
     setIsLoading(true);
     const R_ID = data?.id;
-    const noteStr = `${
-      data?.note?.length ? data?.note + `, ${note || ''}` : note || '-'
-    }`;
+
     const body = {
       fowarder_id: admin,
       status: admin ? 'FOWARDED' : status,
       nominal: formatRupiah(nominal),
-      note: noteStr || '',
+      note: note,
       coa: coa,
     };
 
@@ -242,7 +235,7 @@ const PengajuanDetailScreen = () => {
   }
 
   // set status finance
-  async function acceptance_finance() {
+  async function acceptance_finance(status) {
     setIsLoading(true);
     const R_ID = data?.id;
     const body = {
@@ -254,7 +247,7 @@ const PengajuanDetailScreen = () => {
 
     try {
       const {state, data, error} = await fetchApi({
-        url: FINANCE_ACCEPTANCE(R_ID),
+        url: FINANCE_ACCEPTANCE(R_ID, status),
         method: 'POST',
         data: body,
       });
@@ -323,7 +316,7 @@ const PengajuanDetailScreen = () => {
 
     if (state == API_STATES.OK) {
       setCoaLoading(false);
-      setSnakMsg('Sukses mengupdate COA');
+      setSnakMsg('Sukses mengupdate COA / Grup Biaya');
       setSnak(true);
       setCoaDisabled(true);
     } else {
@@ -443,13 +436,12 @@ const PengajuanDetailScreen = () => {
   }
 
   function onConfirmPressed() {
-    setFinanceDialog(false);
     if (user.type == 'ADMIN') {
       acceptance(accMode == 'ACC' ? 'APPROVED' : 'REJECTED');
     } else if (user.type == 'REVIEWER') {
       acceptance_reviewer(accMode == 'ACC' ? 'APPROVED' : 'REJECTED');
     } else {
-      acceptance_finance();
+      acceptance_finance(accMode == 'ACC' ? 'DONE' : 'REJECTED');
     }
   }
 
@@ -553,6 +545,28 @@ const PengajuanDetailScreen = () => {
       );
     }
 
+    if (user.type == 'FINANCE') {
+      return (
+        <View>
+          <Gap h={38} />
+          <Button
+            disabled={
+              isLoading || (!selectedBank && data?.payment_type == 'TRANSFER')
+            }
+            mode={'contained'}
+            onPress={() => setAccMode('ACC')}>
+            {_.isEmpty(BANK_DATA)
+              ? 'Konfirmasi Dana Diterima'
+              : 'Konfirmasi Dana Ditransfer'}
+          </Button>
+          <Gap h={10} />
+          <Button mode={'outlined'} onPress={() => setAccMode('REJ')}>
+            Tolak Pengajuan
+          </Button>
+        </View>
+      );
+    }
+
     return (
       <View>
         <Gap h={38} />
@@ -568,58 +582,14 @@ const PengajuanDetailScreen = () => {
   }
 
   // On State Finished
-  function renderBottomNote() {
-    let notes;
-    if (user.type == 'REVIEWER') {
-      notes = reviewerNote || note || data?.review_note;
-    }
-
-    if (user.type == 'FINANCE') {
-      notes = financeNote || note || data?.finance_note;
-    }
-
-    if (user.type == 'ADMIN') {
-      notes = note || data?.note;
-    }
-
+  function BottomNote({title = '', message = '', key}) {
     return (
       <Card mode={'outlined'}>
         <Card.Content style={{alignItems: 'center'}}>
-          <Text variant={'titleSmall'}>Catatan : </Text>
+          <Text variant={'titleSmall'}>{title}</Text>
           <Gap h={8} />
           <Text style={{textAlign: 'center'}} variant={'bodyMedium'}>
-            {notes || '-'}
-          </Text>
-        </Card.Content>
-      </Card>
-    );
-  }
-
-  // Finance Note
-  function renderFinanceNote() {
-    if (user.type == 'FINANCE') {
-      return (
-        <Card mode={'outlined'}>
-          <Card.Content style={{alignItems: 'center'}}>
-            <Text variant={'titleSmall'}>Catatan Finance : </Text>
-            <Gap h={8} />
-            <Text style={{textAlign: 'center'}} variant={'bodyMedium'}>
-              {note || data?.finance_note || '-'}
-            </Text>
-          </Card.Content>
-        </Card>
-      );
-    }
-
-    if (data?.status_finance !== 'DONE') return;
-
-    return (
-      <Card mode={'outlined'}>
-        <Card.Content style={{alignItems: 'center'}}>
-          <Text variant={'titleSmall'}>Catatan Finance : </Text>
-          <Gap h={8} />
-          <Text style={{textAlign: 'center'}} variant={'bodyMedium'}>
-            {data?.finance_note || '-'}
+            {message}
           </Text>
         </Card.Content>
       </Card>
@@ -683,6 +653,7 @@ const PengajuanDetailScreen = () => {
 
   // render cancel pengajuan button
   function renderCancelPengajuanButton() {
+    if (requestStatus !== 'WAITING') return;
     if (IS_PUSHED) return;
 
     return (
@@ -746,41 +717,20 @@ const PengajuanDetailScreen = () => {
               {renderSenderBankFinance()}
 
               <Gap h={14} />
-              <InputLabel>Catatan ( opsional ) </InputLabel>
-              <TextInput
-                disabled={isLoading}
-                style={styles.inputFull}
-                mode={'outlined'}
-                placeholder={'Tambahkan catatan'}
-                placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                onChangeText={text => setNote(text)}
-                value={note}
-              />
-              <Gap h={38} />
-              <Button
-                loading={isLoading}
-                disabled={
-                  isLoading ||
-                  (!selectedBank && data?.payment_type == 'TRANSFER')
-                }
-                mode={'contained'}
-                onPress={() => setFinanceDialog(true)}>
-                {_.isEmpty(BANK_DATA)
-                  ? 'Konfirmasi Dana Diterima'
-                  : 'Konfirmasi Dana Ditransfer'}
-              </Button>
+              {renderAcceptRejectState()}
             </View>
           );
         } else {
           // FINANCE STATUS DONE
           return (
             <View>
-              {renderFinanceNote()}
               <Gap h={14} />
               <Card mode={'outlined'}>
                 <Card.Content style={{alignItems: 'center'}}>
                   <Text variant={'bodyMedium'}>
-                    {_.isEmpty(BANK_DATA)
+                    {financeStatus == 'REJECTED'
+                      ? 'Pengajuan telah ditolak'
+                      : _.isEmpty(BANK_DATA)
                       ? 'Selesai'
                       : 'Dana sudah ditransfer.'}
                   </Text>
@@ -801,7 +751,6 @@ const PengajuanDetailScreen = () => {
 
         return (
           <>
-            {renderBottomNote()}
             <Gap h={10} />
             {renderAdminDoneCard()}
           </>
@@ -816,7 +765,6 @@ const PengajuanDetailScreen = () => {
         // ADMIN STATUS DONE
         return (
           <View>
-            {renderBottomNote()}
             <Gap h={14} />
             {renderAdminDoneCard()}
             {renderCARCreateDetailReport('ADMIN')}
@@ -828,20 +776,29 @@ const PengajuanDetailScreen = () => {
       // USER SECTION
       return (
         <View>
-          {requestStatus !== 'WAITING' ? (
-            <>
-              {renderBottomNote()}
-              <Gap h={14} />
-              {renderFinanceNote()}
-            </>
-          ) : (
-            renderCancelPengajuanButton()
-          )}
+          {renderCancelPengajuanButton()}
           {renderCARCreateDetailReport('USER')}
           {renderCARPengajuanButton()}
         </View>
       );
     }
+  }
+
+  // ==== RENDER ALL NOTES
+  function renderAllNotes() {
+    return (
+      <>
+        {noteList.map((item, index) => {
+          return (
+            <View key={item + index}>
+              <Gap h={14} />
+              <BottomNote title={item.title} message={item.msg} />
+            </View>
+          );
+        })}
+        <Gap h={14} />
+      </>
+    );
   }
 
   // ==== RENDER ADMIN SELECTOR
@@ -895,7 +852,7 @@ const PengajuanDetailScreen = () => {
       if (ACCEPTANCE_STATUS_BY_ID == 'WAITING') {
         return (
           <>
-            <InputLabel>COA</InputLabel>
+            <InputLabel>COA / Grup Biaya</InputLabel>
             <Dropdown.CoaDropdown
               placeholder={coa || data?.coa}
               onChange={val => setCoa(val)}
@@ -905,7 +862,7 @@ const PengajuanDetailScreen = () => {
       } else {
         return (
           <Row>
-            <InputLabel>COA</InputLabel>
+            <InputLabel>COA / Grup Biaya</InputLabel>
             <Text
               numberOfLines={2}
               style={styles.textValue}
@@ -918,15 +875,16 @@ const PengajuanDetailScreen = () => {
     } else if (TYPE == 'FINANCE' && !IS_MINE) {
       return (
         <>
-          <InputLabel>COA</InputLabel>
+          <InputLabel>COA / Grup Biaya</InputLabel>
           <Dropdown.CoaDropdown
+            disabled={financeStatus !== 'DONE'}
             placeholder={data?.coa}
             onChange={val => {
               setCoa(val);
               setCoaDisabled(false);
             }}
           />
-          {financeStatus !== 'WAITING' ? (
+          {financeStatus === 'DONE' ? (
             <>
               <Gap h={14} />
               <Button
@@ -944,7 +902,7 @@ const PengajuanDetailScreen = () => {
       if (reviewStatus == 'IDLE') {
         return (
           <>
-            <InputLabel>COA</InputLabel>
+            <InputLabel>COA / Grup Biaya</InputLabel>
             <Dropdown.CoaDropdown
               placeholder={coa || data?.coa}
               onChange={val => setCoa(val)}
@@ -954,7 +912,7 @@ const PengajuanDetailScreen = () => {
       } else {
         return (
           <Row>
-            <InputLabel>COA</InputLabel>
+            <InputLabel>COA / Grup Biaya</InputLabel>
             <Text
               numberOfLines={2}
               style={styles.textValue}
@@ -967,7 +925,7 @@ const PengajuanDetailScreen = () => {
     } else {
       return (
         <Row>
-          <InputLabel style={styles.rowLeft}>COA</InputLabel>
+          <InputLabel style={styles.rowLeft}>COA / Grup Biaya</InputLabel>
           <Text
             numberOfLines={2}
             style={styles.textValue}
@@ -977,6 +935,33 @@ const PengajuanDetailScreen = () => {
         </Row>
       );
     }
+  }
+
+  // === render finance process status
+  function renderFinanceProcessStatus() {
+    if (data?.status_finance == 'IDLE') return;
+
+    let status;
+
+    if (financeStatus == 'WAITING') {
+      status = 'Sedang diproses';
+    } else if (financeStatus == 'DONE') {
+      status = `Selesai diproses pada ${financeData?.acceptDate} oleh ${financeData?.nm_user}`;
+    } else {
+      status = `Ditolak pada ${financeData?.acceptDate} oleh ${financeData?.nm_user}`;
+    }
+
+    return (
+      <Row style={{alignItems: 'flex-start'}}>
+        <InputLabel style={styles.rowLeft}>Finance</InputLabel>
+        <Text
+          numberOfLines={3}
+          style={[styles.textValue]}
+          variant={'labelMedium'}>
+          {status}
+        </Text>
+      </Row>
+    );
   }
 
   return (
@@ -1112,19 +1097,7 @@ const PengajuanDetailScreen = () => {
                   </Row>
                 );
               })}
-              {data?.status_finance !== 'IDLE' ? (
-                <Row style={{alignItems: 'flex-start'}}>
-                  <InputLabel style={styles.rowLeft}>Finance</InputLabel>
-                  <Text
-                    numberOfLines={3}
-                    style={[styles.textValue]}
-                    variant={'labelMedium'}>
-                    {financeStatus == 'WAITING'
-                      ? 'Sedang Diproses'
-                      : `Selesai diproses pada ${financeData?.acceptDate} oleh ${financeData?.nm_user}`}
-                  </Text>
-                </Row>
-              ) : null}
+              {renderFinanceProcessStatus()}
             </>
           )}
         </View>
@@ -1296,6 +1269,7 @@ const PengajuanDetailScreen = () => {
 
         <Gap h={24} />
         {renderAdminSelector()}
+        {renderAllNotes()}
 
         {IS_REPORT ? null : renderBottomButton()}
       </ScrollView>
@@ -1311,16 +1285,6 @@ const PengajuanDetailScreen = () => {
           }
         }}
       />
-      <Dialog visible={financeDialog} onDismiss={() => setFinanceDialog(false)}>
-        <Dialog.Title>Konfirmasi</Dialog.Title>
-        <Dialog.Content>
-          <Text variant="bodyMedium">Konfirmasi aksi ini?</Text>
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button onPress={() => setFinanceDialog(false)}>Batalkan</Button>
-          <Button onPress={() => onConfirmPressed()}>Konfirmasi</Button>
-        </Dialog.Actions>
-      </Dialog>
       <Dialog visible={cancelDialog} onDismiss={() => setCancelDialog(false)}>
         <Dialog.Title>Konfirmasi</Dialog.Title>
         <Dialog.Content>

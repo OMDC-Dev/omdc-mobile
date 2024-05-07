@@ -1,4 +1,4 @@
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
 import React from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {ActivityIndicator, Searchbar, Text} from 'react-native-paper';
@@ -26,6 +26,7 @@ const SuperReimbursementListScreen = () => {
   const DATE_PERIOD = route.params?.date;
   const CABANG = route.params?.cabang;
   const BANK = getLabelByValue(route.params?.bank);
+  const COA = route.params?.coa;
 
   let addParam = '';
 
@@ -37,10 +38,22 @@ const SuperReimbursementListScreen = () => {
     addParam += `&bank=${BANK}`;
   }
 
+  if (COA) {
+    addParam += `&coa=${COA}`;
+  }
+
   // get all list
+  // React.useEffect(() => {
+  //   getAllList();
+  // }, []);
+
   React.useEffect(() => {
-    getAllList();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      getAllList();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   async function getAllList(clear) {
     console.log('CALLED : ' + keyword);

@@ -92,6 +92,7 @@ const PengajuanDetailScreen = () => {
     data?.accepted_by[0].iduser,
   );
   const [noteList, setNoteList] = React.useState([]);
+  const [reportChange, setReportChange] = React.useState(false);
 
   // dialog
   const [cancelDialog, setCancelDialog] = React.useState(false);
@@ -305,6 +306,7 @@ const PengajuanDetailScreen = () => {
   // UPDATE COA
   async function updateCOA() {
     setCoaLoading(true);
+    setReportChange(false);
     const body = {
       coa: coa,
     };
@@ -488,7 +490,6 @@ const PengajuanDetailScreen = () => {
       setSnak(true);
     }
   }
-
   // ===== function to calculate saldo
   const calculateSaldo = (nominal = '', realisasi = '') => {
     if (!nominal || !realisasi) {
@@ -822,7 +823,7 @@ const PengajuanDetailScreen = () => {
           />
         </>
       );
-    } else {
+    } else if (user.type == 'REVIEWER') {
       if (reviewStatus !== 'IDLE') return;
 
       return (
@@ -841,12 +842,36 @@ const PengajuanDetailScreen = () => {
           />
         </>
       );
+    } else {
+      return null;
     }
   }
 
   // ==== COA SELECTOR
   function renderCoaSelector() {
     const TYPE = user?.type;
+
+    if (IS_REPORT) {
+      return (
+        <>
+          <InputLabel>COA / Grup Biaya</InputLabel>
+          <Dropdown.CoaDropdown
+            placeholder={coa || data?.coa}
+            onChange={val => {
+              setCoa(val);
+              setReportChange(true);
+            }}
+          />
+          <Gap h={14} />
+          <Button
+            disabled={!reportChange}
+            mode={'contained'}
+            onPress={() => updateCOA()}>
+            Update COA
+          </Button>
+        </>
+      );
+    }
 
     if (TYPE == 'ADMIN' && !IS_MINE) {
       if (ACCEPTANCE_STATUS_BY_ID == 'WAITING') {
@@ -956,7 +981,41 @@ const PengajuanDetailScreen = () => {
         <InputLabel style={styles.rowLeft}>Finance</InputLabel>
         <Text
           numberOfLines={3}
-          style={[styles.textValue]}
+          style={[
+            styles.textValue,
+            financeStatus == 'REJECTED' ? styles.textStatusRejected : undefined,
+          ]}
+          variant={'labelMedium'}>
+          {status}
+        </Text>
+      </Row>
+    );
+  }
+
+  // === render reviewer process status
+  function renderReviewerProcessStatus() {
+    if (reviewStatus == 'IDLE') return;
+
+    let status;
+
+    if (reviewStatus == 'IDLE') {
+      status = 'Sedang diproses';
+    } else if (reviewStatus == 'APPROVED') {
+      status = `Diterima oleh Reviewer`;
+    } else {
+      status = `Ditolak oleh Reviewer`;
+    }
+
+    return (
+      <Row>
+        <InputLabel style={styles.rowLeft}>Reviewer</InputLabel>
+        <Text
+          numberOfLines={3}
+          style={[
+            styles.textValue,
+            reviewStatus == 'REJECTED' ? styles.textStatusRejected : undefined,
+            reviewStatus == 'APPROVED' ? styles.textStatusApproved : undefined,
+          ]}
           variant={'labelMedium'}>
           {status}
         </Text>
@@ -1082,6 +1141,7 @@ const PengajuanDetailScreen = () => {
             </Row>
           ) : (
             <>
+              {renderReviewerProcessStatus()}
               {adminStatus?.map((item, index) => {
                 return (
                   <Row key={item + index}>
@@ -1219,7 +1279,7 @@ const PengajuanDetailScreen = () => {
             </Row>
           </TouchableOpacity>
         </View>
-        {IS_REPORT ? null : renderCoaSelector()}
+        {renderCoaSelector()}
 
         {typeName !== 'Petty Cash Report' &&
         !_.isEmpty(BANK_DATA) &&

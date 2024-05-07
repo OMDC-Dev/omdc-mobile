@@ -1,6 +1,13 @@
 import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {Alert, Platform, StatusBar, StyleSheet, View} from 'react-native';
+import {
+  Alert,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {
   Container,
   Dropdown,
@@ -9,7 +16,7 @@ import {
   InputLabel,
   Row,
 } from '../../components';
-import {Colors, Size} from '../../styles';
+import {Colors, Scaler, Size} from '../../styles';
 import {Button, Card, Icon, Snackbar, Text} from 'react-native-paper';
 import ModalView from '../../components/modal';
 import {getDateFormat, hitungSelisihHari} from '../../utils/utils';
@@ -34,6 +41,7 @@ const SuperReimbursementScreen = () => {
   const [cabangList, setCabangList] = React.useState([]);
 
   const [selectedBank, setSelectBank] = React.useState();
+  const [coa, setCoa] = React.useState();
 
   function onSeeReport() {
     const diff = hitungSelisihHari(dateOriginal.awal, dateOriginal.akhir);
@@ -47,6 +55,7 @@ const SuperReimbursementScreen = () => {
       date: dateOriginal,
       cabang: cabang,
       bank: selectedBank,
+      coa: coa,
     });
   }
 
@@ -75,6 +84,8 @@ const SuperReimbursementScreen = () => {
     }
   }
 
+  console.log('COA', coa);
+
   return (
     <Container>
       <StatusBar
@@ -83,76 +94,85 @@ const SuperReimbursementScreen = () => {
       />
       <Header hideBack={true} title={'Report Request of Payment'} />
       <View style={styles.container}>
-        <InputLabel>Periode Awal</InputLabel>
-        <Card
-          style={styles.card}
-          mode={'outlined'}
-          onPress={() => {
-            setType('AWAL');
-            setShowCalendar(true);
-          }}>
-          <Card.Content>
-            <Row>
-              <Icon
-                source={'calendar-range'}
-                size={20}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-              <Gap w={10} />
-              <Text variant="labelLarge">
-                {selectDateAwal || 'Pilih Tanggal'}
-              </Text>
-            </Row>
-          </Card.Content>
-        </Card>
+        <ScrollView
+          contentContainerStyle={styles.scrollParent}
+          showsVerticalScrollIndicator={false}>
+          <InputLabel>Periode Awal *</InputLabel>
+          <Card
+            style={styles.card}
+            mode={'outlined'}
+            onPress={() => {
+              setType('AWAL');
+              setShowCalendar(true);
+            }}>
+            <Card.Content>
+              <Row>
+                <Icon
+                  source={'calendar-range'}
+                  size={20}
+                  color={Colors.COLOR_DARK_GRAY}
+                />
+                <Gap w={10} />
+                <Text variant="labelLarge">
+                  {selectDateAwal || 'Pilih Tanggal'}
+                </Text>
+              </Row>
+            </Card.Content>
+          </Card>
 
-        <Gap h={14} />
-        <InputLabel>Periode Akhir</InputLabel>
-        <Card
-          style={styles.card}
-          mode={'outlined'}
-          onPress={() => {
-            setType('AKHIR');
-            setShowCalendar(true);
-          }}>
-          <Card.Content>
-            <Row>
-              <Icon
-                source={'calendar-range'}
-                size={20}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-              <Gap w={10} />
-              <Text variant="labelLarge">
-                {selectDateAkhir || 'Pilih Tanggal'}
-              </Text>
-            </Row>
-          </Card.Content>
-        </Card>
+          <Gap h={14} />
+          <InputLabel>Periode Akhir *</InputLabel>
+          <Card
+            style={styles.card}
+            mode={'outlined'}
+            onPress={() => {
+              setType('AKHIR');
+              setShowCalendar(true);
+            }}>
+            <Card.Content>
+              <Row>
+                <Icon
+                  source={'calendar-range'}
+                  size={20}
+                  color={Colors.COLOR_DARK_GRAY}
+                />
+                <Gap w={10} />
+                <Text variant="labelLarge">
+                  {selectDateAkhir || 'Pilih Tanggal'}
+                </Text>
+              </Row>
+            </Card.Content>
+          </Card>
 
-        <Gap h={14} />
-        <InputLabel>Cabang</InputLabel>
-        <Dropdown.CabangDropdown
-          data={cabangList}
-          loading={!cabangList}
-          onChange={val => setCabang(val)}
-        />
+          <Gap h={14} />
+          <InputLabel>Cabang</InputLabel>
+          <Dropdown.CabangDropdown
+            data={cabangList}
+            loading={!cabangList}
+            onChange={val => setCabang(val)}
+          />
 
-        <Gap h={14} />
-        <InputLabel>Bank Finance</InputLabel>
-        <Dropdown.BankDropdown
-          onChange={val => setSelectBank(val)}
-          placeholder={'Pilih bank'}
-        />
+          <Gap h={14} />
+          <InputLabel>Bank Finance</InputLabel>
+          <Dropdown.BankDropdown
+            onChange={val => setSelectBank(val)}
+            placeholder={'Pilih bank'}
+          />
 
-        <Gap h={32} />
-        <Button
-          disabled={!selectDateAkhir || !selectDateAwal}
-          mode={'contained'}
-          onPress={() => onSeeReport()}>
-          Lihat Report
-        </Button>
+          <Gap h={14} />
+          <InputLabel>COA / Grup Biaya</InputLabel>
+          <Dropdown.CoaDropdown onChange={val => setCoa(val)} />
+
+          <Gap h={32} />
+          <Button
+            disabled={!selectDateAkhir || !selectDateAwal}
+            mode={'contained'}
+            onPress={() => onSeeReport()}>
+            Lihat Report
+          </Button>
+        </ScrollView>
       </View>
+
       <ModalView
         type={'calendar'}
         visible={showCalendar}
@@ -179,5 +199,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.COLOR_WHITE,
     padding: Size.SIZE_14,
+  },
+
+  scrollParent: {
+    paddingBottom: Scaler.scaleSize(120),
   },
 });

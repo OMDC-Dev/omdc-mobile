@@ -102,6 +102,8 @@ const PengajuanDetailScreen = () => {
   const [reportChange, setReportChange] = React.useState(false);
   const [icon, setIcon] = React.useState();
   const [pdfPath, setPdfPath] = React.useState();
+  const [shootUri, setShootUri] = React.useState();
+  const [saved, setSaved] = React.useState(false);
 
   // dialog
   const [cancelDialog, setCancelDialog] = React.useState(false);
@@ -530,50 +532,64 @@ const PengajuanDetailScreen = () => {
   };
 
   const onCapture = React.useCallback(uri => {
-    if (IS_DOWNLOAD) {
-      setIsLoading(true);
-      downloadPdf(uri, data.no_doc)
-        .then(path => {
-          console.log(`Save to ${path}`);
-          Alert.alert('Sukses', 'Sukses menyimpan report ke perangkat!');
-          setPdfPath(path);
-          setIsLoading(false);
-        })
-        .catch(err => {
-          console.log(err);
-          setIsLoading(false);
-          Alert.alert('Gagal', 'Gagal menyimpan report ke perangkat!', [
-            {
-              text: 'OK',
-              onPress: () => {
-                setIsLoading(false);
-                navigation.goBack();
-              },
-            },
-          ]);
-        });
-    }
+    setShootUri(uri);
   }, []);
 
-  function onShareReport() {
-    console.log('PDF PATH', pdfPath);
-    const options = {
-      url: pdfPath,
-      type: 'application/pdf',
-    };
-
-    Share.open(options)
-      .then(res => {
-        console.log(res);
-        setSnakMsg('Sukses membagikan report!');
-        setSnak(true);
+  function onDownloadOnly() {
+    setIsLoading(true);
+    downloadPdf(shootUri, data.no_doc)
+      .then(path => {
+        console.log(`Save to ${path}`);
+        Alert.alert('Sukses', 'Sukses menyimpan report ke perangkat!');
+        setPdfPath(path);
+        setIsLoading(false);
       })
       .catch(err => {
-        err && console.log(err.message);
-        if (err.message == 'User did not share') return;
-        setSnakMsg('Gagal membagikan report!');
-        setSnak(true);
+        console.log(err);
+        setIsLoading(false);
+        Alert.alert('Gagal', 'Gagal menyimpan report ke perangkat!', [
+          {
+            text: 'OK',
+            onPress: () => {
+              setIsLoading(false);
+              navigation.goBack();
+            },
+          },
+        ]);
       });
+  }
+
+  async function onShareReport() {
+    setIsLoading(true);
+    await downloadPdf(shootUri, data.no_doc)
+      .then(path => {
+        onShare(path);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        Alert.alert('Gagal', 'Gagal membagikan report!');
+        setIsLoading(false);
+      });
+
+    function onShare(path) {
+      const options = {
+        url: path,
+        type: 'application/pdf',
+      };
+
+      Share.open(options)
+        .then(res => {
+          console.log(res);
+          setSnakMsg('Sukses membagikan report!');
+          setSnak(true);
+        })
+        .catch(err => {
+          err && console.log(err.message);
+          if (err.message == 'User did not share') return;
+          setSnakMsg('Gagal membagikan report!');
+          setSnak(true);
+        });
+    }
   }
 
   async function onRequestStoragePermission() {
@@ -1143,6 +1159,15 @@ const PengajuanDetailScreen = () => {
         <View style={container ? styles.bottomContainer : undefined}>
           <Button
             mode={'contained'}
+            onPress={() =>
+              // navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'})
+              onDownloadOnly()
+            }>
+            Simpan ke Perangkat
+          </Button>
+          <Gap h={14} />
+          <Button
+            mode={'outlined'}
             onPress={() =>
               // navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'})
               onShareReport()

@@ -73,11 +73,15 @@ export const imgToBase64 = async (uri, android) => {
 
 export const downloadPdf = async (image, id) => {
   const androidPath = ReactNativeBlobUtil.fs.dirs.LegacyDownloadDir;
-  const iosPath = ReactNativeBlobUtil.fs.dirs.DocumentDir;
+  const iosPath = `file:///${ReactNativeBlobUtil.fs.dirs.DocumentDir}`;
+
+  const source = `data:image/png;base64,${image}`;
+
+  console.log(source);
 
   const outPath = Platform.OS == 'android' ? androidPath : iosPath;
   const options = {
-    pages: [{imagePath: image}],
+    pages: [{imagePath: source}],
     outputPath: `${outPath}/report-${id}.pdf`,
   };
 

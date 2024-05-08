@@ -43,6 +43,7 @@ import moment from 'moment';
 import {retrieveData} from '../../utils/store';
 import ViewShot from 'react-native-view-shot';
 import {request, PERMISSIONS} from 'react-native-permissions';
+import Share from 'react-native-share';
 
 const PengajuanDetailScreen = () => {
   const route = useRoute();
@@ -99,6 +100,7 @@ const PengajuanDetailScreen = () => {
   const [noteList, setNoteList] = React.useState([]);
   const [reportChange, setReportChange] = React.useState(false);
   const [icon, setIcon] = React.useState();
+  const [pdfPath, setPdfPath] = React.useState();
 
   // dialog
   const [cancelDialog, setCancelDialog] = React.useState(false);
@@ -360,7 +362,7 @@ const PengajuanDetailScreen = () => {
       value: data?.jenis_reimbursement,
     },
     {
-      title: 'Tipe Pembayaran',
+      title: 'Kategori Permintaan',
       value: data?.tipePembayaran,
     },
     {
@@ -532,17 +534,13 @@ const PengajuanDetailScreen = () => {
       downloadPdf(uri, data.no_doc)
         .then(path => {
           console.log(`Save to ${path}`);
-          Alert.alert('Sukses', 'Sukses menyimpan report ke perangkat!', [
-            {
-              text: 'OK',
-              onPress: () => {
-                setIsLoading(false);
-                navigation.goBack();
-              },
-            },
-          ]);
+          Alert.alert('Sukses', 'Sukses menyimpan report ke perangkat!');
+          setPdfPath(path);
+          setIsLoading(false);
         })
         .catch(err => {
+          console.log(err);
+          setIsLoading(false);
           Alert.alert('Gagal', 'Gagal menyimpan report ke perangkat!', [
             {
               text: 'OK',
@@ -555,6 +553,26 @@ const PengajuanDetailScreen = () => {
         });
     }
   }, []);
+
+  function onShareReport() {
+    console.log('PDF PATH', pdfPath);
+    const options = {
+      url: pdfPath,
+      type: 'application/pdf',
+    };
+
+    Share.open(options)
+      .then(res => {
+        console.log(res);
+        setSnakMsg('Sukses membagikan report!');
+        setSnak(true);
+      })
+      .catch(err => {
+        err && console.log(err);
+        setSnakMsg('Gagal membagikan report!');
+        setSnak(true);
+      });
+  }
 
   function onRequestStoragePermission() {
     if (Platform.OS == 'ios') {
@@ -1112,10 +1130,25 @@ const PengajuanDetailScreen = () => {
   }
 
   // ======== render download button
-  function renderDownloadButton() {
+  function renderDownloadButton(container) {
+    if (IS_DOWNLOAD) {
+      return (
+        <View style={container ? styles.bottomContainer : undefined}>
+          <Button
+            mode={'contained'}
+            onPress={() =>
+              // navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'})
+              onShareReport()
+            }>
+            Bagikan Report
+          </Button>
+        </View>
+      );
+    }
+
     return (
       <View>
-        <Gap h={36} />
+        <Gap h={32} />
         <Button
           mode={'contained'}
           onPress={() =>
@@ -1142,8 +1175,7 @@ const PengajuanDetailScreen = () => {
             backgroundColor: 'white',
             padding: IS_DOWNLOAD ? 8 : undefined,
           }}
-          //options={{result: 'base64'}}
-        >
+          options={{result: 'base64'}}>
           {IS_DOWNLOAD ? (
             <Image
               style={styles.logo}
@@ -1461,6 +1493,7 @@ const PengajuanDetailScreen = () => {
           {IS_REPORT ? renderDownloadButton() : renderBottomButton()}
         </ViewShot>
       </ScrollView>
+      {IS_DOWNLOAD ? renderDownloadButton(true) : null}
       <Snackbar visible={snak} onDismiss={() => setSnak(false)}>
         {snakMsg || ''}
       </Snackbar>
@@ -1547,6 +1580,14 @@ const styles = StyleSheet.create({
     height: Scaler.scaleSize(125),
     width: Scaler.scaleSize(125),
     marginVertical: Size.SIZE_14,
+  },
+
+  bottomContainer: {
+    backgroundColor: Colors.COLOR_WHITE,
+    paddingHorizontal: Size.SIZE_14,
+    paddingVertical: Size.SIZE_24,
+    borderTopWidth: 0.5,
+    borderColor: Colors.COLOR_LIGHT_GRAY,
   },
 
   // text

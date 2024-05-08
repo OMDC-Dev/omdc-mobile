@@ -345,6 +345,8 @@ PODS:
     - React
   - react-native-image-picker (7.1.1):
     - React-Core
+  - react-native-images-to-pdf (0.2.1):
+    - React-Core
   - react-native-month-year-picker (1.9.0):
     - React
   - react-native-pager-view (6.2.3):
@@ -352,6 +354,8 @@ PODS:
   - react-native-pdf (6.7.1):
     - React-Core
   - react-native-safe-area-context (4.9.0):
+    - React-Core
+  - react-native-view-shot (3.8.0):
     - React-Core
   - React-perflogger (0.68.2)
   - React-RCTActionSheet (0.68.2):
@@ -431,6 +435,8 @@ PODS:
   - RNScreens (3.18.2):
     - React-Core
     - React-RCTImage
+  - RNShare (10.2.0):
+    - React-Core
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -464,10 +470,12 @@ DEPENDENCIES:
   - react-native-encrypted-storage (from `../node_modules/react-native-encrypted-storage`)
   - react-native-image-base64 (from `../node_modules/react-native-image-base64`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - react-native-images-to-pdf (from `../node_modules/react-native-images-to-pdf`)
   - react-native-month-year-picker (from `../node_modules/react-native-month-year-picker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -484,6 +492,7 @@ DEPENDENCIES:
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNShare (from `../node_modules/react-native-share`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -552,6 +561,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-base64"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-images-to-pdf:
+    :path: "../node_modules/react-native-images-to-pdf"
   react-native-month-year-picker:
     :path: "../node_modules/react-native-month-year-picker"
   react-native-pager-view:
@@ -560,6 +571,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-pdf"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-view-shot:
+    :path: "../node_modules/react-native-view-shot"
   React-perflogger:
     :path: "../node_modules/react-native/ReactCommon/reactperflogger"
   React-RCTActionSheet:
@@ -592,6 +605,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-permissions"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNShare:
+    :path: "../node_modules/react-native-share"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -634,10 +649,12 @@ SPEC CHECKSUMS:
   react-native-encrypted-storage: e78d848ce0fb663c2ce306e37921d026809322e6
   react-native-image-base64: 2ff9ac788639c87a91361ab6652cc95e871b1e54
   react-native-image-picker: 1ced7e130ca01231b64a34822c44410dcb057dbb
+  react-native-images-to-pdf: 575dbdc224c36de1ea92ab81cd4e80d4066498be
   react-native-month-year-picker: 948797e981ca502427024a34b17f545eb321bbff
   react-native-pager-view: c29d484f19c49ff19525a94105e4ab2c4d4ae273
   react-native-pdf: 7c0e91ada997bac8bac3bb5bea5b6b81f5a3caae
   react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
+  react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
   React-RCTActionSheet: 547fe42fdb4b6089598d79f8e1d855d7c23e2162
   React-RCTAnimation: bc9440a1c37b06ae9ebbb532d244f607805c6034
@@ -654,8 +671,9 @@ SPEC CHECKSUMS:
   RNFBMessaging: 99621af036e0aa85506390f77d79c9e6353aacca
   RNPermissions: 89d313f4d48612fc35842f3a21107e163f39a742
   RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
+  RNShare: 554a91f5cfbe4adac4cfe3654826ee8b299fe365
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
 
 PODFILE CHECKSUM: db325cc93e6b40cc03dc424fc7e9b66908102e58
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.15.2

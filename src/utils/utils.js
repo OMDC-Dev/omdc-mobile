@@ -2,6 +2,8 @@ import moment from 'moment';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import ImgToBase64 from 'react-native-image-base64';
 import BANKS from '../../assets/files/banks.json';
+import {createPdf} from 'react-native-images-to-pdf';
+import {Platform} from 'react-native';
 
 //create simple log
 export const cLog = (log = '', color) => {
@@ -67,6 +69,19 @@ export const imgToBase64 = async (uri, android) => {
       return base64String;
     })
     .catch(err => console.log(err));
+};
+
+export const downloadPdf = async (image, id) => {
+  const androidPath = ReactNativeBlobUtil.fs.dirs.LegacyDownloadDir;
+  const iosPath = ReactNativeBlobUtil.fs.dirs.DocumentDir;
+
+  const outPath = Platform.OS == 'android' ? androidPath : iosPath;
+  const options = {
+    pages: [{imagePath: image}],
+    outputPath: `${outPath}/report-${id}.pdf`,
+  };
+
+  return createPdf(options);
 };
 
 export const formatToRupiah = value => {

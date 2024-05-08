@@ -1,6 +1,7 @@
 import {
   Alert,
   FlatList,
+  Image,
   Platform,
   ScrollView,
   StyleSheet,
@@ -35,10 +36,13 @@ import {
 import {API_STATES} from '../../utils/constant';
 import {formatRupiah} from '../../utils/rupiahFormatter';
 import ModalView from '../../components/modal';
-import {getDataById, getLabelByValue} from '../../utils/utils';
+import {downloadPdf, getDataById, getLabelByValue} from '../../utils/utils';
 import _ from 'lodash';
 import {SIZE_14} from '../../styles/size';
 import moment from 'moment';
+import {retrieveData} from '../../utils/store';
+import ViewShot from 'react-native-view-shot';
+import {request, PERMISSIONS} from 'react-native-permissions';
 
 const PengajuanDetailScreen = () => {
   const route = useRoute();
@@ -50,6 +54,7 @@ const PengajuanDetailScreen = () => {
   // IS MINE
   const IS_MINE = route?.params?.type == 'MINE';
   const IS_REPORT = route.params?.type == 'REPORT';
+  const IS_DOWNLOAD = route.params?.type == 'DOWNLOAD';
 
   // state
   const [adminList, setAdminList] = React.useState([]);
@@ -93,9 +98,13 @@ const PengajuanDetailScreen = () => {
   );
   const [noteList, setNoteList] = React.useState([]);
   const [reportChange, setReportChange] = React.useState(false);
+  const [icon, setIcon] = React.useState();
 
   // dialog
   const [cancelDialog, setCancelDialog] = React.useState(false);
+
+  // Shoot
+  const shootRef = React.useRef();
 
   const ACCEPTANCE_STATUS_BY_ID = getDataById(
     adminStatus,
@@ -124,6 +133,17 @@ const PengajuanDetailScreen = () => {
       setUpdateAdmin(data?.accepted_by[0].iduser);
     }
   }, [updateAdmin]);
+
+  React.useEffect(() => {
+    if (IS_DOWNLOAD) {
+      loadIcon();
+    }
+  }, []);
+
+  async function loadIcon() {
+    const getIcon = await retrieveData('APP_ICON');
+    setIcon(getIcon);
+  }
 
   // get admin
   async function getSuperUser() {
@@ -506,6 +526,58 @@ const PengajuanDetailScreen = () => {
     return 'Rp. ' + formatRupiah(saldo);
   };
 
+  const onCapture = React.useCallback(uri => {
+    if (IS_DOWNLOAD) {
+      setIsLoading(true);
+      downloadPdf(uri, data.no_doc)
+        .then(path => {
+          console.log(`Save to ${path}`);
+          Alert.alert('Sukses', 'Sukses menyimpan report ke perangkat!', [
+            {
+              text: 'OK',
+              onPress: () => {
+                setIsLoading(false);
+                navigation.goBack();
+              },
+            },
+          ]);
+        })
+        .catch(err => {
+          Alert.alert('Gagal', 'Gagal menyimpan report ke perangkat!', [
+            {
+              text: 'OK',
+              onPress: () => {
+                setIsLoading(false);
+                navigation.goBack();
+              },
+            },
+          ]);
+        });
+    }
+  }, []);
+
+  function onRequestStoragePermission() {
+    if (Platform.OS == 'ios') {
+      navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'});
+      return;
+    }
+
+    request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE)
+      .then(result => {
+        if (result == 'granted') {
+          navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'});
+        } else {
+          setSnakMsg('Izin diperlukan untuk menyimpan report');
+          setSnak(true);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        setSnakMsg('Gagal mendapatkan izin mohon coba lagi');
+        setSnak(true);
+      });
+  }
+
   //  ACC DAN REJECT STATE
   function renderAcceptRejectState() {
     if (accMode !== 'IDLE') {
@@ -708,6 +780,7 @@ const PengajuanDetailScreen = () => {
 
   // ========= rendering
   function renderBottomButton() {
+    if (IS_DOWNLOAD) return;
     if (user.isAdmin && !IS_MINE) {
       //  FINANCE SECTION
       if (user.type == 'FINANCE') {
@@ -805,6 +878,7 @@ const PengajuanDetailScreen = () => {
   // ==== RENDER ADMIN SELECTOR
   function renderAdminSelector() {
     if (IS_REPORT) return;
+    if (IS_DOWNLOAD) return;
 
     if (user.type == 'ADMIN') {
       if (ACCEPTANCE_STATUS_BY_ID !== 'WAITING') return;
@@ -850,6 +924,20 @@ const PengajuanDetailScreen = () => {
   // ==== COA SELECTOR
   function renderCoaSelector() {
     const TYPE = user?.type;
+
+    if (IS_DOWNLOAD) {
+      return (
+        <Row>
+          <InputLabel style={styles.rowLeft}>COA / Grup Biaya</InputLabel>
+          <Text
+            numberOfLines={2}
+            style={styles.textValue}
+            variant={'labelMedium'}>
+            {data?.coa}
+          </Text>
+        </Row>
+      );
+    }
 
     if (IS_REPORT) {
       return (
@@ -1023,6 +1111,23 @@ const PengajuanDetailScreen = () => {
     );
   }
 
+  // ======== render download button
+  function renderDownloadButton() {
+    return (
+      <View>
+        <Gap h={36} />
+        <Button
+          mode={'contained'}
+          onPress={() =>
+            // navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'})
+            onRequestStoragePermission()
+          }>
+          Download Report
+        </Button>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Header title={'Detail Request of Payment'} />
@@ -1030,308 +1135,331 @@ const PengajuanDetailScreen = () => {
         showsVerticalScrollIndicator={false}
         style={styles.mainContainer}
         contentContainerStyle={styles.scrollContent}>
-        <Card
-          mode={'outlined'}
-          onPress={() =>
-            isLoading
-              ? null
-              : user?.isAdmin &&
-                ACCEPTANCE_STATUS_BY_ID == 'WAITING' &&
-                !IS_REPORT
-              ? setNomEdit(true)
-              : null
-          }>
-          <Card.Content style={styles.cardTop}>
-            <Text style={styles.textTotal} variant={'labelMedium'}>
-              Total Nominal
-            </Text>
-            <Gap h={8} />
-            {nomEdit ? (
-              <>
-                <TextInput
-                  style={styles.input}
-                  mode={'outlined'}
-                  keyboardType={'phone-pad'}
-                  returnKeyType={'done'}
-                  placeholder={'Nominal'}
-                  onBlur={onInputBlur}
-                  onFocus={onInputFocus}
-                  placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                  onChangeText={text => setNominal(text)}
-                  value={nominal}
-                  left={
-                    <TextInput.Icon
-                      icon={'cash'}
-                      color={Colors.COLOR_DARK_GRAY}
-                    />
-                  }
-                />
-                <Gap h={8} />
-                <Button
-                  disabled={!nominal || Number(nominal) == 0}
-                  mode={'text'}
-                  onPress={() => setNomEdit(false)}>
-                  Simpan
-                </Button>
-              </>
+        <ViewShot
+          onCapture={onCapture}
+          captureMode="mount"
+          style={{
+            backgroundColor: 'white',
+            padding: IS_DOWNLOAD ? 8 : undefined,
+          }}
+          //options={{result: 'base64'}}
+        >
+          {IS_DOWNLOAD ? (
+            <Image
+              style={styles.logo}
+              source={{uri: `data:image/png;base64,${icon}`}}
+              resizeMode={'contain'}
+            />
+          ) : null}
+          <Card
+            mode={'outlined'}
+            onPress={() =>
+              isLoading
+                ? null
+                : user?.isAdmin &&
+                  ACCEPTANCE_STATUS_BY_ID == 'WAITING' &&
+                  !IS_REPORT
+                ? setNomEdit(true)
+                : null
+            }>
+            <Card.Content style={styles.cardTop}>
+              <Text style={styles.textTotal} variant={'labelMedium'}>
+                Total Nominal
+              </Text>
+              <Gap h={8} />
+              {nomEdit ? (
+                <>
+                  <TextInput
+                    style={styles.input}
+                    mode={'outlined'}
+                    keyboardType={'phone-pad'}
+                    returnKeyType={'done'}
+                    placeholder={'Nominal'}
+                    onBlur={onInputBlur}
+                    onFocus={onInputFocus}
+                    placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                    onChangeText={text => setNominal(text)}
+                    value={nominal}
+                    left={
+                      <TextInput.Icon
+                        icon={'cash'}
+                        color={Colors.COLOR_DARK_GRAY}
+                      />
+                    }
+                  />
+                  <Gap h={8} />
+                  <Button
+                    disabled={!nominal || Number(nominal) == 0}
+                    mode={'text'}
+                    onPress={() => setNomEdit(false)}>
+                    Simpan
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.textTotalValue} variant={'titleLarge'}>
+                    Rp. {formatRupiah(nominal)}
+                  </Text>
+                  {data?.childId || data?.parentId ? (
+                    <>
+                      <Gap h={14} />
+                      <Text style={styles.textTotal} variant={'labelSmall'}>
+                        {data?.childId
+                          ? 'Nominal Realisasi'
+                          : 'Nominal Cash Advance'}
+                      </Text>
+                      <Gap h={8} />
+                      <Text
+                        style={styles.textTotalValue}
+                        variant={'titleMedium'}>
+                        {data?.childId
+                          ? formatRupiah(realisasi) || '-'
+                          : formatRupiah(data?.pengajuan_ca) || '-'}
+                      </Text>
+                      <Gap h={14} />
+                      <Text style={styles.textTotal} variant={'labelSmall'}>
+                        Saldo
+                      </Text>
+                      <Gap h={8} />
+                      <Text
+                        style={styles.textTotalValue}
+                        variant={'titleMedium'}>
+                        {data?.childId
+                          ? calculateSaldo(nominal, realisasi)
+                          : calculateSaldo(data?.pengajuan_ca, nominal)}
+                      </Text>
+                    </>
+                  ) : null}
+                  {user?.isAdmin &&
+                  ACCEPTANCE_STATUS_BY_ID == 'WAITING' &&
+                  !IS_REPORT ? (
+                    <>
+                      <Gap h={8} />
+                      <Text style={styles.textTotal} variant={'labelMedium'}>
+                        ( Tekan untuk edit nominal )
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <Gap h={14} />
+                      <Text
+                        style={[styles.textStatus, STATUS_TEXT().style]}
+                        variant={'labelMedium'}>
+                        {STATUS_TEXT().title}
+                      </Text>
+                    </>
+                  )}
+                </>
+              )}
+            </Card.Content>
+          </Card>
+          <Gap h={24} />
+          <Text style={styles.subtitle} variant="titleSmall">
+            Status Persetujuan
+          </Text>
+          <Gap h={10} />
+          <View>
+            {statusLoading ? (
+              <Row>
+                <InputLabel style={styles.rowLeft}>Loading</InputLabel>
+                <ActivityIndicator />
+              </Row>
             ) : (
               <>
-                <Text style={styles.textTotalValue} variant={'titleLarge'}>
-                  Rp. {formatRupiah(nominal)}
-                </Text>
-                {data?.childId || data?.parentId ? (
-                  <>
-                    <Gap h={14} />
-                    <Text style={styles.textTotal} variant={'labelSmall'}>
-                      {data?.childId
-                        ? 'Nominal Realisasi'
-                        : 'Nominal Cash Advance'}
-                    </Text>
-                    <Gap h={8} />
-                    <Text style={styles.textTotalValue} variant={'titleMedium'}>
-                      {data?.childId
-                        ? formatRupiah(realisasi) || '-'
-                        : formatRupiah(data?.pengajuan_ca) || '-'}
-                    </Text>
-                    <Gap h={14} />
-                    <Text style={styles.textTotal} variant={'labelSmall'}>
-                      Saldo
-                    </Text>
-                    <Gap h={8} />
-                    <Text style={styles.textTotalValue} variant={'titleMedium'}>
-                      {data?.childId
-                        ? calculateSaldo(nominal, realisasi)
-                        : calculateSaldo(data?.pengajuan_ca, nominal)}
-                    </Text>
-                  </>
-                ) : null}
-                {user?.isAdmin &&
-                ACCEPTANCE_STATUS_BY_ID == 'WAITING' &&
-                !IS_REPORT ? (
-                  <>
-                    <Gap h={8} />
-                    <Text style={styles.textTotal} variant={'labelMedium'}>
-                      ( Tekan untuk edit nominal )
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <Gap h={14} />
-                    <Text
-                      style={[styles.textStatus, STATUS_TEXT().style]}
-                      variant={'labelMedium'}>
-                      {STATUS_TEXT().title}
-                    </Text>
-                  </>
-                )}
+                {renderReviewerProcessStatus()}
+                {adminStatus?.map((item, index) => {
+                  return (
+                    <Row key={item + index}>
+                      <InputLabel style={styles.rowLeft}>
+                        {item?.nm_user}
+                      </InputLabel>
+                      <Text
+                        numberOfLines={2}
+                        style={[styles.textValue, STATUS_TEXT(item).style]}
+                        variant={'labelMedium'}>
+                        {STATUS_TEXT(item).title}
+                      </Text>
+                    </Row>
+                  );
+                })}
+                {renderFinanceProcessStatus()}
               </>
             )}
-          </Card.Content>
-        </Card>
-        <Gap h={24} />
-        <Text style={styles.subtitle} variant="titleSmall">
-          Status Persetujuan
-        </Text>
-        <Gap h={10} />
-        <View>
-          {statusLoading ? (
-            <Row>
-              <InputLabel style={styles.rowLeft}>Loading</InputLabel>
-              <ActivityIndicator />
-            </Row>
-          ) : (
+          </View>
+          <Gap h={24} />
+          <Text style={styles.subtitle} variant="titleSmall">
+            Item
+          </Text>
+          <Gap h={10} />
+          <View>
+            {ITEMS?.map((item, index) => {
+              return (
+                <View key={item + index}>
+                  <Gap h={2} />
+                  <Card style={styles.itemCard} mode={'elevated'}>
+                    <Card.Content>
+                      <Row>
+                        <Text style={{flex: 1}} variant="labelLarge">
+                          {item.name}
+                        </Text>
+                        <Text variant="labelLarge">
+                          {formatRupiah(item.nominal, true)}
+                        </Text>
+                      </Row>
+                    </Card.Content>
+                  </Card>
+                  <Gap h={6} />
+                </View>
+              );
+            })}
+          </View>
+          {(user?.isAdmin && !IS_MINE) || IS_REPORT ? (
             <>
-              {renderReviewerProcessStatus()}
-              {adminStatus?.map((item, index) => {
+              <Gap h={24} />
+              <Text style={styles.subtitle} variant="titleSmall">
+                Data User
+              </Text>
+              <Gap h={14} />
+              {DATA_USER.map((item, index) => {
                 return (
                   <Row key={item + index}>
-                    <InputLabel style={styles.rowLeft}>
-                      {item?.nm_user}
-                    </InputLabel>
+                    <InputLabel style={styles.rowLeft}>{item.title}</InputLabel>
                     <Text
                       numberOfLines={2}
-                      style={[styles.textValue, STATUS_TEXT(item).style]}
+                      style={styles.textValue}
                       variant={'labelMedium'}>
-                      {STATUS_TEXT(item).title}
+                      {item.value}
                     </Text>
+                    <Gap h={6} />
                   </Row>
                 );
               })}
-              {renderFinanceProcessStatus()}
             </>
-          )}
-        </View>
-        <Gap h={24} />
-        <Text style={styles.subtitle} variant="titleSmall">
-          Item
-        </Text>
-        <Gap h={10} />
-        <View>
-          {ITEMS?.map((item, index) => {
-            return (
-              <View key={item + index}>
-                <Gap h={2} />
-                <Card style={styles.itemCard} mode={'elevated'}>
-                  <Card.Content>
-                    <Row>
-                      <Text style={{flex: 1}} variant="labelLarge">
-                        {item.name}
-                      </Text>
-                      <Text variant="labelLarge">
-                        {formatRupiah(item.nominal, true)}
-                      </Text>
-                    </Row>
-                  </Card.Content>
-                </Card>
-                <Gap h={6} />
-              </View>
-            );
-          })}
-        </View>
-        {(user?.isAdmin && !IS_MINE) || IS_REPORT ? (
-          <>
-            <Gap h={24} />
-            <Text style={styles.subtitle} variant="titleSmall">
-              Data User
-            </Text>
-            <Gap h={14} />
-            {DATA_USER.map((item, index) => {
-              return (
-                <Row key={item + index}>
-                  <InputLabel style={styles.rowLeft}>{item.title}</InputLabel>
-                  <Text
-                    numberOfLines={2}
-                    style={styles.textValue}
-                    variant={'labelMedium'}>
-                    {item.value}
-                  </Text>
-                  <Gap h={6} />
-                </Row>
-              );
-            })}
-          </>
-        ) : null}
+          ) : null}
 
-        <Gap h={24} />
-        <Text style={styles.subtitle} variant="titleSmall">
-          Data Request of Payment
-        </Text>
-        <Gap h={14} />
-        {data?.jenis_reimbursement == 'Cash Advance Report' ? (
-          <Row>
-            <InputLabel style={styles.rowLeft}>No. Doc Pengajuan</InputLabel>
-            <Text
-              numberOfLines={2}
-              style={styles.textValue}
-              variant={'labelMedium'}>
-              {data?.parentDoc}
-            </Text>
-            <Gap h={6} />
-          </Row>
-        ) : null}
-        {data?.jenis_reimbursement == 'Cash Advance' && data?.childId ? (
-          <Row>
-            <InputLabel style={styles.rowLeft}>No. Doc Realisasi</InputLabel>
-            <Text
-              numberOfLines={2}
-              style={styles.textValue}
-              variant={'labelMedium'}>
-              {data?.childDoc}
-            </Text>
-            <Gap h={6} />
-          </Row>
-        ) : null}
-        {DATA_REIMBURSEMENT.map((item, index) => {
-          return (
-            <Row key={item + index}>
-              <InputLabel style={styles.rowLeft}>{item.title}</InputLabel>
+          <Gap h={24} />
+          <Text style={styles.subtitle} variant="titleSmall">
+            Data Request of Payment
+          </Text>
+          <Gap h={14} />
+          {data?.jenis_reimbursement == 'Cash Advance Report' ? (
+            <Row>
+              <InputLabel style={styles.rowLeft}>No. Doc Pengajuan</InputLabel>
               <Text
                 numberOfLines={2}
                 style={styles.textValue}
                 variant={'labelMedium'}>
-                {item.value}
+                {data?.parentDoc}
               </Text>
               <Gap h={6} />
             </Row>
-          );
-        })}
-        <View style={styles.fileContainer}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() =>
-              isLoading
-                ? null
-                : navigation.navigate('Preview', {
-                    file: data?.attachment,
-                    type: FILE_INFO?.type,
-                  })
-            }>
-            <Row style={styles.fileLeft}>
-              <Icon
-                source={'file-document-outline'}
-                size={40}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-              <Gap w={8} />
-              <Text numberOfLines={1} variant={'labelLarge'}>
-                Lampiran
-              </Text>
-            </Row>
-          </TouchableOpacity>
-        </View>
-        {renderCoaSelector()}
-
-        {typeName !== 'Petty Cash Report' &&
-        !_.isEmpty(BANK_DATA) &&
-        data?.payment_type !== 'CASH' ? (
-          <>
-            <Gap h={24} />
-            <Text style={styles.subtitle} variant="titleSmall">
-              Data Bank
-            </Text>
-            <Gap h={14} />
+          ) : null}
+          {data?.jenis_reimbursement == 'Cash Advance' && data?.childId ? (
             <Row>
-              <InputLabel style={styles.rowLeft}>Nama Bank</InputLabel>
-              <Text style={styles.textValue} variant={'labelMedium'}>
-                {BANK_DATA?.bankname}
+              <InputLabel style={styles.rowLeft}>No. Doc Realisasi</InputLabel>
+              <Text
+                numberOfLines={2}
+                style={styles.textValue}
+                variant={'labelMedium'}>
+                {data?.childDoc}
               </Text>
               <Gap h={6} />
             </Row>
-            <Row>
-              <InputLabel style={styles.rowLeft}>Nomor Rekening</InputLabel>
-              <Text style={styles.textValue} variant={'labelMedium'}>
-                {BANK_DATA?.accountnumber}
-              </Text>
-              <Gap h={6} />
-            </Row>
-            <Row>
-              <InputLabel style={styles.rowLeft}>
-                Nama Pemilik Rekening
-              </InputLabel>
-              <Text style={styles.textValue} variant={'labelMedium'}>
-                {BANK_DATA?.accountname}
-              </Text>
-              <Gap h={6} />
-            </Row>
-            {data?.payment_type != 'CASH' ? (
-              <Row>
-                <InputLabel style={styles.rowLeft}>
-                  Dikirim oleh Finance dari
-                </InputLabel>
-                <Text style={styles.textValue} variant={'labelMedium'}>
-                  {FINANCE_BANK || '-'}
+          ) : null}
+          {DATA_REIMBURSEMENT.map((item, index) => {
+            return (
+              <Row key={item + index}>
+                <InputLabel style={styles.rowLeft}>{item.title}</InputLabel>
+                <Text
+                  numberOfLines={2}
+                  style={styles.textValue}
+                  variant={'labelMedium'}>
+                  {item.value}
                 </Text>
                 <Gap h={6} />
               </Row>
-            ) : null}
-          </>
-        ) : null}
+            );
+          })}
+          {IS_DOWNLOAD ? null : (
+            <View style={styles.fileContainer}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() =>
+                  isLoading
+                    ? null
+                    : navigation.navigate('Preview', {
+                        file: data?.attachment,
+                        type: FILE_INFO?.type,
+                      })
+                }>
+                <Row style={styles.fileLeft}>
+                  <Icon
+                    source={'file-document-outline'}
+                    size={40}
+                    color={Colors.COLOR_DARK_GRAY}
+                  />
+                  <Gap w={8} />
+                  <Text numberOfLines={1} variant={'labelLarge'}>
+                    Lampiran
+                  </Text>
+                </Row>
+              </TouchableOpacity>
+            </View>
+          )}
+          {renderCoaSelector()}
 
-        <Gap h={24} />
-        {renderAdminSelector()}
-        {renderAllNotes()}
+          {typeName !== 'Petty Cash Report' &&
+          !_.isEmpty(BANK_DATA) &&
+          data?.payment_type !== 'CASH' ? (
+            <>
+              <Gap h={24} />
+              <Text style={styles.subtitle} variant="titleSmall">
+                Data Bank
+              </Text>
+              <Gap h={14} />
+              <Row>
+                <InputLabel style={styles.rowLeft}>Nama Bank</InputLabel>
+                <Text style={styles.textValue} variant={'labelMedium'}>
+                  {BANK_DATA?.bankname}
+                </Text>
+                <Gap h={6} />
+              </Row>
+              <Row>
+                <InputLabel style={styles.rowLeft}>Nomor Rekening</InputLabel>
+                <Text style={styles.textValue} variant={'labelMedium'}>
+                  {BANK_DATA?.accountnumber}
+                </Text>
+                <Gap h={6} />
+              </Row>
+              <Row>
+                <InputLabel style={styles.rowLeft}>
+                  Nama Pemilik Rekening
+                </InputLabel>
+                <Text style={styles.textValue} variant={'labelMedium'}>
+                  {BANK_DATA?.accountname}
+                </Text>
+                <Gap h={6} />
+              </Row>
+              {data?.payment_type != 'CASH' ? (
+                <Row>
+                  <InputLabel style={styles.rowLeft}>
+                    Dikirim oleh Finance dari
+                  </InputLabel>
+                  <Text style={styles.textValue} variant={'labelMedium'}>
+                    {FINANCE_BANK || '-'}
+                  </Text>
+                  <Gap h={6} />
+                </Row>
+              ) : null}
+            </>
+          ) : null}
 
-        {IS_REPORT ? null : renderBottomButton()}
+          <Gap h={24} />
+          {renderAdminSelector()}
+          {renderAllNotes()}
+
+          {IS_REPORT ? renderDownloadButton() : renderBottomButton()}
+        </ViewShot>
       </ScrollView>
       <Snackbar visible={snak} onDismiss={() => setSnak(false)}>
         {snakMsg || ''}
@@ -1412,6 +1540,13 @@ const styles = StyleSheet.create({
     height: Scaler.scaleSize(48),
     backgroundColor: Colors.COLOR_WHITE,
     fontSize: Scaler.scaleFont(14),
+  },
+
+  logo: {
+    alignSelf: 'center',
+    height: Scaler.scaleSize(125),
+    width: Scaler.scaleSize(125),
+    marginVertical: Size.SIZE_14,
   },
 
   // text

@@ -15,6 +15,8 @@ const SplashScreen = () => {
 
   React.useEffect(() => {
     checkIcon();
+
+    return () => null;
   }, []);
 
   async function checkIcon() {
@@ -55,6 +57,8 @@ const SplashScreen = () => {
       restoreToken(userToken);
     };
     wait(2500).then(() => bootstrapAsync());
+
+    return () => null;
   }, []);
 
   return (

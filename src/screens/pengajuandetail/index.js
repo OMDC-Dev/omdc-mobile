@@ -2,6 +2,7 @@ import {
   Alert,
   FlatList,
   Image,
+  PermissionsAndroid,
   Platform,
   ScrollView,
   StyleSheet,
@@ -568,14 +569,20 @@ const PengajuanDetailScreen = () => {
         setSnak(true);
       })
       .catch(err => {
-        err && console.log(err);
+        err && console.log(err.message);
+        if (err.message == 'User did not share') return;
         setSnakMsg('Gagal membagikan report!');
         setSnak(true);
       });
   }
 
-  function onRequestStoragePermission() {
+  async function onRequestStoragePermission() {
     if (Platform.OS == 'ios') {
+      navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'});
+      return;
+    }
+
+    if (Number(Platform.Version) >= 33) {
       navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'});
       return;
     }

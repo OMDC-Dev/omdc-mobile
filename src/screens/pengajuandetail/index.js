@@ -193,6 +193,11 @@ const PengajuanDetailScreen = () => {
         setCoa(data?.coa);
         setReviewStatus(data?.reviewStatus);
         setNoteList(data.notes);
+        if (IS_DOWNLOAD) {
+          shootRef.current.capture().then(uri => {
+            onCapture(uri);
+          });
+        }
       }
     } catch (error) {
       console.log(error);
@@ -1203,8 +1208,9 @@ const PengajuanDetailScreen = () => {
         style={styles.mainContainer}
         contentContainerStyle={styles.scrollContent}>
         <ViewShot
-          onCapture={onCapture}
-          captureMode="mount"
+          ref={shootRef}
+          // onCapture={onCapture}
+          // captureMode="mount"
           style={{
             backgroundColor: 'white',
             padding: IS_DOWNLOAD ? 8 : undefined,
@@ -1524,7 +1530,10 @@ const PengajuanDetailScreen = () => {
           {renderAdminSelector()}
           {renderAllNotes()}
 
-          {IS_REPORT ? renderDownloadButton() : renderBottomButton()}
+          {IS_REPORT ? null : renderBottomButton()}
+          {user.type == 'USER' && data.status_finance == 'DONE' && !IS_DOWNLOAD
+            ? renderDownloadButton()
+            : null}
         </ViewShot>
       </ScrollView>
       {IS_DOWNLOAD ? renderDownloadButton(true) : null}

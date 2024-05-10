@@ -42,7 +42,6 @@ const PengajuanStack = () => {
         headerShown: false,
       }}>
       <Stack.Screen name="PengajuanDetail" component={PengajuanDetailScreen} />
-      <Stack.Screen name="ReportDownload" component={PengajuanDetailScreen} />
       <Stack.Screen name="Preview" component={PreviewScreen} />
     </Stack.Navigator>
   );

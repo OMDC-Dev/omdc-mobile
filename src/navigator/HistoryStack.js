@@ -42,6 +42,7 @@ const PengajuanStack = () => {
       <Stack.Screen name="PengajuanBank" component={PengajuanBankScreen} />
       <Stack.Screen name="PengajuanDone" component={PengajuanDoneScreen} />
       <Stack.Screen name="PengajuanDetail" component={PengajuanDetailScreen} />
+      <Stack.Screen name="ReportDownload" component={PengajuanDetailScreen} />
       <Stack.Screen name="Preview" component={PreviewScreen} />
     </Stack.Navigator>
   );

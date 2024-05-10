@@ -138,7 +138,7 @@ const PengajuanBankScreen = () => {
       file: RR.fileInfo,
       approved_by: RR.admin,
       parentId: REPORT_DATA?.id || '',
-      payment_type: mode,
+      payment_type: IS_NEED_BANK ? mode : PR_TYPE,
       tipePembayaran: RR.tipePembayaran,
     };
 
@@ -159,7 +159,7 @@ const PengajuanBankScreen = () => {
   }
 
   // Handle petty cash report and Cash Advance Report
-  if (RR.jenis == 'PC') {
+  if (RR.jenis == 'PC' || !IS_NEED_BANK) {
     return (
       <View style={styles.container}>
         <Header title={'Request of Payment'} />

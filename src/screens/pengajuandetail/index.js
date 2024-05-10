@@ -101,12 +101,10 @@ const PengajuanDetailScreen = () => {
   const [noteList, setNoteList] = React.useState([]);
   const [reportChange, setReportChange] = React.useState(false);
   const [icon, setIcon] = React.useState();
-  const [pdfPath, setPdfPath] = React.useState();
-  const [shootUri, setShootUri] = React.useState();
-  const [saved, setSaved] = React.useState(false);
 
   // dialog
   const [cancelDialog, setCancelDialog] = React.useState(false);
+  const [downloadLoading, setDownloadLoading] = React.useState(false);
 
   // Shoot
   const shootRef = React.useRef();
@@ -193,11 +191,6 @@ const PengajuanDetailScreen = () => {
         setCoa(data?.coa);
         setReviewStatus(data?.reviewStatus);
         setNoteList(data.notes);
-        if (IS_DOWNLOAD) {
-          shootRef.current.capture().then(uri => {
-            onCapture(uri);
-          });
-        }
       }
     } catch (error) {
       console.log(error);
@@ -538,45 +531,72 @@ const PengajuanDetailScreen = () => {
     return 'Rp. ' + formatRupiah(saldo);
   };
 
-  const onCapture = React.useCallback(uri => {
-    setShootUri(uri);
+  // const onCapture = React.useCallback(uri => {
+  //   setShootUri(uri);
+  // }, []);
+
+  // function onDownloadOnly() {
+  //   setIsLoading(true);
+  //   shootRef.current.capture().then(async uri => {
+  //     await downloadPdf(uri, data.no_doc)
+  //       .then(path => {
+  //         console.log(`Save to ${path}`);
+  //         Alert.alert('Sukses', `Sukses menyimpan report ke ${path}`);
+  //         setIsLoading(false);
+  //       })
+  //       .catch(err => {
+  //         console.log(err);
+  //         setIsLoading(false);
+  //         Alert.alert('Gagal', 'Gagal menyimpan report ke perangkat!', [
+  //           {
+  //             text: 'OK',
+  //             onPress: () => {
+  //               setIsLoading(false);
+  //               navigation.goBack();
+  //             },
+  //           },
+  //         ]);
+  //       });
+  //   });
+  // }
+  const onDownloadOnly = React.useCallback(() => {
+    setDownloadLoading(true);
+    shootRef.current.capture().then(async uri => {
+      await downloadPdf(uri, data.no_doc)
+        .then(path => {
+          console.log(`Save to ${path}`);
+          Alert.alert('Sukses', `Sukses menyimpan report ke ${path}`);
+          setDownloadLoading(false);
+        })
+        .catch(err => {
+          console.log(err);
+          setDownloadLoading(false);
+          Alert.alert('Gagal', 'Gagal menyimpan report ke perangkat!', [
+            {
+              text: 'OK',
+              onPress: () => {
+                setDownloadLoading(false);
+                navigation.goBack();
+              },
+            },
+          ]);
+        });
+    });
   }, []);
 
-  function onDownloadOnly() {
-    setIsLoading(true);
-    downloadPdf(shootUri, data.no_doc)
-      .then(path => {
-        console.log(`Save to ${path}`);
-        Alert.alert('Sukses', 'Sukses menyimpan report ke perangkat!');
-        setPdfPath(path);
-        setIsLoading(false);
-      })
-      .catch(err => {
-        console.log(err);
-        setIsLoading(false);
-        Alert.alert('Gagal', 'Gagal menyimpan report ke perangkat!', [
-          {
-            text: 'OK',
-            onPress: () => {
-              setIsLoading(false);
-              navigation.goBack();
-            },
-          },
-        ]);
-      });
-  }
-
   async function onShareReport() {
-    setIsLoading(true);
-    await downloadPdf(shootUri, data.no_doc)
-      .then(path => {
-        onShare(path);
-        setIsLoading(false);
-      })
-      .catch(err => {
-        Alert.alert('Gagal', 'Gagal membagikan report!');
-        setIsLoading(false);
-      });
+    setDownloadLoading(true);
+    shootRef.current.capture().then(async uri => {
+      await downloadPdf(uri, data.no_doc)
+        .then(path => {
+          onShare(path);
+          setDownloadLoading(false);
+        })
+        .catch(err => {
+          Alert.alert('Gagal', 'Gagal membagikan report!');
+          setDownloadLoading(false);
+        });
+    });
 
     function onShare(path) {
       const options = {
@@ -610,7 +630,7 @@ const PengajuanDetailScreen = () => {
       return;
     }
 
-    request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE)
+    await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE)
       .then(result => {
         if (result == 'granted') {
           navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'});
@@ -1162,18 +1182,36 @@ const PengajuanDetailScreen = () => {
   // ======== render download button
   function renderDownloadButton(container) {
     if (IS_DOWNLOAD) {
+      if (Platform.OS == 'ios') {
+        return (
+          <View style={container ? styles.bottomContainer : undefined}>
+            <Button
+              disabled={isLoading || statusLoading}
+              mode={'contained'}
+              onPress={() =>
+                // navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'})
+                onShareReport()
+              }>
+              Bagikan Report
+            </Button>
+          </View>
+        );
+      }
+
       return (
         <View style={container ? styles.bottomContainer : undefined}>
           <Button
+            disabled={isLoading || statusLoading}
             mode={'contained'}
             onPress={() =>
               // navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'})
-              onDownloadOnly()
+              isLoading ? null : onDownloadOnly()
             }>
             Simpan ke Perangkat
           </Button>
           <Gap h={14} />
           <Button
+            disabled={isLoading || statusLoading}
             mode={'outlined'}
             onPress={() =>
               // navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'})
@@ -1184,6 +1222,10 @@ const PengajuanDetailScreen = () => {
         </View>
       );
     }
+
+    console.log(data.jenis_reimbursement);
+
+    if (data.jenis_reimbursement == 'Cash Advance' && !realisasi) return;
 
     return (
       <View>
@@ -1209,8 +1251,6 @@ const PengajuanDetailScreen = () => {
         contentContainerStyle={styles.scrollContent}>
         <ViewShot
           ref={shootRef}
-          // onCapture={onCapture}
-          // captureMode="mount"
           style={{
             backgroundColor: 'white',
             padding: IS_DOWNLOAD ? 8 : undefined,
@@ -1542,7 +1582,7 @@ const PengajuanDetailScreen = () => {
       </Snackbar>
       <ModalView
         type={'loading'}
-        visible={isLoading}
+        visible={isLoading || downloadLoading}
         onModalHide={() => {
           if (snak) {
             setSnak(false);

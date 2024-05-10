@@ -31,7 +31,7 @@ import {fetchApi} from '../../api/api';
 import {GET_CABANG, GET_SUPLIER, SUPERUSER} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
-import {formatRupiah} from '../../utils/rupiahFormatter';
+import {convertRupiahToNumber, formatRupiah} from '../../utils/rupiahFormatter';
 import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
 const PengajuanScreen = () => {
@@ -84,6 +84,23 @@ const PengajuanScreen = () => {
   const [showSelectFile, setShowSelectFile] = React.useState(false);
 
   const isNeedName = jenis == 'PR' || jenis == 'CAR' || jenis == 'PC';
+
+  // CAR
+  let CAR_NEED_BANK = false;
+
+  // handle need bank CAR
+  if (jenis == 'CAR') {
+    const nomine = convertRupiahToNumber(nominal);
+    const cashadv = convertRupiahToNumber(reportData?.nominal);
+
+    if (nomine > cashadv) {
+      CAR_NEED_BANK = true;
+    } else {
+      CAR_NEED_BANK = false;
+    }
+  } else {
+    CAR_NEED_BANK = true;
+  }
 
   const disabledByType = () => {
     if (isNeedName) {
@@ -616,7 +633,7 @@ const PengajuanScreen = () => {
                     fileInfo: fileInfo,
                     admin: admin,
                     report: reportData,
-                    // needBank: needBank,
+                    needBank: CAR_NEED_BANK,
                     suplier: suplierDetail,
                     payment_type: paymentType,
                     tipePembayaran: tipePembayaran,

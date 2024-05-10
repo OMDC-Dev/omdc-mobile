@@ -6,7 +6,7 @@ const DEV =
     ? 'http://10.0.2.2:8080' /*'http://192.168.0.100:8080/'*/
     : 'http://127.0.0.1:8080/';
 
-export const BASE_URL = DEV;
+export const BASE_URL = PROD;
 
 // AUTH
 export const LOGIN = 'user/login';

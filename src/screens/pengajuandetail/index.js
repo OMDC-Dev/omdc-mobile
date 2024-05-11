@@ -35,7 +35,7 @@ import {
   SUPERUSER,
 } from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
-import {formatRupiah} from '../../utils/rupiahFormatter';
+import {convertRupiahToNumber, formatRupiah} from '../../utils/rupiahFormatter';
 import ModalView from '../../components/modal';
 import {downloadPdf, getDataById, getLabelByValue} from '../../utils/utils';
 import _ from 'lodash';
@@ -105,6 +105,7 @@ const PengajuanDetailScreen = () => {
   // dialog
   const [cancelDialog, setCancelDialog] = React.useState(false);
   const [downloadLoading, setDownloadLoading] = React.useState(false);
+  const [isNeedBank, setIsNeedBank] = React.useState(true);
 
   // Shoot
   const shootRef = React.useRef();
@@ -559,6 +560,23 @@ const PengajuanDetailScreen = () => {
   //       });
   //   });
   // }
+  //console.log(calculateSaldo(nominal, realisasi));
+  React.useEffect(() => {
+    if (
+      data?.jenis_reimbursement == 'Cash Advance Report' &&
+      data?.payment_type == 'TRANSFER'
+    ) {
+      const saldo = calculateSaldo(data?.pengajuan_ca, nominal);
+      const getSaldo = convertRupiahToNumber(saldo);
+
+      if (getSaldo > 0) {
+        setIsNeedBank(false);
+      }
+    }
+  }, []);
+
+  console.log('IS NEED BANK', isNeedBank);
+
   const onDownloadOnly = React.useCallback(() => {
     setDownloadLoading(true);
     shootRef.current.capture().then(async uri => {
@@ -692,7 +710,8 @@ const PengajuanDetailScreen = () => {
           <Gap h={38} />
           <Button
             disabled={
-              isLoading || (!selectedBank && data?.payment_type == 'TRANSFER')
+              isLoading ||
+              (!selectedBank && data?.payment_type == 'TRANSFER' && isNeedBank)
             }
             mode={'contained'}
             onPress={() => setAccMode('ACC')}>
@@ -832,6 +851,7 @@ const PengajuanDetailScreen = () => {
   // render finance on transfer sender bank
   function renderSenderBankFinance() {
     if (data?.payment_type == 'CASH') return;
+    if (!isNeedBank) return;
 
     return (
       <>

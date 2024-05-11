@@ -600,7 +600,7 @@ const PengajuanDetailScreen = () => {
 
     function onShare(path) {
       const options = {
-        url: path,
+        url: Platform.OS == 'ios' ? path : `file://${path}`,
         type: 'application/pdf',
       };
 
@@ -1186,13 +1186,14 @@ const PengajuanDetailScreen = () => {
         return (
           <View style={container ? styles.bottomContainer : undefined}>
             <Button
-              disabled={isLoading || statusLoading}
+              disabled={isLoading || statusLoading || downloadLoading}
+              loading={downloadLoading}
               mode={'contained'}
               onPress={() =>
                 // navigation.push('ReportDownload', {data: data, type: 'DOWNLOAD'})
                 onShareReport()
               }>
-              Bagikan Report
+              {Platform.OS == 'ios' ? 'Simpan dan Bagikan' : 'Bagikan Report'}
             </Button>
           </View>
         );
@@ -1571,7 +1572,9 @@ const PengajuanDetailScreen = () => {
           {renderAllNotes()}
 
           {IS_REPORT ? null : renderBottomButton()}
-          {user.type == 'USER' && data.status_finance == 'DONE' && !IS_DOWNLOAD
+          {(user.type == 'USER' || user.type == 'FINANCE') &&
+          data.status_finance == 'DONE' &&
+          !IS_DOWNLOAD
             ? renderDownloadButton()
             : null}
         </ViewShot>
@@ -1582,7 +1585,9 @@ const PengajuanDetailScreen = () => {
       </Snackbar>
       <ModalView
         type={'loading'}
-        visible={isLoading || downloadLoading}
+        visible={
+          isLoading || Platform.OS == 'android' ? downloadLoading : undefined
+        }
         onModalHide={() => {
           if (snak) {
             setSnak(false);

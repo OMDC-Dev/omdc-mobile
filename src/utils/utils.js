@@ -23,6 +23,13 @@ export const cLog = (log = '', color) => {
   console.log(`${_selectColor()}${log}`);
 };
 
+export const generateRandomNumber = (min, max) => {
+  // Menggunakan formula Math.random() untuk menghasilkan nomor acak antara 0 dan 1
+  // Kemudian, dikalikan dengan (max - min + 1) untuk mendapatkan nomor acak dalam rentang yang diinginkan
+  // Ditambahkan dengan min untuk menyesuaikan rentang
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 //callback to avoid re-render
 export const wait = timeout => {
   return new Promise(resolve => {
@@ -80,7 +87,10 @@ export const downloadPdf = async (image, id) => {
   const outPath = Platform.OS == 'android' ? androidPath : iosPath;
   const options = {
     pages: [{imagePath: source}],
-    outputPath: `${outPath}/report-${id}.pdf`,
+    outputPath: `${outPath}/report-ID${id}-${generateRandomNumber(
+      10000,
+      999999,
+    )}.pdf`,
   };
 
   return createPdf(options);

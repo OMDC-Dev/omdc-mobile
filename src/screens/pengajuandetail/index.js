@@ -1181,6 +1181,7 @@ const PengajuanDetailScreen = () => {
 
   // ======== render download button
   function renderDownloadButton(container) {
+    if (IS_REPORT) return;
     if (IS_DOWNLOAD) {
       if (Platform.OS == 'ios') {
         return (

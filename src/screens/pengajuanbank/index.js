@@ -13,12 +13,16 @@ import {fetchApi} from '../../api/api';
 import {GET_BANK, GET_BANK_NAME, REIMBURSEMENT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
+import {cekAkses} from '../../utils/utils';
 
 const PengajuanBankScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
   const RR = route?.params?.data;
+  // user session
+  const {user} = React.useContext(AuthContext);
+  const hasPaymentRequest = cekAkses('#6', user?.kodeAkses);
 
   // Cash Advance Report
   const REPORT_DATA = RR?.report;
@@ -28,14 +32,19 @@ const PengajuanBankScreen = () => {
   const IS_NEED_BANK = RR?.needBank;
   const IS_PRE_BANK =
     PR_BANK?.nm_bank && PR_BANK?.no_rekbank && PR_BANK?.nm_pemilik_rek;
+
   const PRE_BANK_DATA = {
     bankcode: '000',
     bankname: PR_BANK?.nm_bank,
     accountnumber: PR_BANK?.no_rekbank,
     accountname: PR_BANK?.nm_pemilik_rek,
   };
+
   const PR_TYPE = RR?.payment_type;
-  const PRE_BANK_NAME = `${PR_BANK?.kdsp} - ${PR_BANK?.nmsp}`;
+  const PRE_BANK_NAME =
+    RR.jenis == 'PR' && hasPaymentRequest
+      ? `${PR_BANK?.kdsp} - ${PR_BANK?.nmsp}`
+      : RR.name;
   const SUPLIER_DATA =
     RR.jenis == 'PR'
       ? [
@@ -315,7 +324,7 @@ const PengajuanBankScreen = () => {
           </>
         )}
         {/* Suplier Section */}
-        {SUPLIER_DATA?.length ? (
+        {/* {SUPLIER_DATA?.length ? (
           <>
             <Gap h={28} />
             <Text style={styles.subtitle} variant="titleSmall">
@@ -331,7 +340,7 @@ const PengajuanBankScreen = () => {
               );
             })}
           </>
-        ) : null}
+        ) : null} */}
         <View style={styles.bottomContainer}>
           <Button
             loading={isLoading}

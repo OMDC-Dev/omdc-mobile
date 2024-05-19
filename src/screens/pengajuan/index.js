@@ -20,6 +20,7 @@ import {
 } from 'react-native-paper';
 import ModalView from '../../components/modal';
 import {
+  cekAkses,
   getDateFormat,
   hitungTotalNominal,
   imgToBase64,
@@ -84,6 +85,7 @@ const PengajuanScreen = () => {
   const [showSelectFile, setShowSelectFile] = React.useState(false);
 
   const isNeedName = jenis == 'PR' || jenis == 'CAR' || jenis == 'PC';
+  const hasPaymentRequest = cekAkses('#6', user?.kodeAkses);
 
   // CAR
   let CAR_NEED_BANK = false;
@@ -104,7 +106,7 @@ const PengajuanScreen = () => {
 
   const disabledByType = () => {
     if (isNeedName) {
-      if (jenis == 'PR') {
+      if (jenis == 'PR' && hasPaymentRequest) {
         return !suplier;
       }
       return !name;
@@ -445,7 +447,7 @@ const PengajuanScreen = () => {
             <>
               <Gap h={6} />
               <InputLabel>Nama Vendor / Client</InputLabel>
-              {jenis == 'PR' ? (
+              {jenis == 'PR' && hasPaymentRequest ? (
                 <Dropdown.SuplierDropdown onChange={val => setSuplier(val)} />
               ) : (
                 <TextInput

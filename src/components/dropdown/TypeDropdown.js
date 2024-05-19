@@ -11,19 +11,20 @@ const TypeDropdown = ({onChange, user}) => {
   const [value, setValue] = React.useState(null);
   const [list, setList] = React.useState([]);
 
-  const hasPaymentRequest = cekAkses('#6', user?.kodeAkses);
+  //const hasPaymentRequest = cekAkses('#6', user?.kodeAkses);
 
   React.useEffect(() => {
-    console.log('HAS PR', hasPaymentRequest);
-    if (!hasPaymentRequest) {
-      const newList = TYPE_LIST.filter(item => {
-        return item.value !== 'PR';
-      });
+    // console.log('HAS PR', hasPaymentRequest);
+    // if (!hasPaymentRequest) {
+    //   const newList = TYPE_LIST.filter(item => {
+    //     return item.value !== 'PR';
+    //   });
 
-      setList(newList);
-    } else {
-      setList(TYPE_LIST);
-    }
+    //   setList(newList);
+    // } else {
+    //   setList(TYPE_LIST);
+    // }
+    setList(TYPE_LIST);
   }, []);
 
   React.useEffect(() => {

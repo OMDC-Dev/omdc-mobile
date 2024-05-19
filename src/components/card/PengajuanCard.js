@@ -10,6 +10,19 @@ import {AuthContext} from '../../context';
 const PengajuanCard = ({data, onPress}) => {
   const {user} = React.useContext(AuthContext);
 
+  const handleExtraStatus = () => {
+    if (data.status_finance === 'DONE') {
+      if (data.needExtraAcceptance) {
+        if (data.extraAcceptanceStatus == 'APPROVED') {
+          return 'Selesai';
+        }
+      } else {
+        return 'Selesai';
+      }
+    }
+    return 'Disetujui';
+  };
+
   // set status
   const STATUS_TEXT = () => {
     switch (data?.status) {
@@ -18,7 +31,7 @@ const PengajuanCard = ({data, onPress}) => {
         break;
       case 'APPROVED':
         return {
-          title: data?.status_finance == 'DONE' ? 'Selesai' : 'Disetujui',
+          title: handleExtraStatus(),
           style: styles.textStatusApproved,
         };
         break;

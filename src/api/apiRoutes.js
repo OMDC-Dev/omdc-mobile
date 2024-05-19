@@ -3,10 +3,10 @@ import {Platform} from 'react-native';
 const PROD = 'https://server.omdc.online/';
 const DEV =
   Platform.OS == 'android'
-    ? /*'http://10.0.2.2:8080'*/ 'http://192.168.0.106:8080/'
+    ? /*'http://10.0.2.2:8080'*/ 'http://192.168.0.103:8080/'
     : 'http://127.0.0.1:8080/';
 
-export const BASE_URL = PROD;
+export const BASE_URL = DEV;
 
 // AUTH
 export const LOGIN = 'user/login';
@@ -30,6 +30,9 @@ export const REIMBURSEMENT_DETAIL = id => {
 };
 export const REIMBURSEMENT_ACCEPTANCE = id => {
   return `reimbursement/status/${id}`;
+};
+export const REIMBURSEMENT_ACCEPTANCE_EXTRA = id => {
+  return `reimbursement/extra/${id}`;
 };
 
 // BANK
@@ -83,3 +86,7 @@ export const GET_ICON = '/icon';
 // Reviwer
 export const GET_UNREVIEW_REIMBURSEMENT = 'reviewer/reimbursement';
 export const ACCEPT_REVIEW_REIMBURSEMENT = id => `reviewer/accept/${id}`;
+
+// Maker
+export const GET_MAKER_REIMBURSEMENT = 'maker/reimbursement';
+export const ACCEPT_MAKER_REIMBURSEMENT = id => `maker/accept/${id}`;

@@ -12,6 +12,7 @@ import {FinanceStack} from './FinanceStack';
 import {ProfileStack} from './ProfileStack';
 import {SuperReimbursementStack} from './ReportReimbursement';
 import {ReviewerStack} from './ReviewerStack';
+import {MakerStack} from './MakerStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -70,6 +71,21 @@ const MainStackNavigator = () => {
           />
         );
         break;
+      case 'MAKER':
+        screen = (
+          <Tab.Screen
+            name="DiajukanStack"
+            component={MakerStack}
+            options={{
+              title: 'Pengajuan',
+              headerShown: false,
+              tabBarIcon: ({color, size}) => (
+                <Icon source={'clipboard-flow'} color={color} size={size} />
+              ),
+            }}
+          />
+        );
+        break;
       default:
         screen = null;
         break;
@@ -96,6 +112,7 @@ const MainStackNavigator = () => {
             routeName === 'SuperReimbursementInit' ||
             routeName === 'ProfileInit' ||
             routeName === 'ReviewerInit' ||
+            routeName === 'MakerInit' ||
             !routeName
           ) {
             return {display: 'flex', position: 'absolute'};

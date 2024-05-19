@@ -13,20 +13,18 @@ const SplashScreen = () => {
   const [icon, setIcon] = React.useState();
   const {restoreToken} = React.useContext(AuthContext);
 
-  React.useEffect(() => {
-    checkIcon();
-
-    return () => null;
-  }, []);
-
   async function checkIcon() {
-    const getIconLocal = await retrieveData('APP_ICON');
+    try {
+      const getIconLocal = await retrieveData('APP_ICON');
 
-    if (getIconLocal) {
-      setIcon(getIconLocal);
+      if (getIconLocal) {
+        setIcon(getIconLocal);
+      }
+
+      getIcon();
+    } catch (error) {
+      getIcon();
     }
-
-    getIcon();
   }
 
   async function getIcon() {
@@ -40,6 +38,7 @@ const SplashScreen = () => {
   }
 
   React.useEffect(() => {
+    checkIcon();
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
       let userToken;

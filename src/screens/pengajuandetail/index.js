@@ -87,6 +87,8 @@ const PengajuanDetailScreen = () => {
   const [snakMsg, setSnakMsg] = React.useState();
   const [statusLoading, setStatusLoading] = React.useState(true);
   const [extraAcc, setExtraAcc] = React.useState();
+  const [needExtra, setNeedExtra] = React.useState(false);
+  const [extraStatus, setExtraStatus] = React.useState('IDLE');
 
   // acceptance
   const [adminStatus, setAdminStatus] = React.useState(ADMINS);
@@ -199,6 +201,16 @@ const PengajuanDetailScreen = () => {
         setSelectedBank(data?.finance_bank);
         setFinanceBank(data?.finance_bank);
         setExtraAcc(data?.extraAcceptance);
+        setNeedExtra(data.needExtraAcceptance);
+        setExtraStatus(data.extraAcceptanceStatus);
+        if (
+          data.needExtraAcceptance &&
+          user.type == 'FINANCE' &&
+          data.extraAcceptanceStatus !== 'IDLE' &&
+          data.extraAcceptanceStatus !== 'WAITING'
+        ) {
+          setAccMode(data.extraAcceptanceStatus == 'APPROVED' ? 'ACC' : 'REJ');
+        }
       }
     } catch (error) {
       console.log(error);
@@ -980,6 +992,38 @@ const PengajuanDetailScreen = () => {
       if (user.type == 'FINANCE') {
         // FINANCE STATUS WAITING
         if (financeStatus == 'WAITING') {
+          if (needExtra && extraStatus !== 'IDLE') {
+            if (extraStatus == 'WAITING') {
+              return (
+                <>
+                  <Gap h={14} />
+                  <Card mode={'outlined'}>
+                    <Card.Content style={{alignItems: 'center'}}>
+                      <Text variant={'bodyMedium'}>
+                        Menunggu persetujuan lanjutan.
+                      </Text>
+                    </Card.Content>
+                  </Card>
+                </>
+              );
+            } else {
+              return (
+                <>
+                  <Gap h={24} />
+                  <Button
+                    loading={isLoading}
+                    disabled={isLoading}
+                    mode={'contained'}
+                    onPress={() => onConfirmPressed()}>
+                    Selesaikan ({' '}
+                    {extraStatus == 'APPROVED' ? 'Setujui' : 'Tolak'} )
+                  </Button>
+                  <Gap h={10} />
+                </>
+              );
+            }
+          }
+
           return (
             <View>
               {renderSenderBankFinance()}
@@ -1138,7 +1182,7 @@ const PengajuanDetailScreen = () => {
       );
     }
 
-    if (user.type == 'FINANCE') {
+    if (user.type == 'FINANCE' && extraStatus == 'IDLE') {
       if (financeStatus == 'DONE') return;
       return (
         <>
@@ -1234,6 +1278,12 @@ const PengajuanDetailScreen = () => {
               setCoaDisabled(false);
             }}
           />
+          <Gap h={8} />
+          {financeStatus !== 'DONE' && financeStatus !== 'REJECTED' && (
+            <Text variant={'labelSmall'}>
+              * Dapat di update setelah permintaan selesai.
+            </Text>
+          )}
           {financeStatus === 'DONE' ? (
             <>
               <Gap h={14} />

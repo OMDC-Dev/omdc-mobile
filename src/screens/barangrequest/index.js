@@ -54,8 +54,13 @@ const BarangRequestScreen = () => {
   const [cabangAnakSelected, setCabangAnakSelected] = React.useState();
   const [cabangDetail, setCabangDetail] = React.useState();
 
+  // Approval
+  const [selectedAdmin, setSelectedAdmin] = React.useState();
+
   // state
   const [isLoading, setIsLoading] = React.useState(false);
+
+  console.log('SELECTED ADMIN', selectedAdmin);
 
   // get init induk
   React.useEffect(() => {
@@ -118,6 +123,14 @@ const BarangRequestScreen = () => {
         <Text style={styles.subtitle} variant="titleSmall">
           Data Permintaan Barang
         </Text>
+        <Gap h={8} />
+        <InputLabel>Ajukan Approval ke</InputLabel>
+        <Dropdown.ApprovalPBDropdown
+          loading={!cabangInduk}
+          value={selectedAdmin}
+          setValue={setSelectedAdmin}
+        />
+
         <Gap h={8} />
         <InputLabel>Cabang</InputLabel>
         <Dropdown.CabangDropdown
@@ -199,6 +212,7 @@ const BarangRequestScreen = () => {
             <Button
               onPress={() =>
                 navigation.navigate('BarangList', {
+                  admin: selectedAdmin,
                   cabang: {
                     indukCabang: cabangIndukSelected,
                     anakCabang: cabangAnakSelected,

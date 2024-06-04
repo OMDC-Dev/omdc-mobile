@@ -14,6 +14,7 @@ const BarangListScreen = () => {
   const route = useRoute();
 
   const cabangData = route?.params?.cabang;
+  const selectedAdmin = route?.params?.admin;
 
   // state
   const [barangs, setBarangs] = React.useState([]);
@@ -21,6 +22,7 @@ const BarangListScreen = () => {
   const [selectedId, setSelectedId] = React.useState();
   const [queryBarangs, setQueryBarangs] = React.useState([]);
   const [cabang, setCabang] = React.useState(cabangData);
+  const [admin, setAdmin] = React.useState(selectedAdmin);
 
   // modal
   const [modalType, setModalType] = React.useState('loading');
@@ -79,6 +81,7 @@ const BarangListScreen = () => {
       kodeIndukCabang: cabang.indukCabang,
       kodeAnakCabang: cabang.anakCabang,
       barang: queryBarangs,
+      adminId: admin,
     };
     const {state, data, error} = await fetchApi({
       url: CREATE_REQUEST_BARANG,

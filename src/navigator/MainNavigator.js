@@ -133,19 +133,18 @@ const MainStackNavigator = () => {
         }}
       />
       {renderAdminPengajuan()}
-      {hasRequestBarang && (
-        <Tab.Screen
-          name="BarangStack"
-          component={BarangStack}
-          options={{
-            title: 'Permintaan Barang',
-            headerShown: false,
-            tabBarIcon: ({color, size}) => (
-              <Icon source={'basket-unfill'} color={color} size={size} />
-            ),
-          }}
-        />
-      )}
+      {/* Permintaan Barang Stack */}
+      <Tab.Screen
+        name="BarangStack"
+        component={BarangStack}
+        options={{
+          title: 'Permintaan Barang',
+          headerShown: false,
+          tabBarIcon: ({color, size}) => (
+            <Icon source={'basket-unfill'} color={color} size={size} />
+          ),
+        }}
+      />
       {hasSuperReimbursement && (
         <Tab.Screen
           name="SuperReimbursementStack"

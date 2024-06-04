@@ -6,7 +6,7 @@ import {createPdf} from 'react-native-images-to-pdf';
 import {Platform} from 'react-native';
 
 //create simple log
-export const cLog = (log = '', color) => {
+export const cLog = (key = '', log = '', color) => {
   const _selectColor = () => {
     switch (color) {
       case 'red':
@@ -20,7 +20,7 @@ export const cLog = (log = '', color) => {
         break;
     }
   };
-  console.log(`${_selectColor()}${log}`);
+  console.log(`${_selectColor()}${key}`, log);
 };
 
 export const generateRandomNumber = (min, max) => {

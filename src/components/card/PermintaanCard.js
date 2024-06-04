@@ -4,9 +4,11 @@ import {Card, Text} from 'react-native-paper';
 import Gap from '../Gap';
 import Row from '../Row';
 import {Colors, Size} from '../../styles';
+import {getDateFormat} from '../../utils/utils';
 
 const PermintaanCard = ({data = {}, onPress}) => {
-  const {id_pb, nm_induk, nm_cabang, tgl_trans, status_approve} = data;
+  const {id_pb, nm_induk, nm_cabang, tgl_trans, jam_trans, status_approve} =
+    data;
 
   function statusWording() {
     switch (status_approve?.toLowerCase()) {
@@ -37,7 +39,9 @@ const PermintaanCard = ({data = {}, onPress}) => {
               <Text variant={'labelSmall'}>{nm_induk}</Text>
               <Text variant={'labelSmall'}>{nm_cabang}</Text>
               <Gap h={14} />
-              <Text variant={'labelSmall'}>{tgl_trans}</Text>
+              <Text variant={'labelSmall'}>
+                {getDateFormat(tgl_trans)} | {jam_trans}
+              </Text>
             </View>
             <Text
               style={{...styles.textStatus, color: statusWording().color}}

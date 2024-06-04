@@ -1,12 +1,13 @@
 import {FlatList, ScrollView, StyleSheet, View} from 'react-native';
 import React from 'react';
-import {ActivityIndicator, Text} from 'react-native-paper';
+import {ActivityIndicator, Button, Text} from 'react-native-paper';
 import {Card, Container, Gap, Header, InputLabel, Row} from '../../components';
 import {Colors, Scaler, Size} from '../../styles';
 import {useRoute} from '@react-navigation/native';
 import {fetchApi} from '../../api/api';
 import {DETAIL_REQUEST_BARANG} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
+import {getDateFormat} from '../../utils/utils';
 
 const PermintaanDetailScreen = () => {
   const route = useRoute();
@@ -25,7 +26,7 @@ const PermintaanDetailScreen = () => {
     },
     {
       ti: 'Waktu Permintaan',
-      va: `${DATA?.tgl_trans} | ${DATA?.jam_trans}`,
+      va: `${getDateFormat(DATA?.tgl_trans)} | ${DATA?.jam_trans}`,
     },
     {
       ti: 'Cabang',
@@ -78,12 +79,73 @@ const PermintaanDetailScreen = () => {
     }
   }
 
-  return (
-    <Container>
-      <Header title={'Detail Permintaan'} />
-      <ScrollView
-        style={styles.mainContainer}
-        contentContainerStyle={styles.scrollContainer}>
+  function pengajuanWording() {
+    switch (DATA?.approval_admin_status?.toLowerCase()) {
+      case 'waiting':
+        return {
+          text: `Menunggu Persetujuan`,
+          color: Colors.COLOR_ORANGE,
+        };
+        break;
+      case 'approved':
+        return {text: 'Disetujui', color: Colors.COLOR_GREEN};
+        break;
+      case 'rejected':
+        return {text: 'Ditolak', color: Colors.COLOR_RED};
+        break;
+      default:
+        return {
+          text: `Menunggu Persetujuan ${DATA.approval_admin_name}`,
+          color: Colors.COLOR_ORANGE,
+        };
+        break;
+    }
+  }
+
+  function renderStatus() {
+    if (DATA.approval_adminid) {
+      return (
+        <>
+          <Text style={styles.subtitle} variant="titleSmall">
+            Status Pengajuan
+          </Text>
+          <Gap h={14} />
+          <Row>
+            <InputLabel style={styles.rowLeft}>Status Approval</InputLabel>
+            <Text
+              numberOfLines={5}
+              style={{...styles.textValue, color: pengajuanWording().color}}
+              variant={'labelMedium'}>
+              {pengajuanWording().text}
+            </Text>
+            <Gap h={6} />
+          </Row>
+          <Row>
+            <InputLabel style={styles.rowLeft}>Approval by</InputLabel>
+            <Text
+              numberOfLines={5}
+              style={styles.textValue}
+              variant={'labelMedium'}>
+              {DATA?.approval_admin_name || '-'}
+            </Text>
+            <Gap h={6} />
+          </Row>
+          <Row>
+            <InputLabel style={styles.rowLeft}>Tanggal Approval</InputLabel>
+            <Text
+              numberOfLines={5}
+              style={styles.textValue}
+              variant={'labelMedium'}>
+              {DATA?.approval_admin_date || '-'}
+            </Text>
+            <Gap h={6} />
+          </Row>
+        </>
+      );
+    }
+
+    return (
+      <>
         <Text style={styles.subtitle} variant="titleSmall">
           Status Approval
         </Text>
@@ -108,6 +170,17 @@ const PermintaanDetailScreen = () => {
           </Text>
           <Gap h={6} />
         </Row>
+      </>
+    );
+  }
+
+  return (
+    <Container>
+      <Header title={'Detail Permintaan'} />
+      <ScrollView
+        style={styles.mainContainer}
+        contentContainerStyle={styles.scrollContainer}>
+        {renderStatus()}
         <Gap h={28} />
         <Text style={styles.subtitle} variant="titleSmall">
           Data Permintaan
@@ -126,7 +199,7 @@ const PermintaanDetailScreen = () => {
               <Gap h={6} />
             </Row>
           ) : (
-            <Row
+            <View
               style={{
                 alignItems: 'flex-start',
                 marginBottom: Scaler.scaleSize(6),
@@ -140,7 +213,7 @@ const PermintaanDetailScreen = () => {
                 {item.va}
               </Text>
               <Gap h={6} />
-            </Row>
+            </View>
           );
         })}
         <Gap h={28} />

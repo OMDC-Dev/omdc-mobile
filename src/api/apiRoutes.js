@@ -91,3 +91,5 @@ export const ACCEPT_MAKER_REIMBURSEMENT = id => `maker/accept/${id}`;
 
 // ADMIN PB
 export const GET_ADMIN_PB = 'adminpb';
+export const BARANG_ADMIN_APPROVAL = (id, mode) =>
+  `barang/admin-approval/${id}/${mode}`;

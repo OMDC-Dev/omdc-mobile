@@ -69,17 +69,21 @@ const BarangCard = ({
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
                     Tanggal Approval : {data?.tgl_approve || '-'}
                   </Text>
-                  <Gap h={24} />
-                  <Button
-                    mode={'outlined'}
-                    onPress={() =>
-                      navigation.navigate('Preview', {
-                        file: data?.attachment,
-                        type: 'image/png',
-                      })
-                    }>
-                    Lihat Lampiran
-                  </Button>
+                  {data?.attachment ? (
+                    <>
+                      <Gap h={24} />
+                      <Button
+                        mode={'outlined'}
+                        onPress={() =>
+                          navigation.navigate('Preview', {
+                            file: data?.attachment,
+                            type: 'image/png',
+                          })
+                        }>
+                        Lihat Lampiran
+                      </Button>
+                    </>
+                  ) : null}
                 </>
               ) : (
                 <Text

@@ -235,60 +235,66 @@ const AddBarangModal = ({data, onAddPress}) => {
             value={keterangan}
             onChangeText={tx => setKeterangan(tx)}
           />
-          <Gap h={12} />
-          <InputLabel>Lampiran</InputLabel>
-          {selectedImage ? (
-            <View>
-              <Image
-                source={{uri: `data:image/png;base64,${selectedImage.base64}`}}
-                style={styles.imagePreview}
-                resizeMode={'contain'}
-              />
-              <Text
-                style={styles.deleteLampiran}
-                variant={'labelLarge'}
-                onPress={() => setSelectedImage(null)}>
-                Hapus
-              </Text>
-            </View>
-          ) : (
+          {needApprovalAdmin && (
             <>
-              <Row>
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                  }}>
-                  <IconButton
-                    icon={'camera-plus-outline'}
-                    size={24}
-                    iconColor={Colors.COLOR_DARK_GRAY}
-                    onPress={() =>
-                      Platform.OS == 'ios'
-                        ? checkPermission('CAMERA')
-                        : onPickFileCamera()
-                    }
+              <Gap h={12} />
+              <InputLabel>Lampiran</InputLabel>
+              {selectedImage ? (
+                <View>
+                  <Image
+                    source={{
+                      uri: `data:image/png;base64,${selectedImage.base64}`,
+                    }}
+                    style={styles.imagePreview}
+                    resizeMode={'contain'}
                   />
-                  <Text variant={'labelSmall'}>Ambil dari Kamera</Text>
+                  <Text
+                    style={styles.deleteLampiran}
+                    variant={'labelLarge'}
+                    onPress={() => setSelectedImage(null)}>
+                    Hapus
+                  </Text>
                 </View>
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                  }}>
-                  <IconButton
-                    icon={'view-grid-plus-outline'}
-                    size={24}
-                    iconColor={Colors.COLOR_DARK_GRAY}
-                    onPress={() =>
-                      Platform.OS == 'ios'
-                        ? checkPermission('GALLERY')
-                        : onPickFileGallery()
-                    }
-                  />
-                  <Text variant={'labelSmall'}>Tambah dari Galeri</Text>
-                </View>
-              </Row>
+              ) : (
+                <>
+                  <Row>
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: 'center',
+                      }}>
+                      <IconButton
+                        icon={'camera-plus-outline'}
+                        size={24}
+                        iconColor={Colors.COLOR_DARK_GRAY}
+                        onPress={() =>
+                          Platform.OS == 'ios'
+                            ? checkPermission('CAMERA')
+                            : onPickFileCamera()
+                        }
+                      />
+                      <Text variant={'labelSmall'}>Ambil dari Kamera</Text>
+                    </View>
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: 'center',
+                      }}>
+                      <IconButton
+                        icon={'view-grid-plus-outline'}
+                        size={24}
+                        iconColor={Colors.COLOR_DARK_GRAY}
+                        onPress={() =>
+                          Platform.OS == 'ios'
+                            ? checkPermission('GALLERY')
+                            : onPickFileGallery()
+                        }
+                      />
+                      <Text variant={'labelSmall'}>Tambah dari Galeri</Text>
+                    </View>
+                  </Row>
+                </>
+              )}
             </>
           )}
 

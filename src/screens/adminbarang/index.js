@@ -3,10 +3,10 @@ import React from 'react';
 import {Platform, StatusBar, StyleSheet, View} from 'react-native';
 import {Container, Header} from '../../components';
 import {Colors} from '../../styles';
-import BarangDone from './BarangDone';
 import BarangProcess from './BarangProcess';
+import BarangDone from './BarangDone';
 
-const BarangScreen = () => {
+const AdminBarangScreen = () => {
   // define tab
   const Tab = createMaterialTopTabNavigator();
 
@@ -31,7 +31,7 @@ const BarangScreen = () => {
           name="Diajukan"
           component={BarangProcess}
           options={{
-            title: 'Dalam Proses',
+            title: 'Menunggu Disetujui',
           }}
         />
         <Tab.Screen
@@ -51,13 +51,13 @@ const BarangScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <Header hideBack={true} title={'Permintaan Barang'} />
+      <Header hideBack={true} title={'Permintaan Barang Approval'} />
       <View style={styles.container}>{renderTab()}</View>
     </Container>
   );
 };
 
-export default BarangScreen;
+export default AdminBarangScreen;
 
 const styles = StyleSheet.create({
   container: {

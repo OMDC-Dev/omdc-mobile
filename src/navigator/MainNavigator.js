@@ -13,12 +13,14 @@ import {ProfileStack} from './ProfileStack';
 import {SuperReimbursementStack} from './ReportReimbursement';
 import {ReviewerStack} from './ReviewerStack';
 import {MakerStack} from './MakerStack';
+import {AdminBarangStack} from './AdminBarangNavigator';
 
 const Tab = createBottomTabNavigator();
 
 const MainStackNavigator = () => {
   const {user} = React.useContext(AuthContext);
   const hasRequestBarang = cekAkses('#2', user.kodeAkses);
+  const isAdminPB = cekAkses('#8', user.kodeAkses);
   const hasSuperReimbursement = cekAkses('#5', user.kodeAkses);
 
   // select admin type
@@ -109,6 +111,7 @@ const MainStackNavigator = () => {
             routeName === 'DiajukanInit' ||
             routeName === 'FinanceInit' ||
             routeName === 'Barang' ||
+            routeName === 'AdminBarang' ||
             routeName === 'SuperReimbursementInit' ||
             routeName === 'ProfileInit' ||
             routeName === 'ReviewerInit' ||
@@ -134,17 +137,32 @@ const MainStackNavigator = () => {
       />
       {renderAdminPengajuan()}
       {/* Permintaan Barang Stack */}
-      <Tab.Screen
-        name="BarangStack"
-        component={BarangStack}
-        options={{
-          title: 'Permintaan Barang',
-          headerShown: false,
-          tabBarIcon: ({color, size}) => (
-            <Icon source={'basket-unfill'} color={color} size={size} />
-          ),
-        }}
-      />
+      {hasRequestBarang && (
+        <Tab.Screen
+          name="BarangStack"
+          component={BarangStack}
+          options={{
+            title: 'PB',
+            headerShown: false,
+            tabBarIcon: ({color, size}) => (
+              <Icon source={'basket-unfill'} color={color} size={size} />
+            ),
+          }}
+        />
+      )}
+      {isAdminPB && (
+        <Tab.Screen
+          name="AdminBarangStack"
+          component={AdminBarangStack}
+          options={{
+            title: 'PB Approval',
+            headerShown: false,
+            tabBarIcon: ({color, size}) => (
+              <Icon source={'basket-unfill'} color={color} size={size} />
+            ),
+          }}
+        />
+      )}
       {hasSuperReimbursement && (
         <Tab.Screen
           name="SuperReimbursementStack"

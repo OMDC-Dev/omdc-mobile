@@ -1,4 +1,10 @@
-import {Platform, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React from 'react';
 import {
   Card,
@@ -14,12 +20,14 @@ import {Button, Dropdown, Gap} from '../../..';
 import {Colors, Scaler, Size} from '../../../../styles';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {check, PERMISSIONS, request} from 'react-native-permissions';
+import {AuthContext} from '../../../../context';
+import {cekAkses} from '../../../../utils/utils';
 
 // OPT
 const pickOpts = {
-  maxHeight: 720,
-  maxWidth: 480,
-  quality: 0.75,
+  maxHeight: 1080,
+  maxWidth: 1080,
+  quality: 1,
   includeBase64: true,
   presentationStyle: 'fullScreen',
 };
@@ -75,12 +83,20 @@ const AddBarangModal = ({data, onAddPress}) => {
   const [keterangan, setKeterangan] = React.useState();
   const [selectedImage, setSelectedImage] = React.useState();
 
-  console.log(selectedImage);
+  // user
+  const {user} = React.useContext(AuthContext);
+
+  // cek akses
+  const needApprovalAdmin = cekAkses('#7', user.kodeAkses);
+
+  // state from akses
+  const isButtonDisabled = needApprovalAdmin ? !selectedImage : false;
 
   const CB_DATA = {
     stock: qtyStock,
     request: qtyRequest,
     keterangan: keterangan || '',
+    attachment: selectedImage?.base64 ?? '',
   };
 
   // ======================== SELECT ATTACHMENT
@@ -179,6 +195,7 @@ const AddBarangModal = ({data, onAddPress}) => {
     <View style={styles.container}>
       <Card>
         <Card.Title title={'Masukan Detail'} />
+
         <Card.Content>
           <InputLabel>Jumlah Stok</InputLabel>
           <Row>
@@ -221,43 +238,18 @@ const AddBarangModal = ({data, onAddPress}) => {
           <Gap h={12} />
           <InputLabel>Lampiran</InputLabel>
           {selectedImage ? (
-            <View style={styles.file}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() =>
-                  // navigation.navigate('Preview', {
-                  //   file: result,
-                  //   type: fileInfo.type,
-                  // })
-                  null
-                }>
-                <Row>
-                  <Row style={styles.fileLeft}>
-                    <Icon
-                      source={'file-document-outline'}
-                      size={40}
-                      color={Colors.COLOR_DARK_GRAY}
-                    />
-                    <Gap w={8} />
-                    <Text
-                      style={{marginRight: Size.SIZE_24}}
-                      numberOfLines={1}
-                      variant={'labelLarge'}>
-                      {selectedImage?.fileName <= 30
-                        ? selectedImage?.fileName
-                        : 'Lampiran'}
-                    </Text>
-                  </Row>
-                  <IconButton
-                    icon={'close'}
-                    size={24}
-                    iconColor={Colors.COLOR_DARK_GRAY}
-                    onPress={() => {
-                      setSelectedImage(null);
-                    }}
-                  />
-                </Row>
-              </TouchableOpacity>
+            <View>
+              <Image
+                source={{uri: `data:image/png;base64,${selectedImage.base64}`}}
+                style={styles.imagePreview}
+                resizeMode={'contain'}
+              />
+              <Text
+                style={styles.deleteLampiran}
+                variant={'labelLarge'}
+                onPress={() => setSelectedImage(null)}>
+                Hapus
+              </Text>
             </View>
           ) : (
             <>
@@ -302,7 +294,9 @@ const AddBarangModal = ({data, onAddPress}) => {
 
           <Gap h={32} />
           <Button
-            disabled={!qtyRequest || !qtyStock || qtyRequest < 1}
+            disabled={
+              !qtyRequest || !qtyStock || qtyRequest < 1 || isButtonDisabled
+            }
             onPress={() => onAddPress(CB_DATA)}>
             Tambahkan Barang
           </Button>
@@ -338,5 +332,17 @@ const styles = StyleSheet.create({
   fileLeft: {
     flex: 1,
     padding: Size.SIZE_8,
+  },
+
+  imagePreview: {
+    borderRadius: 12,
+    width: '35%',
+    height: 180,
+  },
+
+  deleteLampiran: {
+    marginTop: Size.SIZE_14,
+    marginLeft: '12%',
+    color: Colors.COLOR_RED,
   },
 });

@@ -6,9 +6,9 @@ import {check, PERMISSIONS, request} from 'react-native-permissions';
 
 // OPT
 const pickOpts = {
-  maxHeight: 720,
-  maxWidth: 480,
-  quality: 0.75,
+  maxHeight: 1080,
+  maxWidth: 1080,
+  quality: 1,
   includeBase64: true,
   presentationStyle: 'fullScreen',
 };

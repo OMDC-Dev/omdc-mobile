@@ -20,6 +20,8 @@ import {
 } from '../../api/apiRoutes';
 import ModalView from '../../components/modal';
 import {useNavigation} from '@react-navigation/native';
+import {cekAkses} from '../../utils/utils';
+import {AuthContext} from '../../context';
 
 async function getCabang(url, type = 'induk', setResult) {
   try {
@@ -60,7 +62,14 @@ const BarangRequestScreen = () => {
   // state
   const [isLoading, setIsLoading] = React.useState(false);
 
-  console.log('SELECTED ADMIN', selectedAdmin);
+  // user
+  const {user} = React.useContext(AuthContext);
+
+  // cek akses
+  const needApprovalAdmin = cekAkses('#7', user.kodeAkses);
+
+  // state from akses
+  const isButtonDisabled = needApprovalAdmin ? !selectedAdmin : false;
 
   // get init induk
   React.useEffect(() => {
@@ -123,13 +132,17 @@ const BarangRequestScreen = () => {
         <Text style={styles.subtitle} variant="titleSmall">
           Data Permintaan Barang
         </Text>
-        <Gap h={8} />
-        <InputLabel>Ajukan Approval ke</InputLabel>
-        <Dropdown.ApprovalPBDropdown
-          loading={!cabangInduk}
-          value={selectedAdmin}
-          setValue={setSelectedAdmin}
-        />
+        {needApprovalAdmin && (
+          <>
+            <Gap h={8} />
+            <InputLabel>Ajukan Approval ke</InputLabel>
+            <Dropdown.ApprovalPBDropdown
+              loading={!cabangInduk}
+              value={selectedAdmin}
+              setValue={setSelectedAdmin}
+            />
+          </>
+        )}
 
         <Gap h={8} />
         <InputLabel>Cabang</InputLabel>
@@ -210,6 +223,7 @@ const BarangRequestScreen = () => {
             />
             <Gap h={32} />
             <Button
+              disabled={isButtonDisabled}
               onPress={() =>
                 navigation.navigate('BarangList', {
                   admin: selectedAdmin,

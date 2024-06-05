@@ -4,6 +4,7 @@ import {Button, Card, Chip, Icon, Text} from 'react-native-paper';
 import {Colors, Size} from '../../styles';
 import Row from '../Row';
 import Gap from '../Gap';
+import {useNavigation} from '@react-navigation/native';
 
 const BarangCard = ({
   data,
@@ -14,6 +15,8 @@ const BarangCard = ({
   fromDetail,
 }) => {
   const {nm_barang, grup_brg, kategory_brg} = data;
+
+  const navigation = useNavigation();
 
   const [extended, setExtended] = React.useState(false);
 
@@ -28,6 +31,8 @@ const BarangCard = ({
     } else if (statusPB == 'diterima') {
       statusTextColor = Colors.COLOR_GREEN;
     }
+
+    console.log('Barang', data);
 
     return (
       <Card
@@ -64,6 +69,17 @@ const BarangCard = ({
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
                     Tanggal Approval : {data?.tgl_approve || '-'}
                   </Text>
+                  <Gap h={24} />
+                  <Button
+                    mode={'outlined'}
+                    onPress={() =>
+                      navigation.navigate('Preview', {
+                        file: data?.attachment,
+                        type: 'image/png',
+                      })
+                    }>
+                    Lihat Lampiran
+                  </Button>
                 </>
               ) : (
                 <Text

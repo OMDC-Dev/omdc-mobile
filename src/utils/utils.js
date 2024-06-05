@@ -180,6 +180,10 @@ export const cekAkses = (akses, userAkses = []) => {
   if (akses == '#6') {
     return userAkses.findIndex(item => item == '1176') !== -1;
   }
+
+  if (akses == '#7') {
+    return userAkses.findIndex(item => item == '1179') !== -1;
+  }
 };
 
 export function getLabelByValue(value) {

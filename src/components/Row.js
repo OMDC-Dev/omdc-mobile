@@ -1,8 +1,13 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 
-const Row = ({children, style}) => {
-  return <View style={[styles.row, style]}>{children}</View>;
+const Row = ({children, style, justify}) => {
+  return (
+    <View
+      style={[styles.row, style, {justifyContent: justify || 'flex-start'}]}>
+      {children}
+    </View>
+  );
 };
 
 export default Row;

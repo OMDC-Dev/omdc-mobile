@@ -5,6 +5,7 @@ import MonthPicker, {
   ACTION_DISMISSED,
   ACTION_NEUTRAL,
 } from 'react-native-month-year-picker';
+import {Colors} from '../../../../styles';
 
 const DateYearModal = ({cb}) => {
   function onSuccess(date) {

@@ -174,6 +174,7 @@ const RenderDisetujui = () => {
   const [queryDate, setQueryDate] = React.useState('ALL');
   const [refreshing, setRefreshing] = React.useState(false);
   const [search, setSearch] = React.useState('');
+  const [showTypeModal, setShowTypeModal] = React.useState(false);
 
   const navigation = useNavigation();
 
@@ -228,6 +229,11 @@ const RenderDisetujui = () => {
             </Row>
           </Card.Content>
         </Card>
+        <IconButton
+          icon={'filter-menu-outline'}
+          size={20}
+          onPress={() => setShowTypeModal(true)}
+        />
         <MButton
           disabled={queryDate == 'ALL'}
           onPress={() => setQueryDate('ALL')}>
@@ -272,6 +278,12 @@ const RenderDisetujui = () => {
         type={'dateyear'}
         visible={showDateSelector}
         dateCallback={onSelectedDate}
+      />
+      <ModalView
+        type={'typefilter'}
+        visible={showTypeModal}
+        onClose={setShowTypeModal}
+        typeCallback={cb => console.log('checked', cb)}
       />
     </View>
   );

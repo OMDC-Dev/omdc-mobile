@@ -5,6 +5,7 @@ import {Colors, Size} from '../../styles';
 import Row from '../Row';
 import Gap from '../Gap';
 import {useNavigation} from '@react-navigation/native';
+import {Image} from 'react-native';
 
 const BarangCard = ({
   data,
@@ -13,12 +14,13 @@ const BarangCard = ({
   onDeletePress,
   fromList,
   fromDetail,
+  fromDownload,
 }) => {
   const {nm_barang, grup_brg, kategory_brg} = data;
 
   const navigation = useNavigation();
 
-  const [extended, setExtended] = React.useState(false);
+  const [extended, setExtended] = React.useState(fromDownload ? true : false);
 
   if (fromDetail) {
     const statusPB = data?.status_pb?.toLowerCase();
@@ -38,7 +40,7 @@ const BarangCard = ({
       <Card
         mode={'contained'}
         style={styles.container}
-        onPress={() => setExtended(!extended)}>
+        onPress={() => (fromDownload ? null : setExtended(!extended))}>
         <Card.Content>
           <Row>
             <View style={{flex: 1}}>
@@ -72,16 +74,24 @@ const BarangCard = ({
                   {data?.attachment ? (
                     <>
                       <Gap h={24} />
-                      <Button
-                        mode={'outlined'}
-                        onPress={() =>
-                          navigation.navigate('Preview', {
-                            file: data?.attachment,
-                            type: 'image/png',
-                          })
-                        }>
-                        Lihat Lampiran
-                      </Button>
+                      {fromDownload ? (
+                        <Image
+                          source={{uri: data?.attachment}}
+                          style={styles.imagePreview}
+                          resizeMode={'contain'}
+                        />
+                      ) : (
+                        <Button
+                          mode={'outlined'}
+                          onPress={() =>
+                            navigation.navigate('Preview', {
+                              file: data?.attachment,
+                              type: 'image/png',
+                            })
+                          }>
+                          Lihat Lampiran
+                        </Button>
+                      )}
                     </>
                   ) : null}
                 </>
@@ -133,6 +143,11 @@ export default BarangCard;
 const styles = StyleSheet.create({
   container: {
     marginTop: Size.SIZE_8,
+  },
+
+  imagePreview: {
+    width: '100%',
+    height: 250,
   },
 
   // text

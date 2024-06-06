@@ -1,54 +1,47 @@
+import {useNavigation, useRoute} from '@react-navigation/native';
+import React from 'react';
 import {
   Alert,
-  FlatList,
+  Image,
   Platform,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
-import React from 'react';
 import {
   ActivityIndicator,
   Button,
   Dialog,
   Snackbar,
   Text,
-  TextInput,
 } from 'react-native-paper';
+import {fetchApi} from '../../api/api';
+import {DETAIL_REQUEST_BARANG} from '../../api/apiRoutes';
 import {Card, Container, Gap, Header, InputLabel, Row} from '../../components';
 import {Colors, Scaler, Size} from '../../styles';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {fetchApi} from '../../api/api';
-import {
-  BARANG,
-  BARANG_ADMIN_APPROVAL,
-  DETAIL_REQUEST_BARANG,
-} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
-import {cekAkses, getDateFormat} from '../../utils/utils';
-import {AuthContext} from '../../context';
-import {PERMISSIONS, request} from 'react-native-permissions';
+import {downloadPdf, getDateFormat} from '../../utils/utils';
+import {retrieveData} from '../../utils/store';
+import Share from 'react-native-share';
+import ViewShot from 'react-native-view-shot';
 
-const PermintaanDetailScreen = () => {
+const PermintaanDetailDownloadScreen = () => {
   const route = useRoute();
   const DATA = route?.params?.data;
-
-  const {user} = React.useContext(AuthContext);
-  const isAdminPB = cekAkses('#8', user.kodeAkses);
-
   const navigation = useNavigation();
+
+  // Shoot
+  const shootRef = React.useRef();
 
   // state
   const [isLoading, setIsLoading] = React.useState(false);
   const [listBarang, setListBarang] = React.useState();
-  const [note, setNote] = React.useState('');
-  const [showConfirm, setShowConfirm] = React.useState(false);
   const [showCancel, setShowCancel] = React.useState(false);
-  const [mode, setMode] = React.useState();
   const [adminResult, setAdminResult] = React.useState({
     approval_admin_status: DATA.approval_admin_status,
   });
   const [snak, setSnak] = React.useState();
+  const [icon, setIcon] = React.useState();
 
   console.log(DATA);
 
@@ -75,6 +68,66 @@ const PermintaanDetailScreen = () => {
     },
   ];
 
+  // [Start] == Download
+  const onDownloadOnly = React.useCallback(() => {
+    setIsLoading(true);
+    shootRef.current.capture().then(async uri => {
+      await downloadPdf(uri, DATA.id_pb)
+        .then(path => {
+          console.log(`Save to ${path}`);
+          Alert.alert('Sukses', `Sukses menyimpan report ke ${path}`);
+          setIsLoading(false);
+        })
+        .catch(err => {
+          console.log(err);
+          setIsLoading(false);
+          Alert.alert('Gagal', 'Gagal menyimpan report ke perangkat!', [
+            {
+              text: 'OK',
+              onPress: () => {
+                setIsLoading(false);
+                navigation.goBack();
+              },
+            },
+          ]);
+        });
+    });
+  }, []);
+
+  async function onShareReport() {
+    setIsLoading(true);
+    shootRef.current.capture().then(async uri => {
+      await downloadPdf(uri, DATA.id_pb)
+        .then(path => {
+          onShare(path);
+          setIsLoading(false);
+        })
+        .catch(err => {
+          Alert.alert('Gagal', 'Gagal membagikan report!');
+          setIsLoading(false);
+        });
+    });
+
+    function onShare(path) {
+      const options = {
+        url: Platform.OS == 'ios' ? path : `file://${path}`,
+        type: 'application/pdf',
+      };
+
+      Share.open(options)
+        .then(res => {
+          console.log(res);
+          setSnak('Sukses membagikan report!');
+        })
+        .catch(err => {
+          err && console.log(err.message);
+          if (err.message == 'User did not share') return;
+          setSnak('Gagal membagikan report!');
+        });
+    }
+  }
+  // [End] == Download
+
   React.useEffect(() => {
     getDetailRequested();
   }, []);
@@ -95,74 +148,14 @@ const PermintaanDetailScreen = () => {
     }
   }
 
-  async function onConfirmAction() {
-    setShowConfirm(!showConfirm);
-    setIsLoading(true);
-    const {state, data, error} = await fetchApi({
-      url: BARANG_ADMIN_APPROVAL(DATA.id_pb, mode),
-      method: 'POST',
-      data: {
-        note: note,
-      },
-    });
+  React.useEffect(() => {
+    loadIcon();
+  }, []);
 
-    if (state == API_STATES.OK) {
-      setIsLoading(false);
-      setAdminResult(data);
-    } else {
-      setIsLoading(false);
-      setSnak('Ada sesuatu yang tidak beres, mohon coba lagi!');
-    }
+  async function loadIcon() {
+    const getIcon = await retrieveData('APP_ICON');
+    setIcon(getIcon);
   }
-
-  async function onConfirmCancel() {
-    setShowCancel(!showCancel);
-    setIsLoading(true);
-    const {state, data, error} = await fetchApi({
-      url: BARANG + `/${DATA.id_pb}`,
-      method: 'DELETE',
-    });
-
-    if (state == API_STATES.OK) {
-      setIsLoading(false);
-      Alert.alert('Sukses', 'Pengajuan berhasil dibatalkan dan dihapus', [
-        {
-          text: 'OK',
-          onPress: () => navigation.goBack(),
-        },
-      ]);
-    } else {
-      setIsLoading(false);
-      setSnak('Ada sesuatu yang tidak beres, mohon coba lagi!');
-    }
-  }
-
-  // [Start] -- permisison
-  async function onRequestStoragePermission() {
-    if (Platform.OS == 'ios') {
-      navigation.navigate('BarangDownload', {data: DATA});
-      return;
-    }
-
-    if (Number(Platform.Version) >= 33) {
-      navigation.navigate('BarangDownload', {data: DATA});
-      return;
-    }
-
-    await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE)
-      .then(result => {
-        if (result == 'granted') {
-          navigation.navigate('BarangDownload', {data: DATA});
-        } else {
-          setSnak('Izin diperlukan untuk menyimpan report');
-        }
-      })
-      .catch(err => {
-        console.log(err);
-        setSnak('Gagal mendapatkan izin mohon coba lagi');
-      });
-  }
-  // [End] -- permisison
 
   function statusWording() {
     switch (DATA?.status_approve?.toLowerCase()) {
@@ -309,148 +302,100 @@ const PermintaanDetailScreen = () => {
 
   return (
     <Container>
-      <Header title={'Detail Permintaan'} />
+      <Header title={'Simpan dan Bagikan Report'} />
       <ScrollView
         style={styles.mainContainer}
         contentContainerStyle={styles.scrollContainer}>
-        {renderStatus()}
-        <Gap h={28} />
-        <Text style={styles.subtitle} variant="titleSmall">
-          Data Permintaan
-        </Text>
-        <Gap h={14} />
-        {DATA_PERMINTAAN.map((item, index) => {
-          return item?.ti !== 'Alamat' ? (
-            <Row key={item + index}>
-              <InputLabel style={styles.rowLeft}>{item.ti}</InputLabel>
-              <Text
-                numberOfLines={5}
-                style={styles.textValue}
-                variant={'labelMedium'}>
-                {item.va}
-              </Text>
-              <Gap h={6} />
-            </Row>
-          ) : (
-            <View
-              style={{
-                alignItems: 'flex-start',
-                marginBottom: Scaler.scaleSize(6),
-              }}
-              key={item + index}>
-              <InputLabel style={styles.rowLeft}>{item.ti}</InputLabel>
-              <Text
-                numberOfLines={5}
-                style={styles.textValue}
-                variant={'labelMedium'}>
-                {item.va}
-              </Text>
-              <Gap h={6} />
-            </View>
-          );
-        })}
-        <Gap h={28} />
-        <Text style={styles.subtitle} variant="titleSmall">
-          Data Barang
-        </Text>
-        <Gap h={14} />
-        {!isLoading && listBarang ? (
-          <>
-            {listBarang?.map((item, index) => {
-              return (
-                <Card.BarangCard
-                  key={item + index}
-                  fromDetail={true}
-                  data={item}
-                />
-              );
-            })}
-          </>
-        ) : (
-          <View style={styles.barangLoadingContainer}>
-            <ActivityIndicator />
-          </View>
-        )}
-      </ScrollView>
-      {isAdminPB ? (
-        <View style={styles.bottomBar}>
-          {adminResult?.approval_admin_status == 'WAITING' ? (
+        <ViewShot
+          ref={shootRef}
+          style={{
+            backgroundColor: 'white',
+            padding: Size.SIZE_8,
+          }}
+          options={{result: 'base64'}}>
+          <Image
+            style={styles.logo}
+            source={{uri: `data:image/png;base64,${icon}`}}
+            resizeMode={'contain'}
+          />
+          {renderStatus()}
+          <Gap h={28} />
+          <Text style={styles.subtitle} variant="titleSmall">
+            Data Permintaan
+          </Text>
+          <Gap h={14} />
+          {DATA_PERMINTAAN.map((item, index) => {
+            return item?.ti !== 'Alamat' ? (
+              <Row key={item + index}>
+                <InputLabel style={styles.rowLeft}>{item.ti}</InputLabel>
+                <Text
+                  numberOfLines={5}
+                  style={styles.textValue}
+                  variant={'labelMedium'}>
+                  {item.va}
+                </Text>
+                <Gap h={6} />
+              </Row>
+            ) : (
+              <View
+                style={{
+                  alignItems: 'flex-start',
+                  marginBottom: Scaler.scaleSize(6),
+                }}
+                key={item + index}>
+                <InputLabel style={styles.rowLeft}>{item.ti}</InputLabel>
+                <Text
+                  numberOfLines={5}
+                  style={styles.textValue}
+                  variant={'labelMedium'}>
+                  {item.va}
+                </Text>
+                <Gap h={6} />
+              </View>
+            );
+          })}
+          <Gap h={28} />
+          <Text style={styles.subtitle} variant="titleSmall">
+            Data Barang
+          </Text>
+          <Gap h={14} />
+          {listBarang ? (
             <>
-              <TextInput
-                disabled={isLoading}
-                style={styles.inputFull}
-                mode={'outlined'}
-                placeholder={'Tambahkan catatan'}
-                placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                onChangeText={text => setNote(text)}
-                value={note}
-              />
-              <Gap h={14} />
-              <Button
-                mode={'contained'}
-                onPress={() => {
-                  setMode('ACC');
-                  setShowConfirm(!showConfirm);
-                }}>
-                Setujui
-              </Button>
-              <Gap h={8} />
-              <Button
-                mode={'outlined'}
-                onPress={() => {
-                  setMode('REJ');
-                  setShowConfirm(!showConfirm);
-                }}>
-                Tolak
-              </Button>
+              {listBarang?.map((item, index) => {
+                return (
+                  <Card.BarangCard
+                    fromDownload={true}
+                    key={item + index}
+                    fromDetail={true}
+                    data={item}
+                  />
+                );
+              })}
             </>
           ) : (
-            <Button disabled mode={'outlined'}>
-              Permintaan telah{' '}
-              {adminResult?.approval_admin_status == 'APPROVED'
-                ? 'disetujui'
-                : 'ditolak'}
-            </Button>
+            <View style={styles.barangLoadingContainer}>
+              <ActivityIndicator />
+            </View>
           )}
-        </View>
-      ) : adminResult.approval_admin_status == 'WAITING' ? (
-        <View style={styles.bottomBar}>
-          <Button
-            mode={'contained'}
-            onPress={() => {
-              setMode('ACC');
-              setShowCancel(!showCancel);
-            }}>
-            Batalkan Pengajuan
-          </Button>
-        </View>
-      ) : null}
+        </ViewShot>
+      </ScrollView>
+      <View style={styles.bottomBar}>
+        {Platform.OS == 'android' && (
+          <>
+            <Button mode={'contained'} onPress={() => onDownloadOnly()}>
+              Simpan ke Perangkat
+            </Button>
+            <Gap h={14} />
+          </>
+        )}
 
-      {!isAdminPB && DATA.status_approve ? (
-        <View style={styles.bottomBar}>
-          <Button
-            mode={'contained'}
-            onPress={() => onRequestStoragePermission()}>
-            Simpan dan Bagikan Report
-          </Button>
-        </View>
-      ) : null}
+        <Button
+          mode={Platform.OS == 'android' ? 'outlined' : 'contained'}
+          onPress={() => onShareReport()}>
+          {Platform.OS == 'ios' ? 'Simpan dan Bagikan' : 'Bagikan'}
+        </Button>
+      </View>
 
-      <Dialog
-        visible={showConfirm}
-        onDismiss={() => setShowConfirm(!showConfirm)}>
-        <Dialog.Title>Konfirmasi</Dialog.Title>
-        <Dialog.Content>
-          <Text variant="bodyMedium">
-            Apakah anda yakin ingin {mode == 'ACC' ? 'menyetujui' : 'menolak'}{' '}
-            pengajuan ini?
-          </Text>
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button onPress={() => setShowConfirm(!showConfirm)}>Batalkan</Button>
-          <Button onPress={() => onConfirmAction()}>Konfirmasi</Button>
-        </Dialog.Actions>
-      </Dialog>
       <Dialog visible={showCancel} onDismiss={() => setShowCancel(!showCancel)}>
         <Dialog.Title>Konfirmasi</Dialog.Title>
         <Dialog.Content>
@@ -470,7 +415,7 @@ const PermintaanDetailScreen = () => {
   );
 };
 
-export default PermintaanDetailScreen;
+export default PermintaanDetailDownloadScreen;
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -504,6 +449,13 @@ const styles = StyleSheet.create({
     height: Scaler.scaleSize(48),
     backgroundColor: Colors.COLOR_WHITE,
     fontSize: Scaler.scaleFont(14),
+  },
+
+  logo: {
+    alignSelf: 'center',
+    height: Scaler.scaleSize(125),
+    width: Scaler.scaleSize(125),
+    marginVertical: Size.SIZE_24,
   },
 
   // text

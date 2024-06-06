@@ -6,7 +6,7 @@ import {wait} from '../../utils/utils';
 import styles from './styles';
 import ASSETS from '../../utils/assetLoader';
 import {fetchApi} from '../../api/api';
-import {GET_ICON} from '../../api/apiRoutes';
+import {GET_ICON, USER_KODE_AKSES} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 
 const SplashScreen = () => {
@@ -41,19 +41,25 @@ const SplashScreen = () => {
     checkIcon();
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
-      let userToken;
+      let user;
 
       try {
-        userToken = await retrieveData('USER_SESSION', true);
+        user = await retrieveData('USER_SESSION', true);
+
+        const {state, data, error} = await fetchApi({
+          url: USER_KODE_AKSES(user.iduser),
+          method: 'GET',
+        });
+
+        if (state == API_STATES.OK) {
+          console.log('UPDATE KODE AKSES', data.kodeAkses);
+          user = {...user, kodeAkses: data.kodeAkses};
+        }
       } catch (e) {
         // Restoring token failed
       }
 
-      // After restoring token, we may need to validate it in production apps
-
-      // This will switch to the App screen or Auth screen and this loading
-      // screen will be unmounted and thrown away.
-      restoreToken(userToken);
+      restoreToken(user);
     };
     wait(2500).then(() => bootstrapAsync());
 

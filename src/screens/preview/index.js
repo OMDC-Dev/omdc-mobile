@@ -28,6 +28,8 @@ const PreviewScreen = () => {
     return isUrl ? file : `data:image/png;base64,${file}`;
   }
 
+  console.log('FILE TYPE', type);
+
   return (
     <View style={styles.container}>
       <Header title={' '} />

@@ -34,6 +34,7 @@ import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
 import {convertRupiahToNumber, formatRupiah} from '../../utils/rupiahFormatter';
 import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import {convert, convertB64} from 'react-native-pdf-to-image';
 
 const PengajuanScreen = () => {
   const [showCalendar, setShowCalendar] = React.useState(false);
@@ -154,8 +155,8 @@ const PengajuanScreen = () => {
 
       console.log(pickerResult);
 
-      if (size > 1200000) {
-        setSnackMsg('Ukuran file tidak boleh lebih dari 1 MB');
+      if (size > 2000000) {
+        setSnackMsg('Ukuran file tidak boleh lebih dari 2 MB');
         setSnack(true);
         return;
       }
@@ -170,20 +171,26 @@ const PengajuanScreen = () => {
         type: pickerResult.type,
       };
 
-      setFileInfo(fileInfo);
-
       const path =
         Platform.OS == 'android'
           ? pickerResult.fileCopyUri
           : pickerResult.fileCopyUri.split('Caches/')[1];
 
       if (pickerResult.type == 'application/pdf') {
-        const picker = await uriToBas64(path, Platform.OS == 'android');
+        // Convert pdf to image
+        const pickerB64 = await uriToBas64(path, Platform.OS == 'android');
+        const pickerConvert = await convertB64(pickerB64, 1200);
+        const pickerUri = 'file://' + pickerConvert.outputFiles[0];
+        const picker = await uriToBas64(pickerUri, Platform.OS == 'android');
+        fileInfo.type = 'image/png';
+
         setResult(picker);
       } else {
         const base64 = await imgToBase64(path, Platform.OS == 'android');
         setResult(base64);
       }
+
+      setFileInfo(fileInfo);
     } catch (error) {
       console.log(error);
     }
@@ -191,8 +198,8 @@ const PengajuanScreen = () => {
 
   // handle on pick from camera / gallery
   function onPickFromRes(data) {
-    if (data.fileSize > 1200000) {
-      setSnackMsg('Ukuran file tidak boleh lebih dari 1 MB');
+    if (data.fileSize > 2000000) {
+      setSnackMsg('Ukuran file tidak boleh lebih dari 2 MB');
       setSnack(true);
       return;
     }
@@ -474,7 +481,7 @@ const PengajuanScreen = () => {
           />
 
           <Gap h={6} />
-          <InputLabel>Lampiran ( Maks. 1 MB )</InputLabel>
+          <InputLabel>Lampiran ( Maks. 2 MB )</InputLabel>
           <View style={fileInfo ? styles.fileContainer : undefined}>
             {fileInfo ? (
               <TouchableOpacity

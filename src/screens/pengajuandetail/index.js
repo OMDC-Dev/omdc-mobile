@@ -1361,6 +1361,25 @@ const PengajuanDetailScreen = () => {
     }
   }
 
+  // == Render Download Attachmnet
+  function renderDownloadAttachment() {
+    if (!IS_DOWNLOAD) return;
+    return (
+      <>
+        <Gap h={24} />
+        <Text style={styles.subtitle} variant="titleSmall">
+          Lampiran
+        </Text>
+        <Gap h={14} />
+        <Image
+          source={{uri: data.attachment}}
+          style={{width: '100%', height: 720}}
+          resizeMode={'contain'}
+        />
+      </>
+    );
+  }
+
   // === render finance process status
   function renderFinanceProcessStatus() {
     if (data?.status_finance == 'IDLE') return;
@@ -1813,6 +1832,7 @@ const PengajuanDetailScreen = () => {
           <Gap h={24} />
           {renderAdminSelector()}
           {renderAllNotes()}
+          {renderDownloadAttachment()}
 
           {IS_REPORT ? null : renderBottomButton()}
           {(user.type == 'USER' || user.type == 'FINANCE') &&

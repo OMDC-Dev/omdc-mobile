@@ -209,12 +209,14 @@ const PengajuanBankScreen = () => {
         </Text>
         <Row style={styles.modeContainer}>
           <PaperButton
+            disabled={isLoading}
             onPress={() => setMode('TRANSFER')}
             style={styles.modeButton}
             mode={mode == 'TRANSFER' ? 'contained' : 'outlined'}>
             Transfer
           </PaperButton>
           <PaperButton
+            disabled={isLoading}
             onPress={() => setMode('CASH')}
             style={styles.modeButton}
             mode={mode == 'CASH' ? 'contained' : 'outlined'}>
@@ -312,6 +314,7 @@ const PengajuanBankScreen = () => {
               <>
                 <Gap h={24} />
                 <PaperButton
+                  disabled={isLoading}
                   mode={'outlined'}
                   onPress={() => {
                     setAcc();

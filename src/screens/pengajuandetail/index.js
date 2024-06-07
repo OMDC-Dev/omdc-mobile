@@ -1364,6 +1364,8 @@ const PengajuanDetailScreen = () => {
   // == Render Download Attachmnet
   function renderDownloadAttachment() {
     if (!IS_DOWNLOAD) return;
+    if (data.file.type == 'application/pdf') return;
+
     return (
       <>
         <Gap h={24} />

@@ -155,8 +155,8 @@ const PengajuanScreen = () => {
 
       console.log(pickerResult);
 
-      if (size > 2000000) {
-        setSnackMsg('Ukuran file tidak boleh lebih dari 2 MB');
+      if (size > 1000000) {
+        setSnackMsg('Ukuran file tidak boleh lebih dari 1 MB');
         setSnack(true);
         return;
       }
@@ -177,13 +177,13 @@ const PengajuanScreen = () => {
           : pickerResult.fileCopyUri.split('Caches/')[1];
 
       if (pickerResult.type == 'application/pdf') {
-        // Convert pdf to image
-        const pickerB64 = await uriToBas64(path, Platform.OS == 'android');
-        const pickerConvert = await convertB64(pickerB64, 1200);
-        const pickerUri = 'file://' + pickerConvert.outputFiles[0];
-        const picker = await uriToBas64(pickerUri, Platform.OS == 'android');
-        fileInfo.type = 'image/png';
-
+        // // Convert pdf to image
+        // const pickerB64 = await uriToBas64(path, Platform.OS == 'android');
+        // const pickerConvert = await convertB64(pickerB64, 1200);
+        // const pickerUri = 'file://' + pickerConvert.outputFiles[0];
+        // const picker = await uriToBas64(pickerUri, Platform.OS == 'android');
+        // fileInfo.type = 'image/png';
+        const picker = await uriToBas64(path, Platform.OS == 'android');
         setResult(picker);
       } else {
         const base64 = await imgToBase64(path, Platform.OS == 'android');
@@ -481,7 +481,7 @@ const PengajuanScreen = () => {
           />
 
           <Gap h={6} />
-          <InputLabel>Lampiran ( Maks. 2 MB )</InputLabel>
+          <InputLabel>Lampiran ( Maks. 1 MB )</InputLabel>
           <View style={fileInfo ? styles.fileContainer : undefined}>
             {fileInfo ? (
               <TouchableOpacity

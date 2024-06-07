@@ -12,6 +12,7 @@ import {Header} from '../../components';
 import Pdf from 'react-native-pdf';
 import {useRoute} from '@react-navigation/native';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import {ActivityIndicator} from 'react-native-paper';
 
 const PreviewScreen = () => {
   const route = useRoute();
@@ -35,13 +36,19 @@ const PreviewScreen = () => {
       <Header title={' '} />
       <View style={styles.mainContainer}>
         {type == 'application/pdf' ? (
-          <Pdf
-            source={{
-              uri: `data:application/pdf;base64,${file}`,
-              cache: true,
-            }}
-            style={styles.pdf}
-          />
+          <>
+            <Pdf
+              source={{
+                uri: file,
+                cache: true,
+              }}
+              trustAllCerts={false}
+              style={styles.pdf}
+              renderActivityIndicator={() => {
+                return <ActivityIndicator />;
+              }}
+            />
+          </>
         ) : (
           <ImageViewer
             imageUrls={[

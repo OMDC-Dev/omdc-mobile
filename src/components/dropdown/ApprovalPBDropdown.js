@@ -25,7 +25,7 @@ const ApprovalPBDropdown = ({
 
   async function getList() {
     const {state, data, error} = await fetchApi({
-      url: GET_ADMIN_PB,
+      url: GET_ADMIN_PB + '?mobile=true',
       method: 'GET',
     });
 

@@ -12,6 +12,7 @@ import {LIST_REQUEST_BARANG} from '../../api/apiRoutes';
 import {BlankScreen, Card} from '../../components';
 import {Colors, Size} from '../../styles';
 import {API_STATES} from '../../utils/constant';
+import {Searchbar} from 'react-native-paper';
 
 const BarangDone = () => {
   const navigation = useNavigation();
@@ -20,6 +21,7 @@ const BarangDone = () => {
   const [list, setList] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [search, setSearch] = React.useState('');
 
   // gte list
   useFocusEffect(
@@ -28,9 +30,9 @@ const BarangDone = () => {
     }, []),
   );
 
-  async function getRequestedList() {
+  async function getRequestedList(clear) {
     setIsLoading(true);
-    let params = '?status=DONE&isAdmin=true';
+    let params = `?status=DONE&isAdmin=true&cari=${clear ? '' : search}`;
     const {state, data, error} = await fetchApi({
       url: LIST_REQUEST_BARANG + params,
       method: 'GET',
@@ -54,21 +56,34 @@ const BarangDone = () => {
 
   return (
     <View style={styles.container}>
+      <Searchbar
+        placeholder="Cari ID PB, cabang, kode cabang ..."
+        value={search}
+        onChangeText={text => setSearch(text)}
+        onBlur={() => getRequestedList()}
+        onClearIconPress={() => {
+          getRequestedList(true);
+        }}
+      />
       {list?.length && !isLoading ? (
-        <FlatList
-          data={list}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingBottom: 120}}
-          renderItem={({item, index}) => (
-            <Card.PermintaanCard
-              data={item}
-              onPress={() => navigation.navigate('BarangDetail', {data: item})}
-            />
-          )}
-        />
+        <>
+          <FlatList
+            data={list}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{paddingBottom: 120}}
+            renderItem={({item, index}) => (
+              <Card.PermintaanCard
+                data={item}
+                onPress={() =>
+                  navigation.navigate('BarangDetail', {data: item})
+                }
+              />
+            )}
+          />
+        </>
       ) : (
         <BlankScreen loading={isLoading}>
           Belum ada permintaan barang!

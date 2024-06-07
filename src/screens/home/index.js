@@ -224,15 +224,15 @@ const HomeScreen = () => {
               Riwayat Pengajuan
             </Text>
           </Row>
+          <Searchbar
+            placeholder="Cari no. dokumen, jenis, coa..."
+            value={search}
+            onChangeText={text => setSearch(text)}
+            onBlur={() => getRecentRequest()}
+            onClearIconPress={() => getRecentRequest(true)}
+          />
           {recent?.length ? (
             <>
-              <Searchbar
-                placeholder="Cari no. dokumen, jenis, coa..."
-                value={search}
-                onChangeText={text => setSearch(text)}
-                onBlur={() => getRecentRequest()}
-                onClearIconPress={() => getRecentRequest(true)}
-              />
               <FlatList
                 data={recent}
                 contentContainerStyle={{paddingBottom: 120}}
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
 
   rowSub: {
-    marginBottom: Size.SIZE_10,
+    marginBottom: Size.SIZE_14,
   },
 
   bellButton: {

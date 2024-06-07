@@ -7,7 +7,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {FAB} from 'react-native-paper';
+import {FAB, Searchbar} from 'react-native-paper';
 import {fetchApi} from '../../api/api';
 import {LIST_REQUEST_BARANG} from '../../api/apiRoutes';
 import {BlankScreen, Card} from '../../components';
@@ -21,6 +21,7 @@ const BarangProcess = () => {
   const [list, setList] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [search, setSearch] = React.useState('');
 
   // gte list
   useFocusEffect(
@@ -29,9 +30,9 @@ const BarangProcess = () => {
     }, []),
   );
 
-  async function getRequestedList() {
+  async function getRequestedList(clear) {
     setIsLoading(true);
-    let params = '?status=WAITING';
+    let params = `?status=WAITING&cari=${clear ? '' : search}`;
     const {state, data, error} = await fetchApi({
       url: LIST_REQUEST_BARANG + params,
       method: 'GET',
@@ -55,6 +56,15 @@ const BarangProcess = () => {
 
   return (
     <View style={styles.container}>
+      <Searchbar
+        placeholder="Cari ID PB, cabang, kode cabang ..."
+        value={search}
+        onChangeText={text => setSearch(text)}
+        onBlur={() => getRequestedList()}
+        onClearIconPress={() => {
+          getRequestedList(true);
+        }}
+      />
       {list?.length && !isLoading ? (
         <FlatList
           data={list}

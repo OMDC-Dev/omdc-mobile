@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
 
   rowSub: {
-    marginVertical: Size.SIZE_10,
+    marginBottom: Size.SIZE_10,
   },
 
   bellButton: {

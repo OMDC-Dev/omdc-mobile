@@ -32,16 +32,21 @@ import {PENGAJUAN, REIMBURSEMENT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
 
-async function getHistory(type = '00', monthyear, search, clear) {
+async function getHistory(type = '00', monthyear, search, clear, typeFilter) {
   let useMonthFilter = '';
 
   if (monthyear !== 'ALL') {
     useMonthFilter = `&monthyear=${monthyear}`;
   }
 
-  const query = `?status=${type}&page=1&limit=200${useMonthFilter}&cari=${
+  let query = `?status=${type}&page=1&limit=200${useMonthFilter}&cari=${
     clear ? '' : search
   }`;
+
+  if (typeFilter != 'all') {
+    query += `&type=${typeFilter?.toUpperCase()}`;
+  }
+
   const {state, data, error} = await fetchApi({
     url: PENGAJUAN + query,
     method: 'GET',
@@ -62,6 +67,8 @@ const RenderWaiting = () => {
   const [queryDate, setQueryDate] = React.useState('ALL');
   const [refreshing, setRefreshing] = React.useState(false);
   const [search, setSearch] = React.useState('');
+  const [showTypeModal, setShowTypeModal] = React.useState(false);
+  const [typeFilter, setTypeFilter] = React.useState('all');
 
   const navigation = useNavigation();
   const {user} = React.useContext(AuthContext);
@@ -78,13 +85,13 @@ const RenderWaiting = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      getList();
       setSearch('');
-    }, [queryDate]),
+      getList();
+    }, [queryDate, typeFilter]),
   );
 
   async function getList(clear) {
-    const data = await getHistory('00', queryDate, search, clear);
+    const data = await getHistory('00', queryDate, search, clear, typeFilter);
     if (data !== 'ERROR') {
       setList(data);
       setRefreshing(false);
@@ -119,9 +126,20 @@ const RenderWaiting = () => {
             </Row>
           </Card.Content>
         </Card>
+        <IconButton
+          icon={'filter-menu-outline'}
+          iconColor={
+            typeFilter != 'all' ? Colors.COLOR_PRIMARY : Colors.COLOR_GRAY
+          }
+          size={20}
+          onPress={() => setShowTypeModal(true)}
+        />
         <MButton
-          disabled={queryDate == 'ALL'}
-          onPress={() => setQueryDate('ALL')}>
+          disabled={queryDate == 'ALL' && typeFilter == 'all'}
+          onPress={() => {
+            setQueryDate('ALL');
+            setTypeFilter('all');
+          }}>
           Hapus Filter
         </MButton>
       </Row>
@@ -164,6 +182,13 @@ const RenderWaiting = () => {
         visible={showDateSelector}
         dateCallback={onSelectedDate}
       />
+      <ModalView
+        type={'typefilter'}
+        visible={showTypeModal}
+        onClose={setShowTypeModal}
+        state={typeFilter}
+        typeCallback={cb => setTypeFilter(cb)}
+      />
     </View>
   );
 };
@@ -176,6 +201,8 @@ const RenderDone = () => {
   const [queryDate, setQueryDate] = React.useState('ALL');
   const [refreshing, setRefreshing] = React.useState(false);
   const [search, setSearch] = React.useState('');
+  const [showTypeModal, setShowTypeModal] = React.useState(false);
+  const [typeFilter, setTypeFilter] = React.useState('all');
 
   const navigation = useNavigation();
 
@@ -189,13 +216,13 @@ const RenderDone = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      getList();
       setSearch('');
-    }, [queryDate]),
+      getList();
+    }, [queryDate, typeFilter]),
   );
 
   async function getList(clear) {
-    const data = await getHistory('01', queryDate, search, clear);
+    const data = await getHistory('01', queryDate, search, clear, typeFilter);
     if (data !== 'ERROR') {
       setList(data);
       setRefreshing(false);
@@ -230,9 +257,20 @@ const RenderDone = () => {
             </Row>
           </Card.Content>
         </Card>
+        <IconButton
+          icon={'filter-menu-outline'}
+          iconColor={
+            typeFilter != 'all' ? Colors.COLOR_PRIMARY : Colors.COLOR_GRAY
+          }
+          size={20}
+          onPress={() => setShowTypeModal(true)}
+        />
         <MButton
-          disabled={queryDate == 'ALL'}
-          onPress={() => setQueryDate('ALL')}>
+          disabled={queryDate == 'ALL' && typeFilter == 'all'}
+          onPress={() => {
+            setQueryDate('ALL');
+            setTypeFilter('all');
+          }}>
           Hapus Filter
         </MButton>
       </Row>
@@ -274,6 +312,13 @@ const RenderDone = () => {
         type={'dateyear'}
         visible={showDateSelector}
         dateCallback={onSelectedDate}
+      />
+      <ModalView
+        type={'typefilter'}
+        visible={showTypeModal}
+        onClose={setShowTypeModal}
+        state={typeFilter}
+        typeCallback={cb => setTypeFilter(cb)}
       />
     </View>
   );

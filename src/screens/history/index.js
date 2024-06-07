@@ -33,16 +33,27 @@ import {fetchApi} from '../../api/api';
 import {REIMBURSEMENT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 
-async function getHistory(type = '00', monthyear, search = '', clear) {
+async function getHistory(
+  type = '00',
+  monthyear,
+  search = '',
+  clear,
+  typeFilter,
+) {
   let useMonthFilter = '';
 
   if (monthyear !== 'ALL') {
     useMonthFilter = `&monthyear=${monthyear}`;
   }
 
-  const query = `?status=${type}&page=1&limit=300${useMonthFilter}&cari=${
+  let query = `?status=${type}&page=1&limit=300${useMonthFilter}&cari=${
     clear ? '' : search
   }`;
+
+  if (typeFilter != 'all') {
+    query += `&type=${typeFilter?.toUpperCase()}`;
+  }
+
   const {state, data, error} = await fetchApi({
     url: REIMBURSEMENT + query,
     method: 'GET',
@@ -63,118 +74,8 @@ const RenderDiajukan = () => {
   const [queryDate, setQueryDate] = React.useState('ALL');
   const [refreshing, setRefreshing] = React.useState(false);
   const [search, setSearch] = React.useState('');
-
-  const navigation = useNavigation();
-
-  function onSelectedDate({state, value}) {
-    setShowDateSelector(false);
-    if (state !== 'CANCEL') {
-      setSelectedDate(getMonthYear(value));
-      setQueryDate(getMonthYearNumber(value));
-    }
-  }
-
-  useFocusEffect(
-    React.useCallback(() => {
-      setSearch('');
-      getList();
-    }, [queryDate]),
-  );
-
-  async function getList(clear) {
-    const data = await getHistory('00', queryDate, search, clear);
-    if (data !== 'ERROR') {
-      setList(data);
-      setRefreshing(false);
-    } else {
-      setRefreshing(false);
-    }
-  }
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setQueryDate('ALL');
-    getList();
-  }, []);
-
-  return (
-    <View style={styles.mainContainer}>
-      <Row>
-        <Card
-          style={styles.dateContainer}
-          mode={'contained'}
-          onPress={() => setShowDateSelector(true)}>
-          <Card.Content>
-            <Row>
-              <Text variant="labelMedium" style={styles.textDate}>
-                {queryDate == 'ALL' ? 'Semua' : selectedDate}
-              </Text>
-              <Icon
-                source={'arrow-down-drop-circle'}
-                size={18}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-            </Row>
-          </Card.Content>
-        </Card>
-        <MButton
-          disabled={queryDate == 'ALL'}
-          onPress={() => setQueryDate('ALL')}>
-          Hapus Filter
-        </MButton>
-      </Row>
-      <Gap h={14} />
-      <Searchbar
-        placeholder="Cari no. dokumen, jenis, coa..."
-        value={search}
-        onChangeText={text => setSearch(text)}
-        onBlur={() => getList()}
-        onClearIconPress={() => getList(true)}
-      />
-      {list?.length ? (
-        <FlatList
-          data={list}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          renderItem={({item, index}) => {
-            return (
-              <CustomCard.PengajuanCard
-                data={item}
-                onPress={() =>
-                  navigation.navigate('PengajuanStack', {
-                    screen: 'PengajuanDetail',
-                    params: {
-                      data: item,
-                      type: 'MINE',
-                    },
-                  })
-                }
-              />
-            );
-          }}
-        />
-      ) : (
-        <BlankScreen>Belum ada pengajuan!</BlankScreen>
-      )}
-      <ModalView
-        type={'dateyear'}
-        visible={showDateSelector}
-        dateCallback={onSelectedDate}
-      />
-    </View>
-  );
-};
-
-// Render List Disetujui
-const RenderDisetujui = () => {
-  const [list, setList] = React.useState();
-  const [showDateSelector, setShowDateSelector] = React.useState(false);
-  const [selectedDate, setSelectedDate] = React.useState('ALL');
-  const [queryDate, setQueryDate] = React.useState('ALL');
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [search, setSearch] = React.useState('');
   const [showTypeModal, setShowTypeModal] = React.useState(false);
+  const [typeFilter, setTypeFilter] = React.useState('all');
 
   const navigation = useNavigation();
 
@@ -190,11 +91,11 @@ const RenderDisetujui = () => {
     React.useCallback(() => {
       setSearch('');
       getList();
-    }, [queryDate]),
+    }, [queryDate, typeFilter]),
   );
 
   async function getList(clear) {
-    const data = await getHistory('01', queryDate, search, clear);
+    const data = await getHistory('00', queryDate, search, clear, typeFilter);
     if (data !== 'ERROR') {
       setList(data);
       setRefreshing(false);
@@ -231,12 +132,18 @@ const RenderDisetujui = () => {
         </Card>
         <IconButton
           icon={'filter-menu-outline'}
+          iconColor={
+            typeFilter != 'all' ? Colors.COLOR_PRIMARY : Colors.COLOR_GRAY
+          }
           size={20}
           onPress={() => setShowTypeModal(true)}
         />
         <MButton
-          disabled={queryDate == 'ALL'}
-          onPress={() => setQueryDate('ALL')}>
+          disabled={queryDate == 'ALL' && typeFilter == 'all'}
+          onPress={() => {
+            setQueryDate('ALL');
+            setTypeFilter('all');
+          }}>
           Hapus Filter
         </MButton>
       </Row>
@@ -283,7 +190,139 @@ const RenderDisetujui = () => {
         type={'typefilter'}
         visible={showTypeModal}
         onClose={setShowTypeModal}
-        typeCallback={cb => console.log('checked', cb)}
+        state={typeFilter}
+        typeCallback={cb => setTypeFilter(cb)}
+      />
+    </View>
+  );
+};
+
+// Render List Disetujui
+const RenderDisetujui = () => {
+  const [list, setList] = React.useState();
+  const [showDateSelector, setShowDateSelector] = React.useState(false);
+  const [selectedDate, setSelectedDate] = React.useState('ALL');
+  const [queryDate, setQueryDate] = React.useState('ALL');
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [search, setSearch] = React.useState('');
+  const [showTypeModal, setShowTypeModal] = React.useState(false);
+  const [typeFilter, setTypeFilter] = React.useState('all');
+
+  const navigation = useNavigation();
+
+  function onSelectedDate({state, value}) {
+    setShowDateSelector(false);
+    if (state !== 'CANCEL') {
+      setSelectedDate(getMonthYear(value));
+      setQueryDate(getMonthYearNumber(value));
+    }
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setSearch('');
+      getList();
+    }, [queryDate, typeFilter]),
+  );
+
+  async function getList(clear) {
+    const data = await getHistory('01', queryDate, search, clear, typeFilter);
+    if (data !== 'ERROR') {
+      setList(data);
+      setRefreshing(false);
+    } else {
+      setRefreshing(false);
+    }
+  }
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setQueryDate('ALL');
+    getList();
+  }, []);
+
+  return (
+    <View style={styles.mainContainer}>
+      <Row>
+        <Card
+          style={styles.dateContainer}
+          mode={'contained'}
+          onPress={() => setShowDateSelector(true)}>
+          <Card.Content>
+            <Row>
+              <Text variant="labelMedium" style={styles.textDate}>
+                {queryDate == 'ALL' ? 'Semua' : selectedDate}
+              </Text>
+              <Icon
+                source={'arrow-down-drop-circle'}
+                size={18}
+                color={Colors.COLOR_DARK_GRAY}
+              />
+            </Row>
+          </Card.Content>
+        </Card>
+        <IconButton
+          icon={'filter-menu-outline'}
+          iconColor={
+            typeFilter != 'all' ? Colors.COLOR_PRIMARY : Colors.COLOR_GRAY
+          }
+          size={20}
+          onPress={() => setShowTypeModal(true)}
+        />
+        <MButton
+          disabled={queryDate == 'ALL' && typeFilter == 'all'}
+          onPress={() => {
+            setQueryDate('ALL');
+            setTypeFilter('all');
+          }}>
+          Hapus Filter
+        </MButton>
+      </Row>
+      <Gap h={14} />
+      <Searchbar
+        placeholder="Cari no. dokumen, jenis, coa..."
+        value={search}
+        onChangeText={text => setSearch(text)}
+        onBlur={() => getList()}
+        onClearIconPress={() => getList(true)}
+      />
+      {list?.length ? (
+        <FlatList
+          data={list}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          renderItem={({item, index}) => {
+            return (
+              <CustomCard.PengajuanCard
+                data={item}
+                onPress={() =>
+                  navigation.navigate('PengajuanStack', {
+                    screen: 'PengajuanDetail',
+                    params: {
+                      data: item,
+                      type: 'MINE',
+                    },
+                  })
+                }
+              />
+            );
+          }}
+        />
+      ) : (
+        <BlankScreen>Belum ada pengajuan!</BlankScreen>
+      )}
+      <ModalView
+        type={'dateyear'}
+        visible={showDateSelector}
+        dateCallback={onSelectedDate}
+      />
+      <ModalView
+        type={'typefilter'}
+        visible={showTypeModal}
+        onClose={setShowTypeModal}
+        state={typeFilter}
+        typeCallback={cb => setTypeFilter(cb)}
       />
     </View>
   );

@@ -5,8 +5,8 @@ import {Colors, Size} from '../../../../styles';
 import Gap from '../../../Gap';
 import Row from '../../../Row';
 
-const TypeFilterModal = ({cb, onClose}) => {
-  const [checked, setChecked] = React.useState('all');
+const TypeFilterModal = ({cb, active, onClose}) => {
+  const [checked, setChecked] = React.useState(active || 'all');
 
   const handlePress = value => {
     setChecked(value);

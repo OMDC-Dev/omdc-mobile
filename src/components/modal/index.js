@@ -31,6 +31,8 @@ const ModalView = ({
   typeCallback,
   command,
   onClose,
+  state,
+  setState,
 }) => {
   //render modal children
   const renderContent = () => {
@@ -54,7 +56,9 @@ const ModalView = ({
         return <DateYearModal cb={dateCallback} />;
         break;
       case 'typefilter':
-        return <TypeFilterModal cb={typeCallback} onClose={onClose} />;
+        return (
+          <TypeFilterModal active={state} cb={typeCallback} onClose={onClose} />
+        );
         break;
       case 'selectfile':
         return (

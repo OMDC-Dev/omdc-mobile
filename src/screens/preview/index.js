@@ -13,6 +13,7 @@ import Pdf from 'react-native-pdf';
 import {useRoute} from '@react-navigation/native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import {ActivityIndicator} from 'react-native-paper';
+import {ImageZoom} from '@likashefqet/react-native-image-zoom';
 
 const PreviewScreen = () => {
   const route = useRoute();
@@ -30,6 +31,7 @@ const PreviewScreen = () => {
   }
 
   console.log('FILE TYPE', type);
+  console.log('load image', loadImage());
 
   return (
     <View style={styles.container}>
@@ -50,20 +52,33 @@ const PreviewScreen = () => {
             />
           </>
         ) : (
-          <ImageViewer
-            imageUrls={[
-              {
-                url: loadImage(),
-                width: Dimensions.get('window').width,
-                height: Dimensions.get('window').height,
-                props: {
-                  resizeMode: 'contain',
-                },
-              },
-            ]}
-            renderIndicator={() => null}
+          <ImageZoom
+            uri={loadImage()}
             style={styles.imageViewer}
+            onDoubleTap={zoomType => {
+              console.log('onDoubleTap', zoomType);
+              if (zoomType === ZOOM_TYPE.ZOOM_IN) {
+                onAnimationStart();
+                setTimeout(() => {
+                  imageZoomRef.current?.reset();
+                }, 3000);
+              }
+            }}
           />
+          // <ImageViewer
+          //   imageUrls={[
+          //     {
+          //       url: loadImage(),
+          //       width: Dimensions.get('window').width,
+          //       height: Dimensions.get('window').height,
+          //       props: {
+          //         resizeMode: 'contain',
+          //       },
+          //     },
+          //   ]}
+          //   renderIndicator={() => null}
+          //   style={styles.imageViewer}
+          // />
         )}
       </View>
     </View>

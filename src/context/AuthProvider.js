@@ -60,7 +60,6 @@ const AuthProvider = ({children}) => {
         dispatch({type: 'SIGN_OUT'});
       },
       restoreToken: async data => {
-        console.log('USER ID', data.iduser);
         dispatch({
           type: 'RESTORE_TOKEN',
           token: data?.userToken,

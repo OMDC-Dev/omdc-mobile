@@ -18,6 +18,8 @@ const BarangCard = ({
 }) => {
   const {nm_barang, grup_brg, kategory_brg} = data;
 
+  console.log(data);
+
   const navigation = useNavigation();
 
   const [extended, setExtended] = React.useState(fromDownload ? true : false);
@@ -26,11 +28,11 @@ const BarangCard = ({
     const statusPB = data?.status_pb?.toLowerCase();
     let statusTextColor = Colors.COLOR_ORANGE;
 
-    if (statusPB == 'dibatalkan') {
+    if (statusPB == 'ditolak') {
       statusTextColor = Colors.COLOR_RED;
-    } else if (statusPB == 'diproses') {
+    } else if (statusPB == 'menunggu disetujui') {
       statusTextColor = Colors.COLOR_ORANGE;
-    } else if (statusPB == 'diterima') {
+    } else if (statusPB == 'disetujui') {
       statusTextColor = Colors.COLOR_GREEN;
     }
 
@@ -65,11 +67,8 @@ const BarangCard = ({
                     <Text
                       variant={'labelSmall'}
                       style={{...styles.textDescInfo, color: statusTextColor}}>
-                      {data?.status_approve || 'Menunggu'}
+                      {data?.status_pb || 'Menunggu'}
                     </Text>
-                  </Text>
-                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
-                    Tanggal Approval : {data?.tgl_approve || '-'}
                   </Text>
                   {data?.attachment ? (
                     <>

@@ -155,8 +155,9 @@ export const cekAkses = (akses, userAkses = []) => {
    * DETAIL BARANG -> 1151 -> #4
    * SUPER REIMBURSEMENT -> 1175 -> #5
    * PAYMENT REQUEST -> 1176 -> #6
-   * REQUEST BARANG W/ ATTACHMENT -> 1179 -> #7
+   * no need REQUEST BARANG W/ ATTACHMENT -> 1179 -> #7
    * ADMIN PB -> 999123 -> #8
+   * nO NEED PB APPROVAL -> 1177 -> #9
    */
 
   if (akses == '#1') {
@@ -189,6 +190,10 @@ export const cekAkses = (akses, userAkses = []) => {
 
   if (akses == '#8') {
     return userAkses.findIndex(item => item == '999123') !== -1;
+  }
+
+  if (akses == '#9') {
+    return userAkses.findIndex(item => item == '1177') !== -1;
   }
 };
 

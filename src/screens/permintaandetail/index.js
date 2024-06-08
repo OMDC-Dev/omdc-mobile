@@ -165,7 +165,7 @@ const PermintaanDetailScreen = () => {
   // [End] -- permisison
 
   function statusWording() {
-    switch (DATA?.status_approve?.toLowerCase()) {
+    switch (DATA?.status_pb?.toLowerCase()) {
       case 'ditolak':
         return {text: 'Ditolak', color: Colors.COLOR_RED};
         break;
@@ -205,104 +205,63 @@ const PermintaanDetailScreen = () => {
   }
 
   function renderStatus() {
-    if (DATA.approval_adminid) {
-      return (
-        <>
-          {DATA.approval_admin_status == 'APPROVED' && (
-            <>
-              <Text style={styles.subtitle} variant="titleSmall">
-                Status Approval
-              </Text>
-              <Gap h={14} />
-              <Row>
-                <InputLabel style={styles.rowLeft}>Status</InputLabel>
-                <Text
-                  numberOfLines={5}
-                  style={{...styles.textValue, color: statusWording().color}}
-                  variant={'labelMedium'}>
-                  {statusWording().text}
-                </Text>
-                <Gap h={6} />
-              </Row>
-              <Row>
-                <InputLabel style={styles.rowLeft}>Tanggal Approval</InputLabel>
-                <Text
-                  numberOfLines={5}
-                  style={styles.textValue}
-                  variant={'labelMedium'}>
-                  {DATA?.tgl_approve || '-'}
-                </Text>
-                <Gap h={6} />
-              </Row>
-              <Gap h={28} />
-            </>
-          )}
-          <Text style={styles.subtitle} variant="titleSmall">
-            Status Pengajuan
-          </Text>
-          <Gap h={14} />
-          <Row>
-            <InputLabel style={styles.rowLeft}>Status Approval</InputLabel>
-            <Text
-              numberOfLines={5}
-              style={{...styles.textValue, color: pengajuanWording().color}}
-              variant={'labelMedium'}>
-              {pengajuanWording().text}
-            </Text>
-            <Gap h={6} />
-          </Row>
-          <Row>
-            <InputLabel style={styles.rowLeft}>Approval by</InputLabel>
-            <Text
-              numberOfLines={5}
-              style={styles.textValue}
-              variant={'labelMedium'}>
-              {DATA?.approval_admin_name || '-'}
-            </Text>
-            <Gap h={6} />
-          </Row>
-          <Row>
-            <InputLabel style={styles.rowLeft}>Tanggal Approval</InputLabel>
-            <Text
-              numberOfLines={5}
-              style={styles.textValue}
-              variant={'labelMedium'}>
-              {adminResult?.approval_admin_date ||
-                DATA?.approval_admin_date ||
-                '-'}
-            </Text>
-            <Gap h={6} />
-          </Row>
-        </>
-      );
-    }
-
     return (
       <>
         <Text style={styles.subtitle} variant="titleSmall">
-          Status Approval
+          Status Pengajuan
         </Text>
         <Gap h={14} />
-        <Row>
-          <InputLabel style={styles.rowLeft}>Status</InputLabel>
-          <Text
-            numberOfLines={5}
-            style={{...styles.textValue, color: statusWording().color}}
-            variant={'labelMedium'}>
-            {statusWording().text}
-          </Text>
-          <Gap h={6} />
-        </Row>
-        <Row>
-          <InputLabel style={styles.rowLeft}>Tanggal Approval</InputLabel>
-          <Text
-            numberOfLines={5}
-            style={styles.textValue}
-            variant={'labelMedium'}>
-            {DATA?.tgl_approve || '-'}
-          </Text>
-          <Gap h={6} />
-        </Row>
+        {DATA?.approval_adminid ? (
+          <>
+            <Row>
+              <InputLabel style={styles.rowLeft}>
+                Status Permintaan Barang
+              </InputLabel>
+              <Text
+                numberOfLines={5}
+                style={{...styles.textValue, color: pengajuanWording().color}}
+                variant={'labelMedium'}>
+                {pengajuanWording().text}
+              </Text>
+              <Gap h={6} />
+            </Row>
+            <Row>
+              <InputLabel style={styles.rowLeft}>Approval by</InputLabel>
+              <Text
+                numberOfLines={5}
+                style={styles.textValue}
+                variant={'labelMedium'}>
+                {DATA?.approval_admin_name || '-'}
+              </Text>
+              <Gap h={6} />
+            </Row>
+            <Row>
+              <InputLabel style={styles.rowLeft}>Tanggal Approval</InputLabel>
+              <Text
+                numberOfLines={5}
+                style={styles.textValue}
+                variant={'labelMedium'}>
+                {adminResult?.approval_admin_date ||
+                  DATA?.approval_admin_date ||
+                  '-'}
+              </Text>
+              <Gap h={6} />
+            </Row>
+          </>
+        ) : (
+          <Row>
+            <InputLabel style={styles.rowLeft}>
+              Status Permintaan Barang
+            </InputLabel>
+            <Text
+              numberOfLines={5}
+              style={{...styles.textValue, color: statusWording().color}}
+              variant={'labelMedium'}>
+              {statusWording().text}
+            </Text>
+            <Gap h={6} />
+          </Row>
+        )}
       </>
     );
   }
@@ -372,7 +331,7 @@ const PermintaanDetailScreen = () => {
           </View>
         )}
       </ScrollView>
-      {isAdminPB && DATA.approval_adminid == user.id ? (
+      {isAdminPB && DATA.approval_adminid == user.iduser ? (
         <View style={styles.bottomBar}>
           {adminResult?.approval_admin_status == 'WAITING' ? (
             <>

@@ -7,11 +7,10 @@ import {Colors, Size} from '../../styles';
 import {getDateFormat} from '../../utils/utils';
 
 const PermintaanCard = ({data = {}, onPress}) => {
-  const {id_pb, nm_induk, nm_cabang, tgl_trans, jam_trans, status_approve} =
-    data;
+  const {id_pb, nm_induk, nm_cabang, tgl_trans, jam_trans, status_pb} = data;
 
   function statusWording() {
-    switch (status_approve?.toLowerCase()) {
+    switch (status_pb?.toLowerCase()) {
       case 'ditolak':
         return {text: 'Ditolak', color: Colors.COLOR_RED};
         break;

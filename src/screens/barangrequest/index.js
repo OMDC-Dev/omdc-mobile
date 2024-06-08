@@ -66,10 +66,10 @@ const BarangRequestScreen = () => {
   const {user} = React.useContext(AuthContext);
 
   // cek akses
-  const needApprovalAdmin = cekAkses('#7', user.kodeAkses);
+  const needApprovalAdmin = cekAkses('#9', user.kodeAkses);
 
   // state from akses
-  const isButtonDisabled = needApprovalAdmin ? !selectedAdmin : false;
+  const isButtonDisabled = !needApprovalAdmin ? !selectedAdmin : false;
 
   // get init induk
   React.useEffect(() => {
@@ -132,7 +132,7 @@ const BarangRequestScreen = () => {
         <Text style={styles.subtitle} variant="titleSmall">
           Data Permintaan Barang
         </Text>
-        {needApprovalAdmin && (
+        {!needApprovalAdmin && (
           <>
             <Gap h={8} />
             <InputLabel>Ajukan Approval ke</InputLabel>

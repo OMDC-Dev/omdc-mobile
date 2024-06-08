@@ -87,10 +87,10 @@ const AddBarangModal = ({data, onAddPress}) => {
   const {user} = React.useContext(AuthContext);
 
   // cek akses
-  const needApprovalAdmin = cekAkses('#7', user.kodeAkses);
+  const noNeedAttachment = cekAkses('#7', user.kodeAkses);
 
   // state from akses
-  const isButtonDisabled = needApprovalAdmin ? !selectedImage : false;
+  const isButtonDisabled = !noNeedAttachment ? !selectedImage : false;
 
   const CB_DATA = {
     stock: qtyStock,
@@ -235,7 +235,7 @@ const AddBarangModal = ({data, onAddPress}) => {
             value={keterangan}
             onChangeText={tx => setKeterangan(tx)}
           />
-          {needApprovalAdmin && (
+          {!noNeedAttachment && (
             <>
               <Gap h={12} />
               <InputLabel>Lampiran</InputLabel>

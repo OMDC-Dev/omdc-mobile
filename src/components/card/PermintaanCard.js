@@ -10,20 +10,17 @@ const PermintaanCard = ({data = {}, onPress}) => {
   const {id_pb, nm_induk, nm_cabang, tgl_trans, jam_trans, status_pb} = data;
 
   function statusWording() {
-    switch (status_pb?.toLowerCase()) {
-      case 'ditolak':
-        return {text: 'Ditolak', color: Colors.COLOR_RED};
-        break;
-      case 'disetujui sebagian':
-        return {text: 'Disetujui Sebagian', color: Colors.COLOR_SECONDARY};
-        break;
-      case 'disetujui':
-        return {text: 'Disetujui', color: Colors.COLOR_GREEN};
-        break;
-      default:
-        return {text: 'Menunggu', color: Colors.COLOR_ORANGE};
-        break;
+    if (status_pb == 'Diterima') {
+      return {color: Colors.COLOR_GREEN};
     }
+
+    if (status_pb == 'Ditolak') {
+      return {color: Colors.COLOR_RED};
+    }
+
+    return {
+      color: Colors.COLOR_ORANGE,
+    };
   }
 
   return (
@@ -45,7 +42,7 @@ const PermintaanCard = ({data = {}, onPress}) => {
             <Text
               style={{...styles.textStatus, color: statusWording().color}}
               variant={'labelLarge'}>
-              {statusWording().text}
+              {status_pb}
             </Text>
           </Row>
         </Card.Content>

@@ -47,8 +47,14 @@ const PermintaanDetailScreen = () => {
   const [mode, setMode] = React.useState();
   const [adminResult, setAdminResult] = React.useState({
     approval_admin_status: DATA.approval_admin_status,
+    status_pb: DATA.status_pb,
   });
   const [snak, setSnak] = React.useState();
+
+  const IS_CAN_DOWNLOAD =
+    DATA.status_pb !== 'Menunggu Disetujui' &&
+    DATA.status_pb !== 'Menunggu Diproses' &&
+    DATA.status_pb !== 'Ditolak';
 
   console.log(DATA);
 
@@ -204,6 +210,34 @@ const PermintaanDetailScreen = () => {
     }
   }
 
+  function statusWordingPB() {
+    if (adminResult?.status_pb == 'Diterima') {
+      return {color: Colors.COLOR_GREEN};
+    }
+
+    if (adminResult?.status_pb == 'Ditolak') {
+      return {color: Colors.COLOR_RED};
+    }
+
+    return {
+      color: Colors.COLOR_ORANGE,
+    };
+  }
+
+  function statusApproval() {
+    switch (adminResult?.approval_admin_status) {
+      case 'APPROVED':
+        return {text: 'Disetujui', color: Colors.COLOR_GREEN};
+        break;
+      case 'REJECTED':
+        return {text: 'Ditolak', color: Colors.COLOR_RED};
+        break;
+      default:
+        return {text: 'Menunggu Disetujui', color: Colors.COLOR_ORANGE};
+        break;
+    }
+  }
+
   function renderStatus() {
     return (
       <>
@@ -219,9 +253,9 @@ const PermintaanDetailScreen = () => {
               </InputLabel>
               <Text
                 numberOfLines={5}
-                style={{...styles.textValue, color: pengajuanWording().color}}
+                style={{...styles.textValue, color: statusWordingPB().color}}
                 variant={'labelMedium'}>
-                {pengajuanWording().text}
+                {adminResult?.status_pb}
               </Text>
               <Gap h={6} />
             </Row>
@@ -232,6 +266,16 @@ const PermintaanDetailScreen = () => {
                 style={styles.textValue}
                 variant={'labelMedium'}>
                 {DATA?.approval_admin_name || '-'}
+              </Text>
+              <Gap h={6} />
+            </Row>
+            <Row>
+              <InputLabel style={styles.rowLeft}>Status Approval</InputLabel>
+              <Text
+                numberOfLines={5}
+                style={[styles.textValue, {color: statusApproval().color}]}
+                variant={'labelMedium'}>
+                {statusApproval().text}
               </Text>
               <Gap h={6} />
             </Row>
@@ -257,7 +301,7 @@ const PermintaanDetailScreen = () => {
               numberOfLines={5}
               style={{...styles.textValue, color: statusWording().color}}
               variant={'labelMedium'}>
-              {statusWording().text}
+              {DATA.status_pb}
             </Text>
             <Gap h={6} />
           </Row>
@@ -385,7 +429,7 @@ const PermintaanDetailScreen = () => {
         </View>
       ) : null}
 
-      {!isAdminPB && DATA.status_approve ? (
+      {!isAdminPB && IS_CAN_DOWNLOAD ? (
         <View style={styles.bottomBar}>
           <Button
             mode={'contained'}

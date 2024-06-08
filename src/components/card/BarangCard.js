@@ -25,19 +25,6 @@ const BarangCard = ({
   const [extended, setExtended] = React.useState(fromDownload ? true : false);
 
   if (fromDetail) {
-    const statusPB = data?.status_pb?.toLowerCase();
-    let statusTextColor = Colors.COLOR_ORANGE;
-
-    if (statusPB == 'ditolak') {
-      statusTextColor = Colors.COLOR_RED;
-    } else if (statusPB == 'menunggu disetujui') {
-      statusTextColor = Colors.COLOR_ORANGE;
-    } else if (statusPB == 'disetujui') {
-      statusTextColor = Colors.COLOR_GREEN;
-    }
-
-    console.log('Barang', data);
-
     return (
       <Card
         mode={'contained'}
@@ -66,8 +53,8 @@ const BarangCard = ({
                     Status :{' '}
                     <Text
                       variant={'labelSmall'}
-                      style={{...styles.textDescInfo, color: statusTextColor}}>
-                      {data?.status_pb || 'Menunggu'}
+                      style={{...styles.textDescInfo}}>
+                      {data?.status_pb}
                     </Text>
                   </Text>
                   {data?.attachment ? (

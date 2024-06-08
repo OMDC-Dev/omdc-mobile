@@ -372,7 +372,7 @@ const PermintaanDetailScreen = () => {
           </View>
         )}
       </ScrollView>
-      {isAdminPB ? (
+      {isAdminPB && DATA.approval_adminid == user.id ? (
         <View style={styles.bottomBar}>
           {adminResult?.approval_admin_status == 'WAITING' ? (
             <>

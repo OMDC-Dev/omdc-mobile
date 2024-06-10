@@ -6,7 +6,7 @@ const DEV =
 
 const NGROK_DEV = DEV;
 
-export const BASE_URL = DEV;
+export const BASE_URL = PROD;
 
 // AUTH
 export const LOGIN = 'user/login';

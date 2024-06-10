@@ -1364,7 +1364,8 @@ const PengajuanDetailScreen = () => {
   // == Render Download Attachmnet
   function renderDownloadAttachment() {
     if (!IS_DOWNLOAD) return;
-    if (data.file.type == 'application/pdf') return;
+    console.log('DATA ATTCH', data);
+    if (data?.file_info?.type == 'application/pdf') return;
 
     return (
       <>

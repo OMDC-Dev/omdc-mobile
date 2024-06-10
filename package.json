@@ -1,6 +1,6 @@
 {
   "name": "omdcmobile",
-  "version": "0.9.3 - rev 1",
+  "version": "0.9.3 - rev 2",
   "private": true,
   "scripts": {
     "android": "react-native run-android",

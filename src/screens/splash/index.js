@@ -13,6 +13,9 @@ import ModalView from '../../components/modal';
 const SplashScreen = () => {
   const [icon, setIcon] = React.useState();
   const {restoreToken} = React.useContext(AuthContext);
+  const [errorType, setErrorType] = React.useState();
+  const [showAlert, setShowAlert] = React.useState(false);
+  const CODE_VERSION = '9.3.3';
 
   async function checkIcon() {
     try {
@@ -40,32 +43,47 @@ const SplashScreen = () => {
 
   React.useEffect(() => {
     checkIcon();
-    // Fetch the token from storage then navigate to our appropriate place
-    const bootstrapAsync = async () => {
-      let user;
-
-      try {
-        user = await retrieveData('USER_SESSION', true);
-
-        const {state, data, error} = await fetchApi({
-          url: USER_KODE_AKSES(user.iduser),
-          method: 'GET',
-        });
-
-        if (state == API_STATES.OK) {
-          console.log('UPDATE KODE AKSES', data.kodeAkses);
-          user = {...user, kodeAkses: data.kodeAkses};
-        }
-      } catch (e) {
-        // Restoring token failed
-      }
-
-      wait(2500).then(() => restoreToken(user));
-    };
-    //bootstrapAsync();
+    checkVersion();
 
     return () => null;
   }, []);
+
+  // Fetch the token from storage then navigate to our appropriate place
+  const bootstrapAsync = async () => {
+    let user;
+
+    try {
+      user = await retrieveData('USER_SESSION', true);
+
+      const {state, data, error} = await fetchApi({
+        url: USER_KODE_AKSES(user.iduser),
+        method: 'GET',
+      });
+
+      if (state == API_STATES.OK) {
+        console.log('UPDATE KODE AKSES', data.kodeAkses);
+        user = {...user, kodeAkses: data.kodeAkses};
+      }
+    } catch (e) {
+      // Restoring token failed
+    }
+
+    wait(1500).then(() => restoreToken(user));
+  };
+
+  async function checkVersion() {
+    const {state, data, error} = await fetchApi({
+      url: `/version/${CODE_VERSION}`,
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      bootstrapAsync();
+    } else {
+      setShowAlert(true);
+      setErrorType(error);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -75,7 +93,7 @@ const SplashScreen = () => {
         style={styles.logo}
         source={icon ? {uri: `data:image/png;base64,${icon}`} : ASSETS.logoDark}
       />
-      <ModalView visible={true} type={'version'} />
+      <ModalView data={errorType} visible={showAlert} type={'version'} />
     </View>
   );
 };

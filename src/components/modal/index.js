@@ -45,7 +45,7 @@ const ModalView = ({
         return <ModalPopUp message={message} onButtonPress={onPress} />;
         break;
       case 'version':
-        return <ModalPopUpVersion onButtonPress={onPress} />;
+        return <ModalPopUpVersion error={data} onButtonPress={onPress} />;
         break;
       case 'barang':
         return <BarangModal data={data} onButtonPress={onPress} />;

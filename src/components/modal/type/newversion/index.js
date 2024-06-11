@@ -6,7 +6,7 @@ import Gap from '../../../Gap';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import RNExitApp from 'react-native-exit-app';
 
-const ModalPopUpVersion = ({onButtonPress}) => {
+const ModalPopUpVersion = ({error}) => {
   const handleUpdatePress = () => {
     const androidUrl =
       'https://play.google.com/store/apps/details?id=com.ardclient.omdc'; // ganti dengan URL aplikasi Anda di Play Store
@@ -22,11 +22,17 @@ const ModalPopUpVersion = ({onButtonPress}) => {
       <Icon name={'alert-outline'} size={32} color={Colors.COLOR_ORANGE} />
       <Gap h={14} />
       <Text variant={'labelMedium'} style={styles.textMessage}>
-        Update versi aplikasi tersedia, mohon lakukan update agar bisa kembali
-        menggunakan aplikasi ini.
+        {error == 'UPDATE'
+          ? 'Update versi aplikasi tersedia, mohon lakukan update agar bisa kembali menggunakan aplikasi ini.'
+          : 'Ada kesalahan jaringan, mohon coba lagi!'}
       </Text>
       <Gap h={24} />
-      <Button onPress={handleUpdatePress}>Update</Button>
+      <Button
+        onPress={() =>
+          error == 'UPDATE' ? handleUpdatePress() : RNExitApp.exitApp()
+        }>
+        {error == 'UPDATE' ? 'Update' : 'Ok'}
+      </Button>
     </View>
   );
 };

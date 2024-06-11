@@ -11,6 +11,7 @@ import AddBarangModal from './type/addbarang';
 import NotifModal from './type/notif';
 import SelectFileModal from './type/selectfile';
 import TypeFilterModal from './type/typefilter';
+import ModalPopUpVersion from './type/newversion';
 
 const ModalView = ({
   children,
@@ -42,6 +43,9 @@ const ModalView = ({
         break;
       case 'popup':
         return <ModalPopUp message={message} onButtonPress={onPress} />;
+        break;
+      case 'version':
+        return <ModalPopUpVersion onButtonPress={onPress} />;
         break;
       case 'barang':
         return <BarangModal data={data} onButtonPress={onPress} />;

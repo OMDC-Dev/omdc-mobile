@@ -8,6 +8,7 @@ import ASSETS from '../../utils/assetLoader';
 import {fetchApi} from '../../api/api';
 import {GET_ICON, USER_KODE_AKSES} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
+import ModalView from '../../components/modal';
 
 const SplashScreen = () => {
   const [icon, setIcon] = React.useState();
@@ -59,9 +60,9 @@ const SplashScreen = () => {
         // Restoring token failed
       }
 
-      restoreToken(user);
+      wait(2500).then(() => restoreToken(user));
     };
-    wait(2500).then(() => bootstrapAsync());
+    //bootstrapAsync();
 
     return () => null;
   }, []);
@@ -74,6 +75,7 @@ const SplashScreen = () => {
         style={styles.logo}
         source={icon ? {uri: `data:image/png;base64,${icon}`} : ASSETS.logoDark}
       />
+      <ModalView visible={true} type={'version'} />
     </View>
   );
 };

@@ -33,8 +33,6 @@ import {GET_CABANG, GET_SUPLIER, SUPERUSER} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
 import {convertRupiahToNumber, formatRupiah} from '../../utils/rupiahFormatter';
-import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import {convert, convertB64} from 'react-native-pdf-to-image';
 
 const PengajuanScreen = () => {
   const [showCalendar, setShowCalendar] = React.useState(false);
@@ -151,6 +149,10 @@ const PengajuanScreen = () => {
         type: [types.pdf, types.images],
       });
 
+      //const newFile = await renameFile(pickerResult.fileCopyUri);
+
+      //console.log('NEW FILE', newFile);
+
       const size = pickerResult.size;
 
       console.log(pickerResult);
@@ -160,10 +162,6 @@ const PengajuanScreen = () => {
         setSnack(true);
         return;
       }
-
-      //   delete pickerResult.copyError;
-      //   delete pickerResult.fileCopyUri;
-      //   delete pickerResult.uri;
 
       const fileInfo = {
         name: pickerResult.name,
@@ -177,12 +175,6 @@ const PengajuanScreen = () => {
           : pickerResult.fileCopyUri.split('Caches/')[1];
 
       if (pickerResult.type == 'application/pdf') {
-        // // Convert pdf to image
-        // const pickerB64 = await uriToBas64(path, Platform.OS == 'android');
-        // const pickerConvert = await convertB64(pickerB64, 1200);
-        // const pickerUri = 'file://' + pickerConvert.outputFiles[0];
-        // const picker = await uriToBas64(pickerUri, Platform.OS == 'android');
-        // fileInfo.type = 'image/png';
         const picker = await uriToBas64(path, Platform.OS == 'android');
         setResult(picker);
       } else {

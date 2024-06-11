@@ -3,7 +3,7 @@ import ReactNativeBlobUtil from 'react-native-blob-util';
 import ImgToBase64 from 'react-native-image-base64';
 import BANKS from '../../assets/files/banks.json';
 import {createPdf} from 'react-native-images-to-pdf';
-import {Platform} from 'react-native';
+import {Alert, Platform} from 'react-native';
 
 //create simple log
 export const cLog = (key = '', log = '', color) => {
@@ -59,7 +59,7 @@ export const getDate = date => {
 export const uriToBas64 = async (uri, android) => {
   const fp = android ? uri : ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + uri;
   return await ReactNativeBlobUtil.fs
-    .readFile(fp, 'base64')
+    .readFile(fp.replace(/%20/g, ' '), 'base64')
     .then(data => {
       return data;
     })
@@ -212,3 +212,16 @@ export function hitungSelisihHari(tanggalAwal, tanggalAkhir) {
 
   return selisih;
 }
+
+export const isValidUrl = urlString => {
+  var urlPattern = new RegExp(
+    '^(https?:\\/\\/)?' + // validate protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // validate domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // validate port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
+      '(\\#[-a-z\\d_]*)?$',
+    'i',
+  ); // validate fragment locator
+  return !!urlPattern.test(urlString);
+};

@@ -14,6 +14,7 @@ import {useRoute} from '@react-navigation/native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import {ActivityIndicator} from 'react-native-paper';
 import {ImageZoom} from '@likashefqet/react-native-image-zoom';
+import {isValidUrl} from '../../utils/utils';
 
 const PreviewScreen = () => {
   const route = useRoute();
@@ -30,6 +31,11 @@ const PreviewScreen = () => {
     return isUrl ? file : `data:image/png;base64,${file}`;
   }
 
+  function loadPDF() {
+    const isUrl = isValidUrl(file);
+    return isUrl ? file : `data:application/pdf;base64,${file}`;
+  }
+
   console.log('FILE TYPE', type);
   console.log('load image', loadImage());
 
@@ -41,7 +47,7 @@ const PreviewScreen = () => {
           <>
             <Pdf
               source={{
-                uri: file,
+                uri: loadPDF(),
                 cache: true,
               }}
               trustAllCerts={false}
@@ -52,19 +58,7 @@ const PreviewScreen = () => {
             />
           </>
         ) : (
-          <ImageZoom
-            uri={loadImage()}
-            style={styles.imageViewer}
-            onDoubleTap={zoomType => {
-              console.log('onDoubleTap', zoomType);
-              if (zoomType === ZOOM_TYPE.ZOOM_IN) {
-                onAnimationStart();
-                setTimeout(() => {
-                  imageZoomRef.current?.reset();
-                }, 3000);
-              }
-            }}
-          />
+          <ImageZoom uri={loadImage()} style={styles.imageViewer} />
           // <ImageViewer
           //   imageUrls={[
           //     {

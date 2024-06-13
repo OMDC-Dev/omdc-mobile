@@ -1,4 +1,8 @@
-import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import React from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {ActivityIndicator, Searchbar, Text} from 'react-native-paper';
@@ -14,14 +18,14 @@ const SuperReimbursementListScreen = () => {
   const route = useRoute();
 
   // state
-  const [list, setList] = React.useState();
+  const [list, setList] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [keyword, setKeyword] = React.useState('');
 
   // paging
   const [page, setPage] = React.useState(1);
   const [moreLoading, setMoreLoading] = React.useState(false);
-  const [lastPage, setLastPage] = React.useState();
+  const [listInfo, setListInfo] = React.useState(null);
 
   const DATE_PERIOD = route.params?.date;
   const CABANG = route.params?.cabang;
@@ -42,22 +46,30 @@ const SuperReimbursementListScreen = () => {
     addParam += `&coa=${COA}`;
   }
 
-  // get all list
-  // React.useEffect(() => {
-  //   getAllList();
-  // }, []);
-
-  React.useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
+  useFocusEffect(
+    React.useCallback(() => {
       getAllList();
-    });
+    }, []),
+  );
 
-    return unsubscribe;
-  }, [navigation]);
+  async function getAllList(clear = false, search = false) {
+    if (clear) {
+      setPage(1);
+      setList([]);
+    }
 
-  async function getAllList(clear) {
-    console.log('CALLED : ' + keyword);
-    setIsLoading(true);
+    if (search) {
+      setPage(1);
+      setList([]);
+    }
+
+    const currentPage = clear || search ? 1 : page;
+
+    if (currentPage === 1) {
+      setIsLoading(true);
+    } else {
+      setMoreLoading(true);
+    }
 
     try {
       const {state, data, error} = await fetchApi({
@@ -65,67 +77,45 @@ const SuperReimbursementListScreen = () => {
           SUPERUSER_REIMBURSEMENT +
           `?startDate=${DATE_PERIOD.awal}&endDate=${DATE_PERIOD.akhir}&cari=${
             clear ? '' : keyword
-          }` +
+          }&page=${currentPage}` +
           addParam,
         method: 'GET',
       });
 
-      if (state == API_STATES.OK) {
-        setIsLoading(false);
-        setList(data.rows);
-        setLastPage(data?.endPage);
+      if (state === API_STATES.OK) {
+        if (clear || search) {
+          setList(data.rows);
+        } else {
+          setList(prevList => [...prevList, ...data.rows]);
+        }
+        setListInfo(data.pageInfo);
+        setPage(currentPage + 1);
       } else {
-        setIsLoading(false);
         setList('ERROR');
       }
     } catch (error) {
-      setIsLoading(false);
       setList('ERROR');
+    } finally {
+      setIsLoading(false);
+      setMoreLoading(false);
     }
   }
 
-  async function loadMoreList() {
-    if (!moreLoading && list.length >= 20) {
-      setMoreLoading(true);
-      try {
-        const {state, data, error} = await fetchApi({
-          url:
-            SUPERUSER_REIMBURSEMENT +
-            `&page=${page}&startDate=${DATE_PERIOD.awal}&endDate=${DATE_PERIOD.akhir}&cari=${keyword}` +
-            addParam,
-          method: 'GET',
-        });
-
-        if (state == API_STATES.OK) {
-          setMoreLoading(false);
-          setList(prev => [...prev, ...data.rows]);
-        } else {
-          setMoreLoading(false);
-          setList(prev => [...prev]);
-        }
-      } catch (error) {
-        setMoreLoading(false);
-        setList(prev => [...prev]);
-      }
+  const onLoadMore = () => {
+    if (listInfo && page <= listInfo.pageCount && !moreLoading) {
+      getAllList();
     }
-  }
-
-  // ======= Render
+  };
 
   const renderFooter = () => {
-    if (page == lastPage) {
-      <View style={styles.footer}>
+    return moreLoading ? (
+      <View style={styles.footerLoading}>
         <Gap h={24} />
-        <Text>Tidak ada data lagi.</Text>
-      </View>;
-    }
-
-    return (
-      <>
-        <Gap h={24} />
-        {moreLoading && <ActivityIndicator />}
-      </>
-    );
+        <ActivityIndicator />
+        <Gap h={14} />
+        <Text variant={'bodySmall'}>Memuat lebih banyak...</Text>
+      </View>
+    ) : null;
   };
 
   return (
@@ -136,43 +126,40 @@ const SuperReimbursementListScreen = () => {
           placeholder="Cari no. dokumen, jenis, coa..."
           value={keyword}
           onChangeText={text => setKeyword(text)}
-          onBlur={() => getAllList()}
-          onClearIconPress={() => getAllList(true)}
+          onBlur={() => getAllList(false, true)}
+          onClearIconPress={() => {
+            setKeyword('');
+            getAllList(true);
+          }}
         />
         <Gap h={14} />
-        {!isLoading || list !== 'ERROR' ? (
-          list?.length ? (
-            <FlatList
-              data={list}
-              showsVerticalScrollIndicator={false}
-              renderItem={({item, index}) => (
-                <Card.PengajuanCard
-                  data={item}
-                  onPress={() =>
-                    navigation.navigate('PengajuanStack', {
-                      screen: 'PengajuanDetail',
-                      params: {
-                        data: item,
-                        type: 'REPORT',
-                      },
-                    })
-                  }
-                />
-              )}
-              onEndReachedThreshold={0.2}
-              onEndReached={() => {
-                if (page !== lastPage) {
-                  setPage(page + 1);
-                  loadMoreList();
-                }
-              }}
-              ListFooterComponent={renderFooter}
-            />
-          ) : (
-            <BlankScreen>Tidak ada data!</BlankScreen>
-          )
-        ) : (
+        {isLoading && list === 'ERROR' ? (
           <BlankScreen loading={isLoading}>Error, mohon coba lagi!</BlankScreen>
+        ) : list?.length ? (
+          <FlatList
+            data={list}
+            showsVerticalScrollIndicator={false}
+            renderItem={({item, index}) => (
+              <Card.PengajuanCard
+                data={item}
+                onPress={() =>
+                  navigation.navigate('PengajuanStack', {
+                    screen: 'PengajuanDetail',
+                    params: {
+                      data: item,
+                      type: 'REPORT',
+                    },
+                  })
+                }
+              />
+            )}
+            keyExtractor={(item, index) => index.toString()}
+            onEndReachedThreshold={0.5}
+            onEndReached={onLoadMore}
+            ListFooterComponent={renderFooter}
+          />
+        ) : (
+          <BlankScreen>Tidak ada data!</BlankScreen>
         )}
       </View>
     </Container>
@@ -189,6 +176,10 @@ const styles = StyleSheet.create({
   },
 
   footer: {
+    alignItems: 'center',
+  },
+
+  footerLoading: {
     alignItems: 'center',
   },
 });

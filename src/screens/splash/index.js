@@ -15,7 +15,7 @@ const SplashScreen = () => {
   const {restoreToken} = React.useContext(AuthContext);
   const [errorType, setErrorType] = React.useState();
   const [showAlert, setShowAlert] = React.useState(false);
-  const CODE_VERSION = '9.3.3';
+  const CODE_VERSION = '9.3.4';
 
   async function checkIcon() {
     try {

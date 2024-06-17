@@ -16,9 +16,10 @@ import {
   Header,
   InputLabel,
   PickList,
+  Row,
 } from '../../components';
 import {Colors, Scaler, Size} from '../../styles';
-import {TextInput, Text} from 'react-native-paper';
+import {TextInput, Text, Button as PButton} from 'react-native-paper';
 import {formatRupiah} from '../../utils/rupiahFormatter';
 import {generateRandomNumber} from '../../utils/utils';
 import {MushForm} from '../../utils/MushForm';
@@ -207,19 +208,26 @@ const MasterBarangAddScreen = () => {
 
             <Gap h={10} />
             <InputLabel>Barcode</InputLabel>
-            <TextInput
-              style={styles.input}
-              mode={'outlined'}
-              keyboardType={'phone-pad'}
-              returnKeyType={'done'}
-              placeholder={'Barcode'}
-              maxLength={6}
-              placeholderTextColor={Colors.COLOR_DARK_GRAY}
-              defaultValue={barcodeBarang}
-              value={barcodeBarang}
-              onChangeText={tx => setBarcodeBarang(tx)}
-              error={inputError['barcode']}
-            />
+            <Row>
+              <TextInput
+                style={{...styles.input, flex: 1}}
+                mode={'outlined'}
+                keyboardType={'phone-pad'}
+                returnKeyType={'done'}
+                placeholder={'Barcode'}
+                maxLength={6}
+                placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                defaultValue={barcodeBarang}
+                value={barcodeBarang}
+                onChangeText={tx => setBarcodeBarang(tx)}
+                error={inputError['barcode']}
+              />
+              <Gap w={14} />
+              <PButton loading={true} onPress={() => console.log('OK')}>
+                Cek Barcode
+              </PButton>
+            </Row>
+
             <ErrorHelperText error={inputError['barcode']} />
 
             <Gap h={10} />

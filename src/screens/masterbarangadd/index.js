@@ -23,6 +23,9 @@ import {TextInput, Text, Button as PButton} from 'react-native-paper';
 import {formatRupiah} from '../../utils/rupiahFormatter';
 import {generateRandomNumber} from '../../utils/utils';
 import {MushForm} from '../../utils/MushForm';
+import {fetchApi} from '../../api/api';
+import {CEK_BARKODE_BARANG} from '../../api/apiRoutes';
+import {API_STATES} from '../../utils/constant';
 
 const MasterBarangAddScreen = () => {
   // dropdown state
@@ -49,8 +52,10 @@ const MasterBarangAddScreen = () => {
 
   // other
   const [inputError, setInputError] = React.useState({});
+  const [barkodeLoading, setBarkodeLoading] = React.useState(false);
+  const [barkodeAva, setBarkodeAva] = React.useState(true);
 
-  // [Calculate Pruice] ====
+  // [Calculate Price] ====
   // Harga Barang
   React.useEffect(() => {
     if (hargaSatuan && qtyIsiKemasan) {
@@ -81,8 +86,32 @@ const MasterBarangAddScreen = () => {
     const numb = generateRandomNumber(100000, 999999);
     setKodeBarang(String(numb));
     setBarcodeBarang(String(numb));
+    setBarkodeAva(true);
   }, []);
   // ===========================
+
+  // [On Cek Barcode] ====
+
+  async function cekBarkode() {
+    setBarkodeAva(false);
+    setBarkodeLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: CEK_BARKODE_BARANG(barcodeBarang),
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setBarkodeAva(true);
+      setBarkodeLoading(false);
+      setInputError({});
+    } else {
+      setBarkodeAva(false);
+      setBarkodeLoading(false);
+      setInputError({['barcode']: error});
+    }
+  }
+
+  // ====================
 
   // [On Add Barang] ====
   function onCheckInput() {
@@ -210,7 +239,7 @@ const MasterBarangAddScreen = () => {
             <InputLabel>Barcode</InputLabel>
             <Row>
               <TextInput
-                style={{...styles.input, flex: 1}}
+                style={{...styles.input, flex: 1, maxWidth: '50%'}}
                 mode={'outlined'}
                 keyboardType={'phone-pad'}
                 returnKeyType={'done'}
@@ -219,12 +248,18 @@ const MasterBarangAddScreen = () => {
                 placeholderTextColor={Colors.COLOR_DARK_GRAY}
                 defaultValue={barcodeBarang}
                 value={barcodeBarang}
-                onChangeText={tx => setBarcodeBarang(tx)}
+                onChangeText={tx => {
+                  setBarcodeBarang(tx);
+                  setBarkodeAva(false);
+                }}
                 error={inputError['barcode']}
               />
               <Gap w={14} />
-              <PButton loading={true} onPress={() => console.log('OK')}>
-                Cek Barcode
+              <PButton
+                disabled={barkodeLoading || barkodeAva}
+                loading={barkodeLoading}
+                onPress={() => cekBarkode()}>
+                {barkodeAva ? 'Tersedia' : 'Cek Barcode'}
               </PButton>
             </Row>
 
@@ -389,7 +424,9 @@ const MasterBarangAddScreen = () => {
           </ScrollView>
         </KeyboardAvoidingView>
         <View style={styles.bottomContainer}>
-          <Button disabled={!checked} onPress={() => onCheckInput()}>
+          <Button
+            disabled={!checked || !barkodeAva || barkodeLoading}
+            onPress={() => onCheckInput()}>
             Tambah Barang
           </Button>
         </View>

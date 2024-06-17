@@ -7,10 +7,21 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import {Container, Dropdown, Gap, Header, InputLabel} from '../../components';
+import {
+  Button,
+  Container,
+  Dropdown,
+  ErrorHelperText,
+  Gap,
+  Header,
+  InputLabel,
+  PickList,
+} from '../../components';
 import {Colors, Scaler, Size} from '../../styles';
 import {TextInput, Text} from 'react-native-paper';
 import {formatRupiah} from '../../utils/rupiahFormatter';
+import {generateRandomNumber} from '../../utils/utils';
+import {MushForm} from '../../utils/MushForm';
 
 const MasterBarangAddScreen = () => {
   // dropdown state
@@ -31,6 +42,12 @@ const MasterBarangAddScreen = () => {
   const [hppKemasan, setHPPKemasan] = React.useState();
   const [hargaJualSatuan, setHargaJualSatuan] = React.useState();
   const [hargaJualKemasan, setHargaJualKemasan] = React.useState();
+
+  // checkbox
+  const [checked, setChecked] = React.useState();
+
+  // other
+  const [inputError, setInputError] = React.useState({});
 
   // [Calculate Pruice] ====
   // Harga Barang
@@ -58,6 +75,100 @@ const MasterBarangAddScreen = () => {
   }, [hargaJualSatuan, qtyIsiKemasan]);
   // =======================
 
+  // [Generate Random Numb] ====
+  React.useEffect(() => {
+    const numb = generateRandomNumber(100000, 999999);
+    setKodeBarang(String(numb));
+    setBarcodeBarang(String(numb));
+  }, []);
+  // ===========================
+
+  // [On Add Barang] ====
+  function onCheckInput() {
+    const mush = [
+      {
+        id: 'barcode',
+        value: barcodeBarang,
+        label: 'Barcode',
+        isRequired: true,
+        type: 'input',
+        minLength: 6,
+      },
+      {
+        id: 'nama',
+        value: namaBarang,
+        label: 'Nama Barang',
+        isRequired: true,
+        type: 'input',
+      },
+      {
+        id: 'grup',
+        value: grup,
+        label: 'Grup Barang',
+        isRequired: true,
+        type: 'dropdown',
+      },
+      {
+        id: 'kategori',
+        value: kategory,
+        label: 'Kategori',
+        isRequired: true,
+        type: 'dropdown',
+      },
+      {
+        id: 'kemasan',
+        value: kemasan,
+        label: 'Kemasan',
+        isRequired: true,
+        type: 'dropdown',
+      },
+      {
+        id: 'isikemasan',
+        value: satuan,
+        label: 'Isi Kemasan',
+        isRequired: true,
+        type: 'dropdown',
+      },
+      {
+        id: 'qty',
+        value: qtyIsiKemasan,
+        label: 'Qty Isi Kemasan',
+        isRequired: true,
+        type: 'number',
+      },
+      {
+        id: 'hargasatuan',
+        value: hargaSatuan,
+        label: 'Harga Satuan',
+        isRequired: true,
+        type: 'number',
+      },
+      {
+        id: 'hppsatuan',
+        value: hppSatuan,
+        label: 'HPP Satuan',
+        isRequired: true,
+        type: 'number',
+      },
+      {
+        id: 'hargajualsatuan',
+        value: hargaJualSatuan,
+        label: 'Harga Jual Satuan',
+        isRequired: true,
+        type: 'number',
+      },
+    ];
+
+    const {error, errorMessages} = MushForm(mush);
+
+    if (error) {
+      setInputError(errorMessages);
+    } else {
+      setInputError({});
+    }
+  }
+  // ====================
+
   return (
     <Container>
       <StatusBar
@@ -80,6 +191,7 @@ const MasterBarangAddScreen = () => {
             <Text style={styles.subtitle} variant="titleSmall">
               Data Umum Barang
             </Text>
+
             <Gap h={10} />
             <InputLabel>Kode Barang</InputLabel>
             <TextInput
@@ -88,8 +200,11 @@ const MasterBarangAddScreen = () => {
               mode={'outlined'}
               placeholder={'Kode Barang'}
               placeholderTextColor={Colors.COLOR_DARK_GRAY}
+              defaultValue={kodeBarang}
               value={kodeBarang}
+              onChangeText={tx => setKodeBarang(tx)}
             />
+
             <Gap h={10} />
             <InputLabel>Barcode</InputLabel>
             <TextInput
@@ -98,10 +213,15 @@ const MasterBarangAddScreen = () => {
               keyboardType={'phone-pad'}
               returnKeyType={'done'}
               placeholder={'Barcode'}
+              maxLength={6}
               placeholderTextColor={Colors.COLOR_DARK_GRAY}
+              defaultValue={barcodeBarang}
               value={barcodeBarang}
               onChangeText={tx => setBarcodeBarang(tx)}
+              error={inputError['barcode']}
             />
+            <ErrorHelperText error={inputError['barcode']} />
+
             <Gap h={10} />
             <InputLabel>Nama Barang</InputLabel>
             <TextInput
@@ -113,28 +233,40 @@ const MasterBarangAddScreen = () => {
               placeholderTextColor={Colors.COLOR_DARK_GRAY}
               value={namaBarang}
               onChangeText={tx => setNamaBarang(tx)}
+              error={inputError['nama']}
             />
+            <ErrorHelperText error={inputError['nama']} />
+
             <Gap h={10} />
             <InputLabel>Grup Barang</InputLabel>
             <Dropdown.GrupDropdown value={grup} setValue={setGrup} />
+            <ErrorHelperText error={inputError['grup']} />
+
             <Gap h={10} />
             <InputLabel>Kategori Barang</InputLabel>
             <Dropdown.KategoryDropdown
               value={kategory}
               setValue={setKategory}
             />
+            <ErrorHelperText error={inputError['kategori']} />
+
             <Gap h={10} />
             <InputLabel>Suplier</InputLabel>
             <Dropdown.SuplierDropdownV2 value={suplier} setValue={setSuplier} />
+
             <Gap h={10} />
             <InputLabel>Kemasan</InputLabel>
             <Dropdown.KemasanBarangDropdown
               value={kemasan}
               setValue={setKemasan}
             />
+            <ErrorHelperText error={inputError['kemasan']} />
+
             <Gap h={10} />
             <InputLabel>Isi Kemasan</InputLabel>
             <Dropdown.SatuanDropdown value={satuan} setValue={setSatuan} />
+            <ErrorHelperText error={inputError['isikemasan']} />
+
             <Gap h={10} />
             <InputLabel>Qty Isi Kemasan</InputLabel>
             <TextInput
@@ -148,10 +280,13 @@ const MasterBarangAddScreen = () => {
               value={qtyIsiKemasan}
               onChangeText={tx => setQtyIsiKemasan(tx)}
             />
+            <ErrorHelperText error={inputError['qty']} />
+
             <Gap h={24} />
             <Text style={styles.subtitle} variant="titleSmall">
               Harga Barang
             </Text>
+
             <Gap h={10} />
             <InputLabel>Harga Satuan</InputLabel>
             <TextInput
@@ -164,6 +299,8 @@ const MasterBarangAddScreen = () => {
               value={hargaSatuan}
               onChangeText={tx => setHargaSatuan(tx)}
             />
+            <ErrorHelperText error={inputError['hargasatuan']} />
+
             <Gap h={10} />
             <InputLabel>Harga Kemasan</InputLabel>
             <TextInput
@@ -175,10 +312,12 @@ const MasterBarangAddScreen = () => {
               defaultValue={formatRupiah(hargaKemasan, true)}
               value={hargaKemasan}
             />
+
             <Gap h={24} />
             <Text style={styles.subtitle} variant="titleSmall">
               HPP Barang
             </Text>
+
             <Gap h={10} />
             <InputLabel>HPP Satuan</InputLabel>
             <TextInput
@@ -191,6 +330,8 @@ const MasterBarangAddScreen = () => {
               value={hppSatuan}
               onChangeText={tx => setHppSatuan(tx)}
             />
+            <ErrorHelperText error={inputError['hppsatuan']} />
+
             <Gap h={10} />
             <InputLabel>HPP Kemasan</InputLabel>
             <TextInput
@@ -202,10 +343,12 @@ const MasterBarangAddScreen = () => {
               defaultValue={formatRupiah(hppKemasan, true)}
               value={hppKemasan}
             />
+
             <Gap h={24} />
             <Text style={styles.subtitle} variant="titleSmall">
               Harga Jual Barang
             </Text>
+
             <Gap h={10} />
             <InputLabel>Harga Jual Satuan</InputLabel>
             <TextInput
@@ -218,6 +361,8 @@ const MasterBarangAddScreen = () => {
               value={hargaJualSatuan}
               onChangeText={tx => setHargaJualSatuan(tx)}
             />
+            <ErrorHelperText error={inputError['hargajualsatuan']} />
+
             <Gap h={10} />
             <InputLabel>Harga jual Kemasan</InputLabel>
             <TextInput
@@ -229,8 +374,17 @@ const MasterBarangAddScreen = () => {
               defaultValue={formatRupiah(hargaJualKemasan, true)}
               value={hargaJualKemasan}
             />
+
+            <Gap h={10} />
+            <InputLabel>Status</InputLabel>
+            <PickList checked={checked} setChecked={setChecked} />
           </ScrollView>
         </KeyboardAvoidingView>
+        <View style={styles.bottomContainer}>
+          <Button disabled={!checked} onPress={() => onCheckInput()}>
+            Tambah Barang
+          </Button>
+        </View>
       </View>
     </Container>
   );
@@ -252,6 +406,11 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: Colors.COLOR_WHITE,
     fontSize: Scaler.scaleFont(14),
+  },
+
+  bottomContainer: {
+    backgroundColor: Colors.COLOR_WHITE,
+    padding: Size.SIZE_14,
   },
 
   subtitle: {

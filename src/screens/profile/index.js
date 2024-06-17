@@ -18,6 +18,40 @@ const ProfileScreen = () => {
   const [snackMessage, setSnackMessage] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const PROFILE_MENU = [
+    {
+      id: 'button',
+      icon: 'archive-plus-outline',
+      title: 'Master Barang',
+      navTo: () =>
+        navigation.navigate('MasterBarang', {
+          screen: 'MasterBarangAdd',
+        }),
+      style: styles.textIconButton,
+    },
+    {
+      id: 'button',
+      icon: 'account-lock-open-outline',
+      title: 'Ubah Password',
+      navTo: () => navigation.navigate('UpdatePassword'),
+      style: styles.textIconButton,
+    },
+    {
+      id: 'button',
+      icon: 'account-edit-outline',
+      title: 'Update Profile',
+      navTo: () => navigation.navigate('UpdateUser'),
+      style: styles.textIconButton,
+    },
+    {
+      id: 'exit',
+      icon: 'exit-to-app',
+      title: 'Keluar',
+      navTo: () => onLogout(),
+      style: styles.textIconButtonExit,
+    },
+  ];
+
   console.log(user);
 
   async function onLogout() {
@@ -53,69 +87,38 @@ const ProfileScreen = () => {
       </View>
       <Gap h={8} />
       <View style={styles.mainContainer}>
-        <Card
-          mode={'outlined'}
-          disabled={isLoading}
-          onPress={() => navigation.navigate('UpdatePassword')}>
-          <Card.Content>
-            <Row>
-              <Icon
-                source={'account-lock-open-outline'}
-                size={24}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-              <Gap w={14} />
-              <Text variant={'labelMedium'} style={styles.textIconButton}>
-                Ubah Password
-              </Text>
-              <Icon
-                source={'arrow-right-circle-outline'}
-                size={24}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-            </Row>
-          </Card.Content>
-        </Card>
-        <Gap h={14} />
-        <Card
-          mode={'outlined'}
-          disabled={isLoading}
-          onPress={() => navigation.navigate('UpdateUser')}>
-          <Card.Content>
-            <Row>
-              <Icon
-                source={'account-edit-outline'}
-                size={24}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-              <Gap w={14} />
-              <Text variant={'labelMedium'} style={styles.textIconButton}>
-                Update Profile
-              </Text>
-              <Icon
-                source={'arrow-right-circle-outline'}
-                size={24}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-            </Row>
-          </Card.Content>
-        </Card>
-        <Gap h={14} />
-        <Card
-          mode={'outlined'}
-          disabled={isLoading}
-          style={styles.exitButton}
-          onPress={() => onLogout()}>
-          <Card.Content>
-            <Row>
-              <Icon source={'exit-to-app'} size={24} color={Colors.COLOR_RED} />
-              <Gap w={14} />
-              <Text variant={'labelMedium'} style={styles.textIconButtonExit}>
-                Keluar
-              </Text>
-            </Row>
-          </Card.Content>
-        </Card>
+        {PROFILE_MENU.map((item, index) => {
+          return (
+            <View key={item + index}>
+              <Card mode={'outlined'} disabled={isLoading} onPress={item.navTo}>
+                <Card.Content>
+                  <Row>
+                    <Icon
+                      source={item.icon}
+                      size={24}
+                      color={
+                        item.id == 'exit'
+                          ? Colors.COLOR_RED
+                          : Colors.COLOR_DARK_GRAY
+                      }
+                    />
+                    <Gap w={14} />
+                    <Text variant={'labelMedium'} style={item.style}>
+                      {item.title}
+                    </Text>
+                    <Icon
+                      source={'arrow-right-circle-outline'}
+                      size={24}
+                      color={Colors.COLOR_DARK_GRAY}
+                    />
+                  </Row>
+                </Card.Content>
+              </Card>
+              <Gap h={14} />
+            </View>
+          );
+        })}
+
         <Text style={styles.textVersion} variant="labelSmall">
           Version v.{packageInfo.version}
         </Text>

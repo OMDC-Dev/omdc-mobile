@@ -7,6 +7,7 @@ import BarangListScreen from '../screens/baranglist';
 import PermintaanDetailScreen from '../screens/permintaandetail';
 import PreviewScreen from '../screens/preview';
 import PermintaanDetailDownloadScreen from '../screens/permintaandetaildownload';
+import MasterBarangAddScreen from '../screens/masterbarangadd';
 
 //create stack screen
 const Stack = createNativeStackNavigator();
@@ -27,6 +28,7 @@ export const BarangStack = () => {
       <Stack.Screen name="BarangList" component={BarangListScreen} />
       <Stack.Screen name="BarangCari" component={BarangCariScreen} />
       <Stack.Screen name="Preview" component={PreviewScreen} />
+      <Stack.Screen name="MasterBarangAdd" component={MasterBarangAddScreen} />
     </Stack.Navigator>
   );
 };

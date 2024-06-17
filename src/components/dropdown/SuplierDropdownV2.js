@@ -5,15 +5,12 @@ import {Colors, Scaler} from '../../styles';
 import {fetchApi} from '../../api/api';
 import {GET_SUPLIER} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
+import {Button, Text} from 'react-native-paper';
+import Gap from '../Gap';
 
-const SuplierDropdown = ({onChange}) => {
+const SuplierDropdownV2 = ({value, setValue}) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(null);
   const [list, setList] = React.useState([]);
-
-  React.useEffect(() => {
-    onChange(value);
-  }, [value]);
 
   React.useEffect(() => {
     getList();
@@ -46,6 +43,7 @@ const SuplierDropdown = ({onChange}) => {
       style={{
         elevation: open ? 99 : 1,
         zIndex: open ? 99 : 1,
+        alignItems: 'flex-start',
       }}>
       <DropDownPicker
         searchable={true}
@@ -60,11 +58,15 @@ const SuplierDropdown = ({onChange}) => {
         setOpen={setOpen}
         setValue={setValue}
       />
+      <Gap h={8} />
+      <Button disabled={!value} mode={'text'} onPress={() => setValue()}>
+        Reset Suplier
+      </Button>
     </View>
   );
 };
 
-export default SuplierDropdown;
+export default SuplierDropdownV2;
 
 const styles = StyleSheet.create({
   placeholderStyle: {

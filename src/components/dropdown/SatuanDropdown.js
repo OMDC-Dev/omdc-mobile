@@ -3,17 +3,12 @@ import React from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Colors, Scaler} from '../../styles';
 import {fetchApi} from '../../api/api';
-import {GET_SUPLIER} from '../../api/apiRoutes';
+import {GET_GROUP_BARANG, GET_SATUAN} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 
-const SuplierDropdown = ({onChange}) => {
+const SatuanDropdown = ({loading, disabled, value, setValue}) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(null);
   const [list, setList] = React.useState([]);
-
-  React.useEffect(() => {
-    onChange(value);
-  }, [value]);
 
   React.useEffect(() => {
     getList();
@@ -21,20 +16,15 @@ const SuplierDropdown = ({onChange}) => {
 
   async function getList() {
     const {state, data, error} = await fetchApi({
-      url: GET_SUPLIER + '?limit=1000',
+      url: GET_SATUAN,
       method: 'GET',
     });
 
     if (state == API_STATES.OK) {
       if (data?.rows) {
-        const mapping = data?.rows.map(item => {
-          return {
-            value: item?.kdsp,
-            label: item?.nmsp,
-          };
-        });
-
-        setList(mapping);
+        setList(data?.rows);
+      } else {
+        setList([]);
       }
     } else {
       setList([]);
@@ -48,11 +38,13 @@ const SuplierDropdown = ({onChange}) => {
         zIndex: open ? 99 : 1,
       }}>
       <DropDownPicker
+        loading={loading}
+        disabled={disabled}
         searchable={true}
-        searchPlaceholder="Cari suplier..."
+        searchPlaceholder="Cari..."
         searchTextInputStyle={styles.searchInput}
         listMode={Platform.OS == 'android' ? 'MODAL' : 'SCROLLVIEW'}
-        placeholder="Pilih Suplier"
+        placeholder="Pilih Isi Kemasan"
         placeholderStyle={styles.placeholderStyle}
         open={open}
         value={value}
@@ -64,7 +56,7 @@ const SuplierDropdown = ({onChange}) => {
   );
 };
 
-export default SuplierDropdown;
+export default SatuanDropdown;
 
 const styles = StyleSheet.create({
   placeholderStyle: {

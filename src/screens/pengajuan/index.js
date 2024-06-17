@@ -686,7 +686,6 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    height: Scaler.scaleSize(48),
     backgroundColor: Colors.COLOR_WHITE,
     fontSize: Scaler.scaleFont(14),
   },

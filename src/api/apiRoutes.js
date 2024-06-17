@@ -6,7 +6,7 @@ const DEV =
 
 const NGROK_DEV = 'https://1397-180-244-161-40.ngrok-free.app/';
 
-export const BASE_URL = PROD;
+export const BASE_URL = DEV;
 
 // AUTH
 export const LOGIN = 'user/login';
@@ -97,3 +97,9 @@ export const ACCEPT_MAKER_REIMBURSEMENT = id => `maker/accept/${id}`;
 export const GET_ADMIN_PB = 'adminpb';
 export const BARANG_ADMIN_APPROVAL = (id, mode) =>
   `barang/admin-approval/${id}/${mode}`;
+
+// Master Barang
+export const GET_GROUP_BARANG = 'barang/grup';
+export const GET_KATEGORY_BARANG = 'barang/kategory';
+export const GET_KEMASAN = 'barang/kemasan';
+export const GET_SATUAN = 'barang/satuan';

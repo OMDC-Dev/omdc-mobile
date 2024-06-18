@@ -104,3 +104,4 @@ export const GET_KATEGORY_BARANG = 'barang/kategory';
 export const GET_KEMASAN = 'barang/kemasan';
 export const GET_SATUAN = 'barang/satuan';
 export const CEK_BARKODE_BARANG = code => `barang/cek-barkode/${code}`;
+export const CREATE_BARANG = 'barang/add';

@@ -5,13 +5,14 @@ import styles from './styles';
 import ModalPopUp from './type/popup';
 import DateYearModal from './type/dateyear';
 import CalendarModal from './type/calendar';
-import {Platform} from 'react-native';
+import {Platform, View} from 'react-native';
 import BarangModal from './type/barang';
 import AddBarangModal from './type/addbarang';
 import NotifModal from './type/notif';
 import SelectFileModal from './type/selectfile';
 import TypeFilterModal from './type/typefilter';
 import ModalPopUpVersion from './type/newversion';
+import ModalPopUpMessage from './type/message';
 
 const ModalView = ({
   children,
@@ -43,6 +44,9 @@ const ModalView = ({
         break;
       case 'popup':
         return <ModalPopUp message={message} onButtonPress={onPress} />;
+        break;
+      case 'message':
+        return <ModalPopUpMessage message={message} onPress={onPress} />;
         break;
       case 'version':
         return <ModalPopUpVersion error={data} onButtonPress={onPress} />;
@@ -84,7 +88,7 @@ const ModalView = ({
         );
         break;
       default:
-        return children;
+        return <View />;
         break;
     }
   };

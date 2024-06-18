@@ -1,4 +1,5 @@
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -24,10 +25,15 @@ import {formatRupiah} from '../../utils/rupiahFormatter';
 import {generateRandomNumber} from '../../utils/utils';
 import {MushForm} from '../../utils/MushForm';
 import {fetchApi} from '../../api/api';
-import {CEK_BARKODE_BARANG} from '../../api/apiRoutes';
+import {CEK_BARKODE_BARANG, CREATE_BARANG} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
+import ModalView from '../../components/modal';
+import {ModalContext} from '../../context';
+import {useNavigation} from '@react-navigation/native';
 
 const MasterBarangAddScreen = () => {
+  // navigation
+  const navigation = useNavigation();
   // dropdown state
   const [grup, setGrup] = React.useState();
   const [kategory, setKategory] = React.useState();
@@ -54,6 +60,9 @@ const MasterBarangAddScreen = () => {
   const [inputError, setInputError] = React.useState({});
   const [barkodeLoading, setBarkodeLoading] = React.useState(false);
   const [barkodeAva, setBarkodeAva] = React.useState(true);
+
+  // modal
+  const {showLoading, hideModal, showMessage} = React.useContext(ModalContext);
 
   // [Calculate Price] ====
   // Harga Barang
@@ -195,6 +204,44 @@ const MasterBarangAddScreen = () => {
       setInputError(errorMessages);
     } else {
       setInputError({});
+      onAddBarang();
+    }
+  }
+
+  async function onAddBarang() {
+    showLoading();
+    const body = {
+      kd_brg: kodeBarang,
+      barcode_brg: barcodeBarang,
+      nama_brg: namaBarang,
+      grup_brg: grup,
+      kategory_brg: kategory,
+      suplier: suplier,
+      kemasan: kemasan,
+      satuan: satuan,
+      qty_isi: qtyIsiKemasan,
+      harga_satuan: hargaSatuan,
+      hpp_satuan: hppSatuan,
+      hargajual_satuan: hargaJualSatuan,
+      status: checked == 'AKTIF' ? 'AKTIF' : 'TIDAK AKTIF',
+    };
+
+    const {state, data, error} = await fetchApi({
+      url: CREATE_BARANG,
+      method: 'POST',
+      data: body,
+    });
+
+    if (state == API_STATES.OK) {
+      hideModal();
+      Alert.alert('Sukses', 'Barang berhasil ditambahkan.', [
+        {
+          text: 'Ok',
+          onPress: () => navigation.goBack(),
+        },
+      ]);
+    } else {
+      showMessage('Ada sesuatu yang tidka beres, mohon coba lagi!');
     }
   }
   // ====================
@@ -431,6 +478,7 @@ const MasterBarangAddScreen = () => {
           </Button>
         </View>
       </View>
+      <ModalView />
     </Container>
   );
 };

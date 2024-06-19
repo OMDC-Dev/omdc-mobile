@@ -106,3 +106,6 @@ export const GET_SATUAN = 'barang/satuan';
 export const CEK_BARKODE_BARANG = code => `barang/cek-barkode/${code}`;
 export const CREATE_BARANG = 'barang/add';
 export const UPDATE_BARANG = kode => `barang/update/${kode}`;
+
+// Invoice
+export const CEK_INVOICE = inv => `invoice/${inv}`;

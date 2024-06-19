@@ -569,7 +569,7 @@ const PengajuanScreen = () => {
           <Card
             style={styles.card}
             mode={'outlined'}
-            onPress={() => navigation.navigate('PengajuanItem')}>
+            onPress={() => navigation.navigate('PengajuanItem', {data: item})}>
             <Card.Content>
               <Row>
                 <Icon

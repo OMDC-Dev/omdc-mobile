@@ -9,6 +9,7 @@ import packageInfo from '../../../package.json';
 import {fetchApi} from '../../api/api';
 import {LOGOUT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
+import {cekAkses} from '../../utils/utils';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -18,7 +19,9 @@ const ProfileScreen = () => {
   const [snackMessage, setSnackMessage] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const PROFILE_MENU = [
+  const hasMasterBarang = cekAkses('#10', user.kodeAkses);
+
+  let PROFILE_MENU = [
     {
       id: 'button',
       icon: 'archive-plus-outline',
@@ -55,7 +58,9 @@ const ProfileScreen = () => {
     },
   ];
 
-  console.log(user);
+  if (!hasMasterBarang) {
+    PROFILE_MENU.shift();
+  }
 
   async function onLogout() {
     setIsLoading(true);

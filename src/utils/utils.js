@@ -158,6 +158,7 @@ export const cekAkses = (akses, userAkses = []) => {
    * no need REQUEST BARANG W/ ATTACHMENT -> 1179 -> #7
    * ADMIN PB -> 999123 -> #8
    * nO NEED PB APPROVAL -> 1177 -> #9
+   * Master Barang -> 1128 -> #10
    */
 
   if (akses == '#1') {
@@ -194,6 +195,10 @@ export const cekAkses = (akses, userAkses = []) => {
 
   if (akses == '#9') {
     return userAkses.findIndex(item => item == '1177') !== -1;
+  }
+
+  if (akses == '#10') {
+    return userAkses.findIndex(item => item == '1128') !== -1;
   }
 };
 

@@ -2,18 +2,29 @@ import {FlatList, StyleSheet, View} from 'react-native';
 import React from 'react';
 import {BlankScreen, Card, Container, Gap, Header} from '../../components';
 import {Colors, Size} from '../../styles';
-import {ActivityIndicator, Searchbar, Text} from 'react-native-paper';
+import {ActivityIndicator, FAB, Searchbar, Text} from 'react-native-paper';
 import {fetchApi} from '../../api/api';
 import {GET_BARANG} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import ModalView from '../../components/modal';
 import _ from 'lodash';
-import {useNavigation} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {AuthContext} from '../../context';
 import {cekAkses} from '../../utils/utils';
 
 const BarangCariScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+
+  // check is from master barang
+  const IS_FROM_MASTER = route.params?.fromMaster;
+
+  console.log('IS FROM MASTER', IS_FROM_MASTER);
+
   // state
   const [barangs, setBarangs] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
@@ -33,16 +44,22 @@ const BarangCariScreen = () => {
   const hasBarangDetailAkses = cekAkses('#4', user?.kodeAkses);
 
   // get all barang
-  React.useEffect(() => {
-    getAllBarang();
-  }, []);
+  // React.useEffect(() => {
+  //   getAllBarang();
+  // }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getAllBarang();
+    }, []),
+  );
 
   async function getAllBarang(clear) {
-    console.log('CALLED : ' + keyword);
     setIsLoading(true);
     try {
+      const param = IS_FROM_MASTER ? '&showAll=true' : '';
       const {state, data, error} = await fetchApi({
-        url: GET_BARANG(clear ? '' : keyword),
+        url: GET_BARANG(clear ? '' : keyword) + param,
         method: 'GET',
       });
 
@@ -64,8 +81,9 @@ const BarangCariScreen = () => {
     if (!moreLoading && barangs.length >= 20) {
       setMoreLoading(true);
       try {
+        const param = IS_FROM_MASTER ? '&showAll=true' : '';
         const {state, data, error} = await fetchApi({
-          url: GET_BARANG(keyword) + `&page=${page}`,
+          url: GET_BARANG(keyword) + `&page=${page}` + param,
           method: 'GET',
         });
 
@@ -87,6 +105,12 @@ const BarangCariScreen = () => {
     const data = {...dataBarang, requestData: rd};
 
     navigation.navigate('BarangList', {data: data});
+  }
+
+  function updateOnSelectedBarang(barang) {
+    navigation.navigate('MasterBarangAdd', {
+      data: barang,
+    });
   }
 
   // ======= Render
@@ -126,8 +150,13 @@ const BarangCariScreen = () => {
             renderItem={({item, index}) => (
               <Card.BarangCard
                 data={item}
+                hideAdd={IS_FROM_MASTER}
                 onPress={() =>
-                  hasBarangDetailAkses ? setSelectBarang(item) : null
+                  IS_FROM_MASTER
+                    ? updateOnSelectedBarang(item)
+                    : hasBarangDetailAkses
+                    ? setSelectBarang(item)
+                    : null
                 }
                 onAddPress={() => {
                   setDataBarang(item);
@@ -147,6 +176,14 @@ const BarangCariScreen = () => {
         ) : (
           <BlankScreen loading={isLoading}>Error, mohon coba lagi!</BlankScreen>
         )}
+        {IS_FROM_MASTER ? (
+          <FAB
+            mode={'flat'}
+            icon="plus"
+            style={styles.fab}
+            onPress={() => navigation.navigate('MasterBarangAdd')}
+          />
+        ) : null}
       </View>
       <ModalView
         data={selectBarang}
@@ -176,5 +213,12 @@ const styles = StyleSheet.create({
 
   footer: {
     alignItems: 'center',
+  },
+
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: Platform.OS == 'ios' ? 8 : 8,
   },
 });

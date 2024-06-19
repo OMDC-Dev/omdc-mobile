@@ -12,13 +12,12 @@ const BarangCard = ({
   onPress,
   onAddPress,
   onDeletePress,
+  hideAdd,
   fromList,
   fromDetail,
   fromDownload,
 }) => {
   const {nm_barang, grup_brg, kategory_brg} = data;
-
-  console.log(data);
 
   const navigation = useNavigation();
 
@@ -116,7 +115,9 @@ const BarangCard = ({
               <Icon source={'close'} size={24} color={Colors.COLOR_DARK_GRAY} />
             </TouchableOpacity>
           ) : (
-            <Button onPress={onAddPress}>+ Tambah</Button>
+            <Button onPress={hideAdd ? null : onAddPress}>
+              {hideAdd ? data?.sts_brg : '+ Tambah'}
+            </Button>
           )}
         </Row>
       </Card.Content>

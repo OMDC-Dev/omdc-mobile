@@ -25,7 +25,10 @@ const ProfileScreen = () => {
       title: 'Master Barang',
       navTo: () =>
         navigation.navigate('MasterBarang', {
-          screen: 'MasterBarangAdd',
+          screen: 'BarangCari',
+          params: {
+            fromMaster: true,
+          },
         }),
       style: styles.textIconButton,
     },

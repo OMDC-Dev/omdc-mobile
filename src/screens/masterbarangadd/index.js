@@ -25,15 +25,24 @@ import {formatRupiah} from '../../utils/rupiahFormatter';
 import {generateRandomNumber} from '../../utils/utils';
 import {MushForm} from '../../utils/MushForm';
 import {fetchApi} from '../../api/api';
-import {CEK_BARKODE_BARANG, CREATE_BARANG} from '../../api/apiRoutes';
+import {
+  CEK_BARKODE_BARANG,
+  CREATE_BARANG,
+  UPDATE_BARANG,
+} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import ModalView from '../../components/modal';
 import {ModalContext} from '../../context';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 
 const MasterBarangAddScreen = () => {
   // navigation
   const navigation = useNavigation();
+  const route = useRoute();
+
+  // check route ata
+  const BARANG_SELECTED = route?.params?.data;
+
   // dropdown state
   const [grup, setGrup] = React.useState();
   const [kategory, setKategory] = React.useState();
@@ -90,9 +99,36 @@ const MasterBarangAddScreen = () => {
   }, [hargaJualSatuan, qtyIsiKemasan]);
   // =======================
 
+  // [Start] Set Existing Barang
+  React.useEffect(() => {
+    if (BARANG_SELECTED) {
+      const ext = BARANG_SELECTED;
+
+      setNamaBarang(ext.nm_barang);
+      setQtyIsiKemasan(String(ext?.qty_satuan));
+      setHargaSatuan(String(ext?.hrga_satuan));
+      setHppSatuan(String(ext?.hppsatuan));
+      setHargaJualSatuan(String(ext?.hrga_jualsatuan));
+      setChecked(ext?.sts_brg == 'AKTIF' ? 'AKTIF' : 'TIDAKAKTIF');
+      setGrup(ext.grup_brg);
+      setKategory(ext.kategory_brg);
+      setSuplier(ext.kdsp);
+      setKemasan(ext.nm_kemasan);
+      setSatuan(ext.nm_satuan);
+    }
+  }, []);
+  // [End] =====================
+
   // [Generate Random Numb] ====
   React.useEffect(() => {
-    const numb = generateRandomNumber(100000, 999999);
+    let numb;
+
+    if (BARANG_SELECTED) {
+      numb = BARANG_SELECTED.kd_brg;
+    } else {
+      numb = generateRandomNumber(100000, 999999);
+    }
+
     setKodeBarang(String(numb));
     setBarcodeBarang(String(numb));
     setBarkodeAva(true);
@@ -204,7 +240,7 @@ const MasterBarangAddScreen = () => {
       setInputError(errorMessages);
     } else {
       setInputError({});
-      onAddBarang();
+      BARANG_SELECTED ? onUpdateBarang() : onAddBarang();
     }
   }
 
@@ -241,7 +277,43 @@ const MasterBarangAddScreen = () => {
         },
       ]);
     } else {
-      showMessage('Ada sesuatu yang tidka beres, mohon coba lagi!');
+      showMessage('Ada sesuatu yang tidak beres, mohon coba lagi!');
+    }
+  }
+
+  async function onUpdateBarang() {
+    showLoading();
+    const body = {
+      barcode_brg: barcodeBarang,
+      nama_brg: namaBarang,
+      grup_brg: grup,
+      kategory_brg: kategory,
+      suplier: suplier,
+      kemasan: kemasan,
+      satuan: satuan,
+      qty_isi: qtyIsiKemasan,
+      harga_satuan: hargaSatuan,
+      hpp_satuan: hppSatuan,
+      hargajual_satuan: hargaJualSatuan,
+      status: checked == 'AKTIF' ? 'AKTIF' : 'TIDAK AKTIF',
+    };
+
+    const {state, data, error} = await fetchApi({
+      url: UPDATE_BARANG(kodeBarang),
+      method: 'POST',
+      data: body,
+    });
+
+    if (state == API_STATES.OK) {
+      hideModal();
+      Alert.alert('Sukses', 'Barang berhasil diupdate.', [
+        {
+          text: 'Ok',
+          onPress: () => navigation.goBack(),
+        },
+      ]);
+    } else {
+      showMessage('Ada sesuatu yang tidak beres, mohon coba lagi!');
     }
   }
   // ====================
@@ -474,7 +546,7 @@ const MasterBarangAddScreen = () => {
           <Button
             disabled={!checked || !barkodeAva || barkodeLoading}
             onPress={() => onCheckInput()}>
-            Tambah Barang
+            {BARANG_SELECTED ? 'Update Barang' : 'Tambah Barang'}
           </Button>
         </View>
       </View>

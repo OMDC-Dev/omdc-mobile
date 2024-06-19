@@ -928,6 +928,14 @@ const PengajuanDetailScreen = () => {
     return (
       <>
         <Gap h={24} />
+        <InputLabel>Ganti persetujuan ke ( opsional )</InputLabel>
+        <Dropdown.ApprovalDropdown
+          data={adminList}
+          disabled={isLoading}
+          loading={!adminList}
+          onChange={val => setAdmin(val)}
+        />
+        <Gap h={24} />
         <Button mode="outlined" onPress={() => setCancelDialog(true)}>
           Batalkan Pengajuan
         </Button>

@@ -24,7 +24,7 @@ import {
 import {Colors, Scaler, Size} from '../../styles';
 import {Dropdown, Gap, Header, InputLabel, Row} from '../../components';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {AuthContext} from '../../context';
+import {AuthContext, ModalContext} from '../../context';
 import {fetchApi} from '../../api/api';
 import {
   ACCEPT_MAKER_REIMBURSEMENT,
@@ -114,6 +114,9 @@ const PengajuanDetailScreen = () => {
   const [downloadLoading, setDownloadLoading] = React.useState(false);
   const [isNeedBank, setIsNeedBank] = React.useState(true);
 
+  // MODAL
+  const {showLoading, hideModal} = React.useContext(ModalContext);
+
   // Shoot
   const shootRef = React.useRef();
 
@@ -179,6 +182,7 @@ const PengajuanDetailScreen = () => {
 
   // get status
   async function getStatus() {
+    showLoading();
     setStatusLoading(true);
     const R_ID = data?.id;
     try {
@@ -188,6 +192,7 @@ const PengajuanDetailScreen = () => {
       });
 
       if (state == API_STATES.OK) {
+        hideModal();
         setStatusLoading(false);
         setRequestStatus(data?.status);
         setAdminStatus(data?.accepted_by);
@@ -768,8 +773,7 @@ const PengajuanDetailScreen = () => {
     if (accMode !== 'IDLE') {
       // ACC MODE TYPE DITERIMA / DITOLAK
       return (
-        <View>
-          <Gap h={38} />
+        <View style={styles.bottomButton}>
           <>
             <InputLabel>Catatan ( opsional ) </InputLabel>
             <TextInput
@@ -805,8 +809,7 @@ const PengajuanDetailScreen = () => {
 
     if (user.type == 'FINANCE') {
       return (
-        <View>
-          <Gap h={38} />
+        <View style={styles.bottomButton}>
           <Button
             disabled={
               isLoading ||
@@ -829,8 +832,7 @@ const PengajuanDetailScreen = () => {
     }
 
     return (
-      <View>
-        <Gap h={38} />
+      <View style={styles.bottomButton}>
         <Button
           disabled={
             user.type == 'MAKER' &&
@@ -874,7 +876,6 @@ const PengajuanDetailScreen = () => {
     ) {
       return (
         <>
-          <Gap h={24} />
           <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
             Lihat Pengajuan
           </Button>
@@ -895,7 +896,6 @@ const PengajuanDetailScreen = () => {
       ) {
         return (
           <>
-            <Gap h={24} />
             <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
               Lihat Laporan Realisasi
             </Button>
@@ -927,15 +927,6 @@ const PengajuanDetailScreen = () => {
 
     return (
       <>
-        <Gap h={24} />
-        <InputLabel>Ganti persetujuan ke ( opsional )</InputLabel>
-        <Dropdown.ApprovalDropdown
-          data={adminList}
-          disabled={isLoading}
-          loading={!adminList}
-          onChange={val => setAdmin(val)}
-        />
-        <Gap h={24} />
         <Button mode="outlined" onPress={() => setCancelDialog(true)}>
           Batalkan Pengajuan
         </Button>
@@ -945,6 +936,7 @@ const PengajuanDetailScreen = () => {
 
   // render admin done card
   function renderAdminDoneCard() {
+    if (statusLoading) return;
     let status_approved;
 
     if (user.type == 'ADMIN') {
@@ -976,8 +968,16 @@ const PengajuanDetailScreen = () => {
 
   // render finance on transfer sender bank
   function renderSenderBankFinance() {
+    //if (user.type !== 'MAKER' || makerStatus !== 'IDLE') return;
     if (data?.payment_type == 'CASH') return;
     if (!isNeedBank) return;
+    if (user.type == 'USER') return;
+
+    if (user.type == 'MAKER') {
+      if (makerStatus !== 'IDLE') return;
+    } else if (user.type == 'FINANCE') {
+      if (financeStatus !== 'WAITING') return;
+    } else return;
 
     return (
       <>
@@ -1003,8 +1003,7 @@ const PengajuanDetailScreen = () => {
           if (needExtra && extraStatus !== 'IDLE') {
             if (extraStatus == 'WAITING') {
               return (
-                <>
-                  <Gap h={14} />
+                <View style={styles.bottomButton}>
                   <Card mode={'outlined'}>
                     <Card.Content style={{alignItems: 'center'}}>
                       <Text variant={'bodyMedium'}>
@@ -1012,12 +1011,11 @@ const PengajuanDetailScreen = () => {
                       </Text>
                     </Card.Content>
                   </Card>
-                </>
+                </View>
               );
             } else {
               return (
-                <>
-                  <Gap h={24} />
+                <View style={styles.bottomButton}>
                   <Button
                     loading={isLoading}
                     disabled={isLoading}
@@ -1026,25 +1024,21 @@ const PengajuanDetailScreen = () => {
                     Selesaikan ({' '}
                     {extraStatus == 'APPROVED' ? 'Setujui' : 'Tolak'} )
                   </Button>
-                  <Gap h={10} />
-                </>
+                </View>
               );
             }
           }
 
           return (
             <View>
-              {renderSenderBankFinance()}
-
-              <Gap h={14} />
+              {/* {renderSenderBankFinance()} */}
               {renderAcceptRejectState()}
             </View>
           );
         } else {
           // FINANCE STATUS DONE
           return (
-            <View>
-              <Gap h={14} />
+            <View style={styles.bottomButton}>
               <Card mode={'outlined'}>
                 <Card.Content style={{alignItems: 'center'}}>
                   <Text variant={'bodyMedium'}>
@@ -1069,12 +1063,7 @@ const PengajuanDetailScreen = () => {
           return renderAcceptRejectState();
         }
 
-        return (
-          <>
-            <Gap h={10} />
-            {renderAdminDoneCard()}
-          </>
-        );
+        return <View style={styles.bottomButton}>{renderAdminDoneCard()}</View>;
       }
 
       // MAKER SECTION
@@ -1082,20 +1071,13 @@ const PengajuanDetailScreen = () => {
         if (makerStatus == 'IDLE') {
           return (
             <View>
-              {renderSenderBankFinance()}
-
-              <Gap h={14} />
+              {/* {renderSenderBankFinance()} */}
               {renderAcceptRejectState()}
             </View>
           );
         }
 
-        return (
-          <>
-            <Gap h={10} />
-            {renderAdminDoneCard()}
-          </>
-        );
+        return <View style={styles.bottomButton}>{renderAdminDoneCard()}</View>;
       }
 
       // REVIEWER SECTION
@@ -1104,12 +1086,7 @@ const PengajuanDetailScreen = () => {
           return renderAcceptRejectState();
         }
 
-        return (
-          <>
-            <Gap h={10} />
-            {renderAdminDoneCard()}
-          </>
-        );
+        return <View style={styles.bottomButton}>{renderAdminDoneCard()}</View>;
       }
 
       // ADMIN SECTION
@@ -1119,8 +1096,7 @@ const PengajuanDetailScreen = () => {
       } else {
         // ADMIN STATUS DONE
         return (
-          <View>
-            <Gap h={14} />
+          <View style={styles.bottomButton}>
             {renderAdminDoneCard()}
             {renderCARCreateDetailReport('ADMIN')}
             {renderCARPengajuanButton()}
@@ -1130,7 +1106,7 @@ const PengajuanDetailScreen = () => {
     } else {
       // USER SECTION
       return (
-        <View>
+        <View style={styles.bottomButton}>
           {renderCancelPengajuanButton()}
           {renderCARCreateDetailReport('USER')}
           {renderCARPengajuanButton()}
@@ -1205,6 +1181,29 @@ const PengajuanDetailScreen = () => {
             loading={!adminList}
             onChange={val => setAdmin(val)}
           />
+        </>
+      );
+    }
+
+    if (user.type == 'USER') {
+      if (requestStatus !== 'WAITING') return;
+      return (
+        <>
+          <Text style={styles.subtitle} variant="titleSmall">
+            Penyetuju
+          </Text>
+          <Gap h={10} />
+          <InputLabel>Ganti penyetuju ke ( opsional )</InputLabel>
+          <Dropdown.ApprovalDropdown
+            data={adminList}
+            disabled={isLoading}
+            loading={!adminList}
+            onChange={val => setAdmin(val)}
+          />
+          <Gap h={10} />
+          <Button disabled={!admin} mode={'contained'}>
+            Simpan Perubahan
+          </Button>
         </>
       );
     }
@@ -1793,6 +1792,7 @@ const PengajuanDetailScreen = () => {
             </View>
           )}
           {renderCoaSelector()}
+          {renderSenderBankFinance()}
 
           {typeName !== 'Petty Cash Report' &&
           !_.isEmpty(BANK_DATA) &&
@@ -1845,7 +1845,6 @@ const PengajuanDetailScreen = () => {
           {renderAllNotes()}
           {renderDownloadAttachment()}
 
-          {IS_REPORT ? null : renderBottomButton()}
           {(user.type == 'USER' || user.type == 'FINANCE') &&
           data.status_finance == 'DONE' &&
           !IS_DOWNLOAD
@@ -1853,6 +1852,7 @@ const PengajuanDetailScreen = () => {
             : null}
         </ViewShot>
       </ScrollView>
+      {IS_REPORT ? null : renderBottomButton()}
       {IS_DOWNLOAD ? renderDownloadButton(true) : null}
       <Snackbar visible={snak} onDismiss={() => setSnak(false)}>
         {snakMsg || ''}
@@ -1948,7 +1948,15 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.COLOR_WHITE,
     paddingHorizontal: Size.SIZE_14,
     paddingVertical: Size.SIZE_24,
-    borderTopWidth: 0.5,
+    borderTopWidth: 1,
+    borderColor: Colors.COLOR_LIGHT_GRAY,
+  },
+
+  bottomButton: {
+    backgroundColor: Colors.COLOR_WHITE,
+    paddingHorizontal: Size.SIZE_14,
+    paddingVertical: Size.SIZE_24,
+    borderTopWidth: 1,
     borderColor: Colors.COLOR_LIGHT_GRAY,
   },
 

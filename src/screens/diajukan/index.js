@@ -39,7 +39,7 @@ async function getHistory(type = '00', monthyear, search, clear, typeFilter) {
     useMonthFilter = `&monthyear=${monthyear}`;
   }
 
-  let query = `?status=${type}&page=1&limit=200${useMonthFilter}&cari=${
+  let query = `?status=${type}&page=1&limit=1000${useMonthFilter}&cari=${
     clear ? '' : search
   }`;
 

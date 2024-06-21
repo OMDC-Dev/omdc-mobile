@@ -34,6 +34,7 @@ import {
   REIMBURSEMENT_ACCEPTANCE,
   REIMBURSEMENT_ACCEPTANCE_EXTRA,
   REIMBURSEMENT_DETAIL,
+  REIMBURSEMENT_UPDATE_ADMIN,
   SUPERUSER,
 } from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
@@ -179,6 +180,8 @@ const PengajuanDetailScreen = () => {
       setAdminList([]);
     }
   }
+
+  console.log('AS', adminStatus);
 
   // get status
   async function getStatus() {
@@ -444,6 +447,28 @@ const PengajuanDetailScreen = () => {
     }
   }
 
+  // CHANGE ADMIN
+  async function onAdminChange() {
+    showLoading();
+    const {state, data, error} = await fetchApi({
+      url: REIMBURSEMENT_UPDATE_ADMIN(ID, admin),
+      method: 'POST',
+    });
+
+    if (state == API_STATES.OK) {
+      setAdmin();
+      getSuperUser();
+      getStatus();
+      hideModal();
+      setSnakMsg('Sukses mengupdate penyetuju');
+      setSnak(true);
+    } else {
+      hideModal();
+      setSnakMsg('Ada kesalahan, mohon coba lagi!');
+      setSnak(true);
+    }
+  }
+
   console.log('UPDATE ADMIN', updateAdmin);
 
   // ========
@@ -513,12 +538,16 @@ const PengajuanDetailScreen = () => {
   // set status
   const STATUS_TEXT = admin => {
     const status = admin ? admin?.status : requestStatus;
+    const tgl_approve = ` pada ${admin?.tgl_approve}` || '';
     switch (status) {
       case 'WAITING':
         return {title: 'Menunggu Disetujui', style: styles.textStatusWaiting};
         break;
       case 'APPROVED':
-        return {title: 'Disetujui', style: styles.textStatusApproved};
+        return {
+          title: 'Disetujui' + tgl_approve,
+          style: styles.textStatusApproved,
+        };
         break;
       case 'REJECTED':
         return {title: 'Ditolak', style: styles.textStatusRejected};
@@ -773,7 +802,7 @@ const PengajuanDetailScreen = () => {
     if (accMode !== 'IDLE') {
       // ACC MODE TYPE DITERIMA / DITOLAK
       return (
-        <View style={styles.bottomButton}>
+        <View style={styles.bottomButtonAccRej}>
           <>
             <InputLabel>Catatan ( opsional ) </InputLabel>
             <TextInput
@@ -876,8 +905,9 @@ const PengajuanDetailScreen = () => {
     ) {
       return (
         <>
+          <Gap h={12} />
           <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
-            Lihat Pengajuan
+            Lihat Cash Advance
           </Button>
         </>
       );
@@ -910,7 +940,6 @@ const PengajuanDetailScreen = () => {
       ) {
         return (
           <>
-            <Gap h={14} />
             <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
               {data.childId ? 'Lihat' : 'Buat'} Laporan Realisasi
             </Button>
@@ -1052,6 +1081,11 @@ const PengajuanDetailScreen = () => {
               </Card>
               {renderCARCreateDetailReport('ADMIN')}
               {renderCARPengajuanButton()}
+              {(user.type == 'USER' || user.type == 'FINANCE') &&
+              data.status_finance == 'DONE' &&
+              !IS_DOWNLOAD
+                ? renderDownloadButton()
+                : null}
             </View>
           );
         }
@@ -1104,12 +1138,18 @@ const PengajuanDetailScreen = () => {
         );
       }
     } else {
+      if (IS_PUSHED) return;
       // USER SECTION
       return (
         <View style={styles.bottomButton}>
           {renderCancelPengajuanButton()}
           {renderCARCreateDetailReport('USER')}
           {renderCARPengajuanButton()}
+          {(user.type == 'USER' || user.type == 'FINANCE') &&
+          data.status_finance == 'DONE' &&
+          !IS_DOWNLOAD
+            ? renderDownloadButton()
+            : null}
         </View>
       );
     }
@@ -1146,6 +1186,7 @@ const PengajuanDetailScreen = () => {
   function renderAdminSelector() {
     if (IS_REPORT) return;
     if (IS_DOWNLOAD) return;
+    if (IS_PUSHED) return;
 
     if (user.type == 'ADMIN') {
       if (ACCEPTANCE_STATUS_BY_ID !== 'WAITING') return;
@@ -1201,7 +1242,25 @@ const PengajuanDetailScreen = () => {
             onChange={val => setAdmin(val)}
           />
           <Gap h={10} />
-          <Button disabled={!admin} mode={'contained'}>
+          <Button
+            disabled={!admin}
+            mode={'contained'}
+            onPress={() => {
+              Alert.alert(
+                'Konfirmasi',
+                'Apakah anda yakin ingin mengubah penyetuju?',
+                [
+                  {
+                    text: 'Konfirmasi',
+                    onPress: () => onAdminChange(),
+                  },
+                  {
+                    text: 'Batalkan',
+                    onPress: () => {},
+                  },
+                ],
+              );
+            }}>
             Simpan Perubahan
           </Button>
         </>
@@ -1503,7 +1562,7 @@ const PengajuanDetailScreen = () => {
 
     return (
       <View>
-        <Gap h={32} />
+        <Gap h={14} />
         <Button
           mode={'contained'}
           onPress={() =>
@@ -1844,12 +1903,6 @@ const PengajuanDetailScreen = () => {
           {renderAdminSelector()}
           {renderAllNotes()}
           {renderDownloadAttachment()}
-
-          {(user.type == 'USER' || user.type == 'FINANCE') &&
-          data.status_finance == 'DONE' &&
-          !IS_DOWNLOAD
-            ? renderDownloadButton()
-            : null}
         </ViewShot>
       </ScrollView>
       {IS_REPORT ? null : renderBottomButton()}
@@ -1932,7 +1985,6 @@ const styles = StyleSheet.create({
   },
 
   inputFull: {
-    height: Scaler.scaleSize(48),
     backgroundColor: Colors.COLOR_WHITE,
     fontSize: Scaler.scaleFont(14),
   },
@@ -1956,6 +2008,15 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.COLOR_WHITE,
     paddingHorizontal: Size.SIZE_14,
     paddingVertical: Size.SIZE_24,
+    borderTopWidth: 1,
+    borderColor: Colors.COLOR_LIGHT_GRAY,
+  },
+
+  bottomButtonAccRej: {
+    backgroundColor: Colors.COLOR_WHITE,
+    paddingHorizontal: Size.SIZE_14,
+    paddingBottom: Size.SIZE_24,
+    paddingTop: Size.SIZE_8,
     borderTopWidth: 1,
     borderColor: Colors.COLOR_LIGHT_GRAY,
   },

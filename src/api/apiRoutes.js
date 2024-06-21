@@ -35,6 +35,8 @@ export const REIMBURSEMENT_ACCEPTANCE = id => {
 export const REIMBURSEMENT_ACCEPTANCE_EXTRA = id => {
   return `reimbursement/extra/${id}`;
 };
+export const REIMBURSEMENT_UPDATE_ADMIN = (id, adminId) =>
+  `reimbursement/update-admin/${id}?adminId=${adminId}`;
 
 // BANK
 export const GET_BANK = 'bank';

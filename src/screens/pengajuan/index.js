@@ -608,7 +608,7 @@ const PengajuanScreen = () => {
                 keyboardType={'phone-pad'}
                 returnKeyType={'done'}
                 placeholder={'Nominal'}
-                defaultValue={formatRupiah(reportData?.nominal)}
+                defaultValue={reportData?.nominal}
                 placeholderTextColor={Colors.COLOR_DARK_GRAY}
               />
             </>

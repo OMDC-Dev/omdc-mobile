@@ -122,15 +122,20 @@ const MasterBarangAddScreen = () => {
   // [Generate Random Numb] ====
   React.useEffect(() => {
     let numb;
+    let barcode;
+
+    const gen = generateRandomNumber(100000, 999999);
 
     if (BARANG_SELECTED) {
       numb = BARANG_SELECTED.kd_brg;
+      barcode = BARANG_SELECTED.barcode_brg;
     } else {
-      numb = generateRandomNumber(100000, 999999);
+      numb = gen;
+      barcode = gen;
     }
 
     setKodeBarang(String(numb));
-    setBarcodeBarang(String(numb));
+    setBarcodeBarang(String(barcode));
     setBarkodeAva(true);
   }, []);
   // ===========================

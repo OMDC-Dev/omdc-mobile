@@ -2076,39 +2076,39 @@ const PengajuanDetailScreen = () => {
                 Data Bank
               </Text>
               <Gap h={14} />
-              <Row>
+              <View>
                 <InputLabel style={styles.rowLeft}>Nama Bank</InputLabel>
-                <Text style={styles.textValue} variant={'labelMedium'}>
+                <Text style={styles.textValueColumn} variant={'labelMedium'}>
                   {BANK_DATA?.bankname}
                 </Text>
                 <Gap h={6} />
-              </Row>
-              <Row>
+              </View>
+              <View>
                 <InputLabel style={styles.rowLeft}>Nomor Rekening</InputLabel>
-                <Text style={styles.textValue} variant={'labelMedium'}>
+                <Text style={styles.textValueColumn} variant={'labelMedium'}>
                   {BANK_DATA?.accountnumber}
                 </Text>
                 <Gap h={6} />
-              </Row>
-              <Row>
+              </View>
+              <View>
                 <InputLabel style={styles.rowLeft}>
                   Nama Pemilik Rekening
                 </InputLabel>
-                <Text style={styles.textValue} variant={'labelMedium'}>
+                <Text style={styles.textValueColumn} variant={'labelMedium'}>
                   {BANK_DATA?.accountname}
                 </Text>
                 <Gap h={6} />
-              </Row>
+              </View>
               {data?.payment_type != 'CASH' ? (
-                <Row>
+                <View>
                   <InputLabel style={styles.rowLeft}>
                     Dikirim oleh Finance dari
                   </InputLabel>
-                  <Text style={styles.textValue} variant={'labelMedium'}>
+                  <Text style={styles.textValueColumn} variant={'labelMedium'}>
                     {financeBank || '-'}
                   </Text>
                   <Gap h={6} />
-                </Row>
+                </View>
               ) : null}
             </>
           ) : null}

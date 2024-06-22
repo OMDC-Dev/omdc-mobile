@@ -34,13 +34,20 @@ import {
   REIMBURSEMENT_ACCEPTANCE,
   REIMBURSEMENT_ACCEPTANCE_EXTRA,
   REIMBURSEMENT_DETAIL,
+  REIMBURSEMENT_REUPLOAD_FILE,
   REIMBURSEMENT_UPDATE_ADMIN,
   SUPERUSER,
 } from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {convertRupiahToNumber, formatRupiah} from '../../utils/rupiahFormatter';
 import ModalView from '../../components/modal';
-import {downloadPdf, getDataById, getLabelByValue} from '../../utils/utils';
+import {
+  downloadPdf,
+  getDataById,
+  getLabelByValue,
+  imgToBase64,
+  uriToBas64,
+} from '../../utils/utils';
 import _ from 'lodash';
 import {SIZE_14} from '../../styles/size';
 import moment from 'moment';
@@ -48,6 +55,7 @@ import {retrieveData} from '../../utils/store';
 import ViewShot from 'react-native-view-shot';
 import {request, PERMISSIONS} from 'react-native-permissions';
 import Share from 'react-native-share';
+import DocumentPicker, {types} from 'react-native-document-picker';
 
 const PengajuanDetailScreen = () => {
   const route = useRoute();
@@ -90,6 +98,10 @@ const PengajuanDetailScreen = () => {
   const [extraAcc, setExtraAcc] = React.useState();
   const [needExtra, setNeedExtra] = React.useState(false);
   const [extraStatus, setExtraStatus] = React.useState('IDLE');
+  const [fileStatus, setFileStatus] = React.useState();
+  const [attachmentStatus, setAttachmentStatus] = React.useState();
+  const [result, setResult] = React.useState();
+  const [fileInfo, setFileInfo] = React.useState();
 
   // acceptance
   const [adminStatus, setAdminStatus] = React.useState(ADMINS);
@@ -114,6 +126,7 @@ const PengajuanDetailScreen = () => {
   const [cancelDialog, setCancelDialog] = React.useState(false);
   const [downloadLoading, setDownloadLoading] = React.useState(false);
   const [isNeedBank, setIsNeedBank] = React.useState(true);
+  const [showSelectFile, setShowSelectFile] = React.useState(false);
 
   // MODAL
   const {showLoading, hideModal} = React.useContext(ModalContext);
@@ -158,6 +171,67 @@ const PengajuanDetailScreen = () => {
   async function loadIcon() {
     const getIcon = await retrieveData('APP_ICON');
     setIcon(getIcon);
+  }
+
+  // pick file
+  async function pickFile() {
+    try {
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+        type: [types.pdf, types.images],
+      });
+
+      const size = pickerResult.size;
+
+      console.log(pickerResult);
+
+      if (size > 1000000) {
+        Alert.alert('Gagal', 'Ukuran file tidak boleh lebih dari 1 MB.');
+        return;
+      }
+
+      const fileInfo = {
+        name: pickerResult.name,
+        size: pickerResult.size,
+        type: pickerResult.type,
+      };
+
+      const path =
+        Platform.OS == 'android'
+          ? pickerResult.fileCopyUri
+          : pickerResult.fileCopyUri.split('Caches/')[1];
+
+      if (pickerResult.type == 'application/pdf') {
+        const picker = await uriToBas64(path, Platform.OS == 'android');
+        setResult(picker);
+      } else {
+        const base64 = await imgToBase64(path, Platform.OS == 'android');
+        setResult(base64);
+      }
+
+      setFileInfo(fileInfo);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // handle on pick from camera / gallery
+  function onPickFromRes(data) {
+    if (data.fileSize > 1000000) {
+      Alert.alert('Gagal', 'Ukuran file tidak boleh lebih dari 1 MB.');
+      return;
+    }
+
+    setResult(data.base64);
+
+    const fileInfo = {
+      name: data.fileName,
+      size: data.fileSize,
+      type: data.fileType,
+    };
+
+    setFileInfo(fileInfo);
   }
 
   // get admin
@@ -211,6 +285,8 @@ const PengajuanDetailScreen = () => {
         setExtraAcc(data?.extraAcceptance);
         setNeedExtra(data.needExtraAcceptance);
         setExtraStatus(data.extraAcceptanceStatus);
+        setFileStatus(data?.file_info);
+        setAttachmentStatus(data?.attachment);
         if (
           data.needExtraAcceptance &&
           user.type == 'FINANCE' &&
@@ -469,6 +545,32 @@ const PengajuanDetailScreen = () => {
     }
   }
 
+  // REUPLOAD FILE
+  async function onReuploadFile() {
+    showLoading();
+    const body = {
+      file: fileInfo,
+      attachment: result,
+    };
+
+    const {state, data, error} = await fetchApi({
+      url: REIMBURSEMENT_REUPLOAD_FILE(ID),
+      method: 'POST',
+      data: body,
+    });
+
+    if (state == API_STATES.OK) {
+      getStatus();
+      hideModal();
+      setSnakMsg('Sukses mengupdate lampiran');
+      setSnak(true);
+    } else {
+      hideModal();
+      setSnakMsg('Ada kesalahan, mohon coba lagi!');
+      setSnak(true);
+    }
+  }
+
   console.log('UPDATE ADMIN', updateAdmin);
 
   // ========
@@ -489,30 +591,37 @@ const PengajuanDetailScreen = () => {
     {
       title: 'Nama Vendor / Client',
       value: data?.name,
+      isColumn: false,
     },
     {
       title: 'Tanggal',
       value: data?.tanggal_reimbursement,
+      isColumn: false,
     },
     {
       title: 'Tanggal Dibuat',
       value: moment(data?.createdAt).format('lll'),
+      isColumn: false,
     },
     {
       title: 'Cabang',
       value: data?.kode_cabang,
+      isColumn: false,
     },
     {
       title: 'Jenis Pembayaran',
       value: data?.payment_type == 'CASH' ? 'Cash' : 'Transfer',
+      isColumn: false,
     },
     {
       title: 'Deskripsi',
       value: data?.description,
+      isColumn: true,
     },
     {
       title: 'Lampiran',
       value: '',
+      isColumn: false,
     },
   ];
 
@@ -538,7 +647,7 @@ const PengajuanDetailScreen = () => {
   // set status
   const STATUS_TEXT = admin => {
     const status = admin ? admin?.status : requestStatus;
-    const tgl_approve = ` pada ${admin?.tgl_approve}` || '';
+    const tgl_approve = admin?.tgl_approve ? ` pada ${admin?.tgl_approve}` : '';
     switch (status) {
       case 'WAITING':
         return {title: 'Menunggu Disetujui', style: styles.textStatusWaiting};
@@ -1431,7 +1540,7 @@ const PengajuanDetailScreen = () => {
   function renderDownloadAttachment() {
     if (!IS_DOWNLOAD) return;
     console.log('DATA ATTCH', data);
-    if (data?.file_info?.type == 'application/pdf') return;
+    if (fileStatus?.type == 'application/pdf') return;
 
     return (
       <>
@@ -1441,7 +1550,7 @@ const PengajuanDetailScreen = () => {
         </Text>
         <Gap h={14} />
         <Image
-          source={{uri: data.attachment}}
+          source={{uri: attachmentStatus}}
           style={{width: '100%', height: 720}}
           resizeMode={'contain'}
         />
@@ -1508,6 +1617,121 @@ const PengajuanDetailScreen = () => {
         </Text>
       </Row>
     );
+  }
+
+  // ==== render attachment file button
+  function renderAttachmentFile() {
+    if (attachmentStatus) {
+      return (
+        <View style={styles.fileContainer}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() =>
+              isLoading
+                ? null
+                : navigation.navigate('Preview', {
+                    file: attachmentStatus,
+                    type: fileStatus?.type,
+                  })
+            }>
+            <Row style={styles.fileLeft}>
+              <Icon
+                source={'file-document-outline'}
+                size={40}
+                color={Colors.COLOR_DARK_GRAY}
+              />
+              <Gap w={8} />
+              <Text numberOfLines={1} variant={'labelLarge'}>
+                Lampiran
+              </Text>
+            </Row>
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      if (requestStatus !== 'WAITING') {
+        return (
+          <View style={styles.fileContainer}>
+            <Text variant={'labelMedium'} style={{color: Colors.COLOR_RED}}>
+              Sepertinya lampiran anda gagal di upload, mohon hubungi penyetuju
+              untuk dilakukan pengecekan.
+            </Text>
+          </View>
+        );
+      }
+
+      return (
+        <View style={fileInfo ? styles.fileContainerUpload : undefined}>
+          {fileInfo ? (
+            <View>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() =>
+                  navigation.navigate('Preview', {
+                    file: result,
+                    type: fileInfo.type,
+                  })
+                }>
+                <Row>
+                  <Row style={styles.fileLeft}>
+                    <Icon
+                      source={'file-document-outline'}
+                      size={40}
+                      color={Colors.COLOR_DARK_GRAY}
+                    />
+                    <Gap w={8} />
+                    <Text
+                      style={{marginRight: Size.SIZE_24}}
+                      numberOfLines={1}
+                      variant={'labelLarge'}>
+                      Lampiran
+                    </Text>
+                  </Row>
+                  <IconButton
+                    icon={'close'}
+                    size={24}
+                    iconColor={Colors.COLOR_DARK_GRAY}
+                    onPress={() => {
+                      setFileInfo(null);
+                      setResult(null);
+                    }}
+                  />
+                </Row>
+              </TouchableOpacity>
+              <View style={styles.reuploadContainer}>
+                <Button
+                  mode={'contained'}
+                  onPress={() => {
+                    Alert.alert(
+                      'Konfirmasi',
+                      'Apakah anda yakin ingin mengupload file ini?',
+                      [
+                        {
+                          text: 'Konfirmasi',
+                          onPress: () => onReuploadFile(),
+                        },
+                        {
+                          text: 'Batalkan',
+                          onPress: () => {},
+                        },
+                      ],
+                    );
+                  }}>
+                  Upload Lampiran Baru
+                </Button>
+              </View>
+            </View>
+          ) : (
+            <IconButton
+              icon={'plus-box-outline'}
+              size={40}
+              iconColor={Colors.COLOR_DARK_GRAY}
+              onPress={() => setShowSelectFile(!showSelectFile)}
+            />
+          )}
+        </View>
+      );
+    }
   }
 
   // ======== render download button
@@ -1811,6 +2035,21 @@ const PengajuanDetailScreen = () => {
             </Row>
           ) : null}
           {DATA_REIMBURSEMENT.map((item, index) => {
+            if (item.isColumn) {
+              return (
+                <View key={item + index}>
+                  <InputLabel style={styles.rowLeft}>{item.title}</InputLabel>
+                  <Text
+                    numberOfLines={10}
+                    style={styles.textValueColumn}
+                    variant={'labelMedium'}>
+                    {item.value}
+                  </Text>
+                  <Gap h={6} />
+                </View>
+              );
+            }
+
             return (
               <Row key={item + index}>
                 <InputLabel style={styles.rowLeft}>{item.title}</InputLabel>
@@ -1824,32 +2063,7 @@ const PengajuanDetailScreen = () => {
               </Row>
             );
           })}
-          {IS_DOWNLOAD ? null : (
-            <View style={styles.fileContainer}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() =>
-                  isLoading
-                    ? null
-                    : navigation.navigate('Preview', {
-                        file: data?.attachment,
-                        type: FILE_INFO?.type,
-                      })
-                }>
-                <Row style={styles.fileLeft}>
-                  <Icon
-                    source={'file-document-outline'}
-                    size={40}
-                    color={Colors.COLOR_DARK_GRAY}
-                  />
-                  <Gap w={8} />
-                  <Text numberOfLines={1} variant={'labelLarge'}>
-                    Lampiran
-                  </Text>
-                </Row>
-              </TouchableOpacity>
-            </View>
-          )}
+          {IS_DOWNLOAD ? null : renderAttachmentFile()}
           {renderCoaSelector()}
           {renderSenderBankFinance()}
 
@@ -1933,6 +2147,14 @@ const PengajuanDetailScreen = () => {
           <Button onPress={() => deleteReimbursement()}>Konfirmasi</Button>
         </Dialog.Actions>
       </Dialog>
+      <ModalView
+        type={'selectfile'}
+        visible={showSelectFile}
+        toggle={() => setShowSelectFile(!showSelectFile)}
+        pickFromFile={() => pickFile()}
+        //fileCallback={cb => onPickFromRes(cb)}
+        command={cmd => onPickFromRes(cmd)}
+      />
     </View>
   );
 };
@@ -1968,7 +2190,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 8,
     borderColor: Colors.COLOR_DARK_GRAY,
-    padding: Size.SIZE_8,
     marginTop: Scaler.scaleSize(6),
     marginBottom: SIZE_14,
   },
@@ -2021,6 +2242,23 @@ const styles = StyleSheet.create({
     borderColor: Colors.COLOR_LIGHT_GRAY,
   },
 
+  fileLeft: {
+    flex: 1,
+    padding: Size.SIZE_8,
+  },
+
+  fileContainerUpload: {
+    borderWidth: 0.5,
+    borderRadius: 8,
+    borderColor: Colors.COLOR_DARK_GRAY,
+    marginBottom: SIZE_14,
+  },
+
+  reuploadContainer: {
+    paddingHorizontal: Size.SIZE_14,
+    paddingVertical: Size.SIZE_8,
+  },
+
   // text
 
   subtitle: {
@@ -2030,6 +2268,11 @@ const styles = StyleSheet.create({
   textValue: {
     flex: 1,
     textAlign: 'right',
+    fontWeight: 'bold',
+  },
+
+  textValueColumn: {
+    textAlign: 'left',
     fontWeight: 'bold',
   },
 

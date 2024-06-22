@@ -46,11 +46,17 @@ const SuperReimbursementListScreen = () => {
     addParam += `&coa=${COA}`;
   }
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getAllList();
-    }, []),
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     setList([]);
+  //     setPage(1);
+  //     getAllList();
+  //   }, []),
+  // );
+
+  React.useEffect(() => {
+    getAllList();
+  }, []);
 
   async function getAllList(clear = false, search = false) {
     if (clear) {

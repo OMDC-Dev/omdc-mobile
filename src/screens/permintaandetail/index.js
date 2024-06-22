@@ -64,6 +64,10 @@ const PermintaanDetailScreen = () => {
       va: DATA?.id_pb,
     },
     {
+      ti: 'Dibuat oleh',
+      va: DATA?.nm_user,
+    },
+    {
       ti: 'Waktu Permintaan',
       va: `${getDateFormat(DATA?.tgl_trans)} | ${DATA?.jam_trans}`,
     },

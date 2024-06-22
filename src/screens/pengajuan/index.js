@@ -190,8 +190,8 @@ const PengajuanScreen = () => {
 
   // handle on pick from camera / gallery
   function onPickFromRes(data) {
-    if (data.fileSize > 2000000) {
-      setSnackMsg('Ukuran file tidak boleh lebih dari 2 MB');
+    if (data.fileSize > 1000000) {
+      setSnackMsg('Ukuran file tidak boleh lebih dari 1 MB');
       setSnack(true);
       return;
     }

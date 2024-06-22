@@ -37,6 +37,8 @@ export const REIMBURSEMENT_ACCEPTANCE_EXTRA = id => {
 };
 export const REIMBURSEMENT_UPDATE_ADMIN = (id, adminId) =>
   `reimbursement/update-admin/${id}?adminId=${adminId}`;
+export const REIMBURSEMENT_REUPLOAD_FILE = id =>
+  `reimbursement/reupload-file/${id}`;
 
 // BANK
 export const GET_BANK = 'bank';

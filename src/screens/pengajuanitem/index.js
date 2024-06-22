@@ -130,7 +130,7 @@ const PengajuanItemScreen = () => {
         />
         <Gap h={32} />
         <Button
-          disabled={!name || !nominal}
+          disabled={!name || !nominal || !inv || avaError || !invAva}
           onPress={() =>
             navigation.navigate('Pengajuan', {
               item: {name: name, nominal: nominal, invoice: inv},

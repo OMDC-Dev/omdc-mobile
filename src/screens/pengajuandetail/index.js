@@ -312,6 +312,7 @@ const PengajuanDetailScreen = () => {
 
     if (state == API_STATES.OK) {
       setIsLoading(false);
+      hideModal();
       Alert.alert('Sukses', 'Pengajuan berhasil dibatalkan dan dihapus', [
         {
           text: 'OK',
@@ -319,6 +320,7 @@ const PengajuanDetailScreen = () => {
         },
       ]);
     } else {
+      hideModal();
       setIsLoading(false);
       setSnakMsg('Ada kesalahan, mohon coba lagi!');
       setSnak(true);
@@ -594,7 +596,7 @@ const PengajuanDetailScreen = () => {
       isColumn: false,
     },
     {
-      title: 'Tanggal',
+      title: 'Tanggal Invoice',
       value: data?.tanggal_reimbursement,
       isColumn: false,
     },
@@ -1249,18 +1251,30 @@ const PengajuanDetailScreen = () => {
     } else {
       if (IS_PUSHED) return;
       // USER SECTION
-      return (
+      const renderCancelButton = renderCancelPengajuanButton();
+      const renderDetailReport = renderCARCreateDetailReport('USER');
+      const renderPengajuanButton = renderCARPengajuanButton();
+      const renderDownloadButton =
+        (user.type == 'USER' || user.type == 'FINANCE') &&
+        data.status_finance == 'DONE' &&
+        !IS_DOWNLOAD
+          ? renderDownloadButton()
+          : null;
+
+      const hasContent =
+        renderCancelButton ||
+        renderDetailReport ||
+        renderPengajuanButton ||
+        renderDownloadButton;
+
+      return hasContent ? (
         <View style={styles.bottomButton}>
-          {renderCancelPengajuanButton()}
-          {renderCARCreateDetailReport('USER')}
-          {renderCARPengajuanButton()}
-          {(user.type == 'USER' || user.type == 'FINANCE') &&
-          data.status_finance == 'DONE' &&
-          !IS_DOWNLOAD
-            ? renderDownloadButton()
-            : null}
+          {renderCancelButton}
+          {renderDetailReport}
+          {renderPengajuanButton}
+          {renderDownloadButton}
         </View>
-      );
+      ) : null;
     }
   }
 
@@ -1966,6 +1980,12 @@ const PengajuanDetailScreen = () => {
                   <Gap h={2} />
                   <Card style={styles.itemCard} mode={'elevated'}>
                     <Card.Content>
+                      <Text
+                        style={{color: Colors.COLOR_GRAY}}
+                        variant="labelSmall">
+                        Invoice: {item.invoice || '-'}
+                      </Text>
+                      <Gap h={4} />
                       <Row>
                         <Text style={{flex: 1}} variant="labelLarge">
                           {item.name}

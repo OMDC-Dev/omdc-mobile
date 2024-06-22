@@ -384,7 +384,7 @@ const PengajuanScreen = () => {
           )}
 
           <Gap h={6} />
-          <InputLabel>Tanggal</InputLabel>
+          <InputLabel>Tanggal Invoice</InputLabel>
           <Card
             style={styles.card}
             mode={'outlined'}
@@ -398,7 +398,7 @@ const PengajuanScreen = () => {
                 />
                 <Gap w={10} />
                 <Text variant="labelLarge">
-                  {selectDate || 'Pilih Tanggal'}
+                  {selectDate || 'Pilih Tanggal Invoice'}
                 </Text>
               </Row>
             </Card.Content>

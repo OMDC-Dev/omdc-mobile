@@ -60,7 +60,7 @@ const PengajuanItemScreen = () => {
 
     setInvLoading(true);
     const {state, data, error} = await fetchApi({
-      url: CEK_INVOICE(encodeURIComponent(inv)),
+      url: CEK_INVOICE(inv),
       method: 'GET',
     });
 

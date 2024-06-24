@@ -6,7 +6,7 @@ const DEV =
 
 const NGROK_DEV = 'https://1397-180-244-161-40.ngrok-free.app/';
 
-export const BASE_URL = PROD;
+export const BASE_URL = DEV;
 
 // AUTH
 export const LOGIN = 'user/login';
@@ -112,4 +112,4 @@ export const CREATE_BARANG = 'barang/add';
 export const UPDATE_BARANG = kode => `barang/update/${kode}`;
 
 // Invoice
-export const CEK_INVOICE = inv => `invoice/${inv}`;
+export const CEK_INVOICE = inv => `invoice?inv=${inv}`;

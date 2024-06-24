@@ -531,6 +531,12 @@ const PengajuanScreen = () => {
                     <Gap h={6} />
                     <Card style={styles.itemCard} mode={'elevated'}>
                       <Card.Content>
+                        <Text
+                          style={{color: Colors.COLOR_GRAY}}
+                          variant="labelSmall">
+                          Invoice: {item.invoice || '-'}
+                        </Text>
+                        <Gap h={4} />
                         <Row>
                           <Text style={{flex: 1}} variant="labelLarge">
                             {item.name}

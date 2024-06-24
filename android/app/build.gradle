@@ -149,8 +149,8 @@ android {
         applicationId "com.ardclient.omdc"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19
-        versionName "0.9.4 rev 1"
+        versionCode 20
+        versionName "0.9.4.3"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
         if (isNewArchitectureEnabled()) {

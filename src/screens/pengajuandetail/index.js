@@ -2,6 +2,7 @@ import {
   Alert,
   FlatList,
   Image,
+  KeyboardAvoidingView,
   PermissionsAndroid,
   Platform,
   ScrollView,
@@ -649,28 +650,42 @@ const PengajuanDetailScreen = () => {
   // set status
   const STATUS_TEXT = admin => {
     const status = admin ? admin?.status : requestStatus;
-    const tgl_approve = admin?.tgl_approve ? ` pada ${admin?.tgl_approve}` : '';
+    //const tgl_approve = admin?.tgl_approve ? ` pada ${admin?.tgl_approve}` : '';
     switch (status) {
       case 'WAITING':
-        return {title: 'Menunggu Disetujui', style: styles.textStatusWaiting};
+        return {
+          title: 'Menunggu Disetujui',
+          style: styles.textStatusWaiting,
+          circle: styles.circleWaiting,
+        };
         break;
       case 'APPROVED':
         return {
-          title: 'Disetujui' + tgl_approve,
+          title: 'Disetujui',
           style: styles.textStatusApproved,
+          circle: styles.circleDone,
         };
         break;
       case 'REJECTED':
-        return {title: 'Ditolak', style: styles.textStatusRejected};
+        return {
+          title: 'Ditolak',
+          style: styles.textStatusRejected,
+          circle: styles.circleRed,
+        };
         break;
       case 'DONE':
         return {
-          title: `Selesai diproses pada ${financeData?.acceptDate} oleh ${financeData?.nm_user}`,
+          title: `Selesai`,
           style: styles.textStatusApproved,
+          circle: styles.circleDone,
         };
         break;
       default:
-        return {title: 'Menunggu Disetujui', style: styles.textStatusWaiting};
+        return {
+          title: 'Menunggu Disetujui',
+          style: styles.textStatusWaiting,
+          circle: styles.circleWaiting,
+        };
         break;
     }
   };
@@ -1254,7 +1269,7 @@ const PengajuanDetailScreen = () => {
       const renderCancelButton = renderCancelPengajuanButton();
       const renderDetailReport = renderCARCreateDetailReport('USER');
       const renderPengajuanButton = renderCARPengajuanButton();
-      const renderDownloadButton =
+      const renderDownloadButtonView =
         (user.type == 'USER' || user.type == 'FINANCE') &&
         data.status_finance == 'DONE' &&
         !IS_DOWNLOAD
@@ -1265,14 +1280,14 @@ const PengajuanDetailScreen = () => {
         renderCancelButton ||
         renderDetailReport ||
         renderPengajuanButton ||
-        renderDownloadButton;
+        renderDownloadButtonView;
 
       return hasContent ? (
         <View style={styles.bottomButton}>
           {renderCancelButton}
           {renderDetailReport}
           {renderPengajuanButton}
-          {renderDownloadButton}
+          {renderDownloadButtonView}
         </View>
       ) : null;
     }
@@ -1814,7 +1829,9 @@ const PengajuanDetailScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}>
       <Header title={'Detail Request of Payment'} />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -1948,23 +1965,51 @@ const PengajuanDetailScreen = () => {
               </Row>
             ) : (
               <>
-                {/* {renderReviewerProcessStatus()} */}
                 {adminStatus?.map((item, index) => {
                   return (
-                    <Row key={item + index}>
-                      <InputLabel style={styles.rowLeft}>
-                        {item?.nm_user}
-                      </InputLabel>
-                      <Text
-                        numberOfLines={2}
-                        style={[styles.textValue, STATUS_TEXT(item).style]}
-                        variant={'labelMedium'}>
-                        {STATUS_TEXT(item).title}
-                      </Text>
-                    </Row>
+                    <View style={styles.statusContainer}>
+                      <Row>
+                        <View style={STATUS_TEXT(item).circle} />
+                        <Gap w={8} />
+                        <Text
+                          style={[
+                            styles.textValueCircle,
+                            STATUS_TEXT(item).style,
+                          ]}
+                          variant={'labelLarge'}>
+                          {STATUS_TEXT(item).title}
+                        </Text>
+                      </Row>
+                      <Gap h={4} />
+                      <Row>
+                        <Gap w={16} />
+                        <Text variant={'labelMedium'}>
+                          oleh {item?.nm_user}
+                        </Text>
+                      </Row>
+                      <Gap h={4} />
+                      <Row>
+                        <Gap w={16} />
+                        <Text
+                          style={styles.textTglApprove}
+                          variant={'labelMedium'}>
+                          {item?.tgl_approve}
+                        </Text>
+                      </Row>
+                    </View>
+                    // <Row key={item + index}>
+                    //   <InputLabel style={styles.rowLeft}>
+                    //     {item?.nm_user}
+                    //   </InputLabel>
+                    //   <Text
+                    //     numberOfLines={2}
+                    //     style={[styles.textValue, STATUS_TEXT(item).style]}
+                    //     variant={'labelMedium'}>
+                    //     {STATUS_TEXT(item).title}
+                    //   </Text>
+                    // </Row>
                   );
                 })}
-                {/* {renderFinanceProcessStatus()} */}
               </>
             )}
           </View>
@@ -2175,7 +2220,7 @@ const PengajuanDetailScreen = () => {
         //fileCallback={cb => onPickFromRes(cb)}
         command={cmd => onPickFromRes(cmd)}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -2279,6 +2324,31 @@ const styles = StyleSheet.create({
     paddingVertical: Size.SIZE_8,
   },
 
+  circleWaiting: {
+    backgroundColor: Colors.COLOR_ORANGE,
+    height: 8,
+    width: 8,
+    borderRadius: 4,
+  },
+
+  circleDone: {
+    backgroundColor: Colors.COLOR_GREEN,
+    height: 8,
+    width: 8,
+    borderRadius: 4,
+  },
+
+  circleRed: {
+    backgroundColor: Colors.COLOR_RED,
+    height: 8,
+    width: 8,
+    borderRadius: 4,
+  },
+
+  statusContainer: {
+    paddingVertical: Size.SIZE_8,
+  },
+
   // text
 
   subtitle: {
@@ -2288,6 +2358,10 @@ const styles = StyleSheet.create({
   textValue: {
     flex: 1,
     textAlign: 'right',
+    fontWeight: 'bold',
+  },
+
+  textValueCircle: {
     fontWeight: 'bold',
   },
 
@@ -2318,5 +2392,9 @@ const styles = StyleSheet.create({
 
   textStatusRejected: {
     color: Colors.COLOR_RED,
+  },
+
+  textTglApprove: {
+    color: Colors.COLOR_DARK_GRAY,
   },
 });

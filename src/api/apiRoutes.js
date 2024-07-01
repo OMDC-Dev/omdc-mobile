@@ -6,7 +6,7 @@ const DEV =
 
 const NGROK_DEV = 'https://1397-180-244-161-40.ngrok-free.app/';
 
-export const BASE_URL = PROD;
+export const BASE_URL = DEV;
 
 // AUTH
 export const LOGIN = 'user/login';

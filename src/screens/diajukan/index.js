@@ -183,6 +183,7 @@ const RenderWaiting = () => {
         dateCallback={onSelectedDate}
       />
       <ModalView
+        tabState={'WAITING'}
         type={'typefilter'}
         visible={showTypeModal}
         onClose={setShowTypeModal}

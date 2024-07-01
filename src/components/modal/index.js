@@ -31,10 +31,13 @@ const ModalView = ({
   pickFromFile,
   fileCallback,
   typeCallback,
+  statusCallback,
   command,
   onClose,
   state,
+  status,
   setState,
+  tabState,
 }) => {
   //render modal children
   const renderContent = () => {
@@ -65,7 +68,14 @@ const ModalView = ({
         break;
       case 'typefilter':
         return (
-          <TypeFilterModal active={state} cb={typeCallback} onClose={onClose} />
+          <TypeFilterModal
+            tab={tabState}
+            statusCb={statusCallback}
+            statusActive={status}
+            active={state}
+            cb={typeCallback}
+            onClose={onClose}
+          />
         );
         break;
       case 'selectfile':

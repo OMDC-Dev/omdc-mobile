@@ -366,6 +366,8 @@ PODS:
     - React-Core
   - react-native-pdf-to-image (3.3.0):
     - React-Core
+  - react-native-restart (0.0.27):
+    - React-Core
   - react-native-safe-area-context (4.9.0):
     - React-Core
   - react-native-view-shot (3.8.0):
@@ -519,6 +521,7 @@ DEPENDENCIES:
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-pdf-to-image (from `../node_modules/react-native-pdf-to-image`)
+  - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -619,6 +622,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-pdf"
   react-native-pdf-to-image:
     :path: "../node_modules/react-native-pdf-to-image"
+  react-native-restart:
+    :path: "../node_modules/react-native-restart"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-view-shot:
@@ -710,6 +715,7 @@ SPEC CHECKSUMS:
   react-native-pager-view: c29d484f19c49ff19525a94105e4ab2c4d4ae273
   react-native-pdf: 7c0e91ada997bac8bac3bb5bea5b6b81f5a3caae
   react-native-pdf-to-image: d95469e8877f0038b27a10e0de1c1e0aa7a12d6d
+  react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
   react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6

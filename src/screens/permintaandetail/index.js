@@ -347,7 +347,7 @@ const PermintaanDetailScreen = () => {
   }
 
   return (
-    <Container>
+    <Container useAvoidingKeyboard={true}>
       <Header title={'Detail Permintaan'} />
       <ScrollView
         style={styles.mainContainer}

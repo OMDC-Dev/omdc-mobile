@@ -10,6 +10,7 @@ import {fetchApi} from '../../api/api';
 import {LOGOUT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {cekAkses} from '../../utils/utils';
+import RNRestart from 'react-native-restart';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -47,6 +48,13 @@ const ProfileScreen = () => {
       icon: 'account-edit-outline',
       title: 'Update Profile',
       navTo: () => navigation.navigate('UpdateUser'),
+      style: styles.textIconButton,
+    },
+    {
+      id: 'button',
+      icon: 'account-reactivate-outline',
+      title: 'Refresh Status',
+      navTo: () => RNRestart.restart(),
       style: styles.textIconButton,
     },
     {

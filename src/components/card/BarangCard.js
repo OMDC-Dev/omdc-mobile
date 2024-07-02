@@ -13,11 +13,16 @@ const BarangCard = ({
   onAddPress,
   onDeletePress,
   hideAdd,
+  isAdmin,
   fromList,
   fromDetail,
   fromDownload,
+  onEditPress,
+  onRejectPress,
 }) => {
   const {nm_barang, grup_brg, kategory_brg} = data;
+
+  console.log('BRG', data);
 
   const navigation = useNavigation();
 
@@ -77,6 +82,26 @@ const BarangCard = ({
                           Lihat Lampiran
                         </Button>
                       )}
+                    </>
+                  ) : null}
+                  {isAdmin && data?.status_pb == 'Menunggu Disetujui' ? (
+                    <>
+                      <Gap h={14} />
+                      <Row>
+                        <Button
+                          style={{flex: 1}}
+                          mode={'contained'}
+                          onPress={onEditPress}>
+                          Edit
+                        </Button>
+                        <Gap w={8} />
+                        <Button
+                          style={{flex: 1}}
+                          mode={'outlined'}
+                          onPress={onRejectPress}>
+                          Tolak
+                        </Button>
+                      </Row>
                     </>
                   ) : null}
                 </>

@@ -23,11 +23,13 @@ import {
   BARANG,
   BARANG_ADMIN_APPROVAL,
   DETAIL_REQUEST_BARANG,
+  REJECT_REQUEST_BARANG,
 } from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {cekAkses, getDateFormat} from '../../utils/utils';
 import {AuthContext} from '../../context';
 import {PERMISSIONS, request} from 'react-native-permissions';
+import ModalView from '../../components/modal';
 
 const PermintaanDetailScreen = () => {
   const route = useRoute();
@@ -50,6 +52,9 @@ const PermintaanDetailScreen = () => {
     status_pb: DATA.status_pb,
   });
   const [snak, setSnak] = React.useState();
+  const [showEdit, setShowEdit] = React.useState(false);
+  const [selectedBarang, setSelectedBarang] = React.useState();
+  const [isEditLoading, setIsEditLoading] = React.useState(false);
 
   const IS_CAN_DOWNLOAD =
     DATA.status_pb !== 'Menunggu Disetujui' &&
@@ -89,6 +94,16 @@ const PermintaanDetailScreen = () => {
     getDetailRequested();
   }, []);
 
+  function onUpdateDone(status) {
+    if (status == 'OK') {
+      setShowEdit(false);
+      setSnak('Permintaan berhasil diupdate!');
+      getDetailRequested();
+    } else {
+      Alert.alert('Gagal', 'Permintaan gagal di update, mohon coba lagi!');
+    }
+  }
+
   async function getDetailRequested() {
     setIsLoading(true);
     const {state, data, error} = await fetchApi({
@@ -102,6 +117,23 @@ const PermintaanDetailScreen = () => {
     } else {
       setIsLoading(false);
       setListBarang([]);
+    }
+  }
+
+  async function onRejectRequest(barang) {
+    setIsLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: REJECT_REQUEST_BARANG(barang.id_trans),
+      method: 'POST',
+    });
+
+    if (state == API_STATES.OK) {
+      setIsLoading(false);
+      setSnak('Permintaan telah berhasil ditolak.');
+      getDetailRequested();
+    } else {
+      setIsLoading(false);
+      setSnak(error);
     }
   }
 
@@ -366,9 +398,30 @@ const PermintaanDetailScreen = () => {
             {listBarang?.map((item, index) => {
               return (
                 <Card.BarangCard
+                  isAdmin={isAdminPB}
                   key={item + index}
                   fromDetail={true}
                   data={item}
+                  onEditPress={() => {
+                    setShowEdit(true);
+                    setSelectedBarang(item);
+                  }}
+                  onRejectPress={() => {
+                    Alert.alert(
+                      'Konfirmasi',
+                      'Apakah anda yakin ingin menolak permintaan ini?',
+                      [
+                        {
+                          text: 'Konfirmasi',
+                          onPress: () => onRejectRequest(item),
+                        },
+                        {
+                          text: 'Batalkan',
+                          onPress: () => {},
+                        },
+                      ],
+                    );
+                  }}
                 />
               );
             })}
@@ -473,6 +526,16 @@ const PermintaanDetailScreen = () => {
       <Snackbar visible={snak} onDismiss={() => setSnak(null)}>
         {snak || ''}
       </Snackbar>
+      <ModalView
+        data={selectedBarang}
+        type={'editbarang'}
+        visible={showEdit}
+        onBackdropPress={() => (isEditLoading ? null : setShowEdit(false))}
+        onSave={cb => console.log('NEW DATA', cb)}
+        setIsLoading={setIsEditLoading}
+        isLoading={isEditLoading}
+        statusCallback={cb => onUpdateDone(cb)}
+      />
     </Container>
   );
 };

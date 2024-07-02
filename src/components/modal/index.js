@@ -13,6 +13,7 @@ import SelectFileModal from './type/selectfile';
 import TypeFilterModal from './type/typefilter';
 import ModalPopUpVersion from './type/newversion';
 import ModalPopUpMessage from './type/message';
+import EditBarangModal from './type/editbarang';
 
 const ModalView = ({
   children,
@@ -38,6 +39,9 @@ const ModalView = ({
   status,
   setState,
   tabState,
+  onSave,
+  isLoading,
+  setIsLoading,
 }) => {
   //render modal children
   const renderContent = () => {
@@ -62,6 +66,17 @@ const ModalView = ({
         break;
       case 'addbarang':
         return <AddBarangModal data={data} onAddPress={onButtonPress} />;
+        break;
+      case 'editbarang':
+        return (
+          <EditBarangModal
+            data={data}
+            onSavePress={onSave}
+            loading={isLoading}
+            setLoading={setIsLoading}
+            onResponse={statusCallback}
+          />
+        );
         break;
       case 'dateyear':
         return <DateYearModal cb={dateCallback} />;

@@ -74,6 +74,8 @@ export const LIST_REQUEST_BARANG = 'barang/requested';
 export const DETAIL_REQUEST_BARANG = id => {
   return `barang/requested/detail?id_pb=${id}`;
 };
+export const UPDATE_REQUEST_BARANG = id => `barang/update-request?id=${id}`;
+export const REJECT_REQUEST_BARANG = id => `barang/reject-request?id=${id}`;
 
 // DEPT
 export const DEPT = 'dept';

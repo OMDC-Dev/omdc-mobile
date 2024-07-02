@@ -13,7 +13,7 @@ import {fetchApi} from '../../api/api';
 import {GET_BANK, GET_BANK_NAME, REIMBURSEMENT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
-import {cekAkses} from '../../utils/utils';
+import {cekAkses, getLabelByValue} from '../../utils/utils';
 
 const PengajuanBankScreen = () => {
   const navigation = useNavigation();
@@ -41,27 +41,11 @@ const PengajuanBankScreen = () => {
   };
 
   const PR_TYPE = RR?.payment_type;
+  const SUPLIER_NAME = PR_BANK?.kdsp
+    ? `${PR_BANK?.kdsp} - ${PR_BANK?.nmsp}`
+    : RR.name;
   const PRE_BANK_NAME =
-    RR.jenis == 'PR' && hasPaymentRequest
-      ? `${PR_BANK?.kdsp} - ${PR_BANK?.nmsp}`
-      : RR.name;
-  const SUPLIER_DATA =
-    RR.jenis == 'PR'
-      ? [
-          {
-            label: 'Kode Suplier',
-            value: PR_BANK?.kdsp,
-          },
-          {
-            label: 'Nama Suplier',
-            value: PR_BANK?.nmsp,
-          },
-          {
-            label: 'Alamat',
-            value: `${PR_BANK?.kota}, ${PR_BANK?.provinsi}`,
-          },
-        ]
-      : [];
+    RR.jenis == 'PR' && hasPaymentRequest ? SUPLIER_NAME : RR.name;
 
   // STATE
   const [banks, setBanks] = React.useState();
@@ -77,6 +61,30 @@ const PengajuanBankScreen = () => {
   const [checkLoading, setCheckLoading] = React.useState(false);
   const [snak, setSnak] = React.useState(false);
   const [snakMsg, setSnakMsg] = React.useState();
+
+  const getIsDisabled = () => {
+    if (isLoading) {
+      return true;
+    }
+
+    if (IS_PRE_BANK || mode == 'CASH') {
+      return false;
+    }
+
+    if (mode == 'TRANSFER') {
+      return !acc;
+    }
+
+    if (mode == 'VA') {
+      return !selectedBank && !noBank;
+    }
+  };
+
+  React.useEffect(() => {
+    setNoBank('');
+    setSelectBank();
+    setAcc();
+  }, [mode]);
 
   // get bank list
   async function getBank() {
@@ -114,24 +122,185 @@ const PengajuanBankScreen = () => {
     getBank();
   }, []);
 
-  console.log('PAYMENT FROM ROUTE', PR_TYPE);
-  console.log('IS NEED BANK ', IS_NEED_BANK);
-  console.log('MODE', mode);
-  console.log('JENIS', RR.jenis);
+  console.log('ACC', acc);
+
+  function renderDetailContent() {
+    if (mode == 'CASH') {
+      return (
+        <>
+          <Text style={styles.subtitle} variant="titleSmall">
+            Konfirmasi
+          </Text>
+          <Gap h={14} />
+          <Text variant={'bodyMedium'}>
+            Pastikan data yang anda masukan sebelumnya telah sesuai.
+          </Text>
+        </>
+      );
+    }
+
+    if (mode == 'TRANSFER') {
+      return (
+        <>
+          <Text style={styles.subtitle} variant="titleSmall">
+            Data Bank
+          </Text>
+          <Gap h={8} />
+          <InputLabel>Bank</InputLabel>
+          {IS_PRE_BANK ? (
+            <Text variant={'bodyMedium'}>{PR_BANK?.nm_bank}</Text>
+          ) : acc?.accountname?.length ? (
+            <TextInput
+              disabled
+              editable={false}
+              style={styles.inputNormal}
+              mode={'outlined'}
+              placeholder={'Bank'}
+              placeholderTextColor={Colors.COLOR_DARK_GRAY}
+              value={acc?.bankname || ''}
+            />
+          ) : (
+            <Dropdown.BankDropdown
+              disabled={checkLoading || isLoading || acc?.accountname?.length}
+              data={banks}
+              value={selectedBank}
+              onChange={val => setSelectBank(val)}
+              placeholder={acc?.accountname?.length || 'Pilih bank'}
+            />
+          )}
+
+          <Gap h={8} />
+          <InputLabel>Nomor Rekening</InputLabel>
+          {IS_PRE_BANK ? (
+            <Text variant={'bodyMedium'}>{PR_BANK?.no_rekbank}</Text>
+          ) : (
+            <Row>
+              <TextInput
+                style={styles.input}
+                mode={'outlined'}
+                disabled={acc?.accountname?.length}
+                editable={!checkLoading && !isLoading}
+                keyboardType={'number-pad'}
+                returnKeyType={'done'}
+                placeholder={'Nomor Rekening'}
+                placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                onChangeText={text => setNoBank(text)}
+                value={noBank}
+              />
+              <View style={styles.checkerView}>
+                <PaperButton
+                  disabled={
+                    !noBank ||
+                    acc?.accountname?.length ||
+                    checkLoading ||
+                    !selectedBank
+                  }
+                  loading={checkLoading}
+                  onPress={() => getBankName()}>
+                  {checkLoading ? '' : 'Cek Nomor'}
+                </PaperButton>
+              </View>
+            </Row>
+          )}
+          <Gap h={8} />
+          <InputLabel>Nama Pemilik Rekening</InputLabel>
+          {IS_PRE_BANK ? (
+            <Text variant={'bodyMedium'}>{PR_BANK?.nm_pemilik_rek}</Text>
+          ) : (
+            <TextInput
+              disabled
+              editable={false}
+              style={styles.inputNormal}
+              mode={'outlined'}
+              placeholder={'Nama Pemilik Rekening'}
+              placeholderTextColor={Colors.COLOR_DARK_GRAY}
+              value={acc?.accountname || ''}
+            />
+          )}
+          {!IS_PRE_BANK && acc?.accountname?.length ? (
+            <>
+              <Gap h={24} />
+              <PaperButton
+                disabled={isLoading}
+                mode={'outlined'}
+                onPress={() => {
+                  setAcc();
+                  setNoBank('');
+                  setSelectBank('');
+                }}>
+                Ganti Data Bank
+              </PaperButton>
+            </>
+          ) : null}
+        </>
+      );
+    }
+
+    if (mode == 'VA') {
+      return (
+        <>
+          <Text style={styles.subtitle} variant="titleSmall">
+            Data Bank
+          </Text>
+          <Gap h={8} />
+          <InputLabel>Bank</InputLabel>
+          <Dropdown.BankDropdown
+            disabled={checkLoading || isLoading || acc?.accountname?.length}
+            data={banks}
+            value={selectedBank}
+            onChange={val => setSelectBank(val)}
+            placeholder={acc?.accountname?.length || 'Pilih bank'}
+          />
+
+          <Gap h={8} />
+          <InputLabel>Nomor VA</InputLabel>
+          <TextInput
+            style={styles.inputVA}
+            mode={'outlined'}
+            disabled={acc?.accountname?.length}
+            editable={!checkLoading && !isLoading}
+            keyboardType={'number-pad'}
+            returnKeyType={'done'}
+            placeholder={'Nomor VA'}
+            placeholderTextColor={Colors.COLOR_DARK_GRAY}
+            onChangeText={text => setNoBank(text)}
+            value={noBank}
+          />
+        </>
+      );
+    }
+  }
+
+  console.log('pre bank', PRE_BANK_NAME);
 
   // ON AJUKAN
   async function onPengajuan() {
     setIsLoading(true);
+    let bankData;
+    let jenisPembayaran;
 
-    // let PT = '';
+    if (IS_PRE_BANK) {
+      bankData = PRE_BANK_DATA;
+    } else {
+      if (mode == 'TRANSFER') {
+        bankData = acc;
+      } else if (mode == 'VA') {
+        bankData = {
+          bankcode: selectedBank,
+          bankname: getLabelByValue(selectedBank),
+          accountnumber: noBank,
+          accountname: 'Virtual Account',
+        };
+      } else {
+        bankData = {};
+      }
+    }
 
-    // if (RR.jenis == 'CAR') {
-    //   PT = !IS_NEED_BANK ? PR_TYPE : mode;
-    // } else {
-    //   PT = mode;
-    // }
-
-    // console.log('PT', PT);
+    if (IS_NEED_BANK) {
+      jenisPembayaran = mode == 'CASH' ? 'CASH' : 'TRANSFER';
+    } else {
+      jenisPembayaran = PR_TYPE;
+    }
 
     const body = {
       type: RR.jenis,
@@ -139,7 +308,7 @@ const PengajuanBankScreen = () => {
       cabang: RR.cabang,
       description: RR.desc,
       attachment: RR.file,
-      bank_detail: IS_PRE_BANK ? PRE_BANK_DATA : acc || {},
+      bank_detail: bankData,
       nominal: RR.nominal,
       name: RR.jenis == 'PR' ? PRE_BANK_NAME : RR.name,
       item: RR.item,
@@ -147,7 +316,7 @@ const PengajuanBankScreen = () => {
       file: RR.fileInfo,
       approved_by: RR.admin,
       parentId: REPORT_DATA?.id || '',
-      payment_type: IS_NEED_BANK ? mode : PR_TYPE,
+      payment_type: jenisPembayaran,
       tipePembayaran: RR.tipePembayaran,
     };
 
@@ -215,6 +384,15 @@ const PengajuanBankScreen = () => {
             mode={mode == 'TRANSFER' ? 'contained' : 'outlined'}>
             Transfer
           </PaperButton>
+          {RR.jenis == 'PR' ? (
+            <PaperButton
+              disabled={isLoading}
+              onPress={() => setMode('VA')}
+              style={styles.modeButton}
+              mode={mode == 'VA' ? 'contained' : 'outlined'}>
+              VA
+            </PaperButton>
+          ) : null}
           <PaperButton
             disabled={isLoading}
             onPress={() => setMode('CASH')}
@@ -224,108 +402,7 @@ const PengajuanBankScreen = () => {
           </PaperButton>
         </Row>
         <Gap h={14} />
-        {mode == 'CASH' ? (
-          <>
-            <Text style={styles.subtitle} variant="titleSmall">
-              Konfirmasi
-            </Text>
-            <Gap h={14} />
-            <Text variant={'bodyMedium'}>
-              Pastikan data yang anda masukan sebelumnya telah sesuai.
-            </Text>
-          </>
-        ) : (
-          <>
-            <Text style={styles.subtitle} variant="titleSmall">
-              Data Bank
-            </Text>
-            <Gap h={8} />
-            <InputLabel>Bank</InputLabel>
-            {IS_PRE_BANK ? (
-              <Text variant={'bodyMedium'}>{PR_BANK?.nm_bank}</Text>
-            ) : acc?.accountname?.length ? (
-              <TextInput
-                disabled
-                editable={false}
-                style={styles.inputNormal}
-                mode={'outlined'}
-                placeholder={'Bank'}
-                placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                value={acc?.bankname || ''}
-              />
-            ) : (
-              <Dropdown.BankDropdown
-                disabled={checkLoading || isLoading || acc?.accountname?.length}
-                data={banks}
-                onChange={val => setSelectBank(val)}
-                placeholder={acc?.accountname?.length || 'Pilih bank'}
-              />
-            )}
-
-            <Gap h={8} />
-            <InputLabel>Nomor Rekening</InputLabel>
-            {IS_PRE_BANK ? (
-              <Text variant={'bodyMedium'}>{PR_BANK?.no_rekbank}</Text>
-            ) : (
-              <Row>
-                <TextInput
-                  style={styles.input}
-                  mode={'outlined'}
-                  disabled={acc?.accountname?.length}
-                  editable={!checkLoading && !isLoading}
-                  keyboardType={'number-pad'}
-                  returnKeyType={'done'}
-                  placeholder={'Nomor Rekening'}
-                  placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                  onChangeText={text => setNoBank(text)}
-                  value={noBank}
-                />
-                <View style={styles.checkerView}>
-                  <PaperButton
-                    disabled={
-                      !noBank ||
-                      acc?.accountname?.length ||
-                      checkLoading ||
-                      !selectedBank
-                    }
-                    loading={checkLoading}
-                    onPress={() => getBankName()}>
-                    {checkLoading ? '' : 'Cek Nomor'}
-                  </PaperButton>
-                </View>
-              </Row>
-            )}
-            <Gap h={8} />
-            <InputLabel>Nama Pemilik Rekening</InputLabel>
-            {IS_PRE_BANK ? (
-              <Text variant={'bodyMedium'}>{PR_BANK?.nm_pemilik_rek}</Text>
-            ) : (
-              <TextInput
-                disabled
-                editable={false}
-                style={styles.inputNormal}
-                mode={'outlined'}
-                placeholder={'Nama Pemilik Rekening'}
-                placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                value={acc?.accountname || ''}
-              />
-            )}
-            {!IS_PRE_BANK && acc?.accountname?.length ? (
-              <>
-                <Gap h={24} />
-                <PaperButton
-                  disabled={isLoading}
-                  mode={'outlined'}
-                  onPress={() => {
-                    setAcc();
-                    setNoBank('');
-                  }}>
-                  Ganti Data Bank
-                </PaperButton>
-              </>
-            ) : null}
-          </>
-        )}
+        {renderDetailContent()}
         {/* Suplier Section */}
         {/* {SUPLIER_DATA?.length ? (
           <>
@@ -347,7 +424,7 @@ const PengajuanBankScreen = () => {
         <View style={styles.bottomContainer}>
           <Button
             loading={isLoading}
-            disabled={IS_PRE_BANK || mode == 'CASH' ? false : !acc || isLoading}
+            disabled={getIsDisabled()}
             onPress={() => onPengajuan()}>
             Ajukan Request of Payment
           </Button>
@@ -383,6 +460,12 @@ const styles = StyleSheet.create({
 
   input: {
     flex: 2,
+    height: Scaler.scaleSize(48),
+    backgroundColor: Colors.COLOR_WHITE,
+    fontSize: Scaler.scaleFont(14),
+  },
+
+  inputVA: {
     height: Scaler.scaleSize(48),
     backgroundColor: Colors.COLOR_WHITE,
     fontSize: Scaler.scaleFont(14),

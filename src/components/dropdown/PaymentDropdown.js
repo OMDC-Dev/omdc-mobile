@@ -5,13 +5,8 @@ import {Colors, Scaler, Size} from '../../styles';
 
 const TYPE_LIST = require('../../../assets/files/payment.json');
 
-const PaymentDropdown = ({onChange}) => {
+const PaymentDropdown = ({onChange, value}) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(null);
-
-  React.useEffect(() => {
-    onChange(value);
-  }, [value]);
 
   return (
     <View
@@ -27,7 +22,7 @@ const PaymentDropdown = ({onChange}) => {
         value={value}
         items={TYPE_LIST}
         setOpen={setOpen}
-        setValue={setValue}
+        setValue={onChange}
       />
     </View>
   );

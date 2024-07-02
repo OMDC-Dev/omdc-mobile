@@ -8,14 +8,9 @@ import {API_STATES} from '../../utils/constant';
 
 const COA_LIST = require('../../../assets/files/coa.json');
 
-const CoaDropdown = ({onChange, placeholder, disabled}) => {
+const CoaDropdown = ({onChange, placeholder, disabled, value}) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(null);
   const [coa, setCoa] = React.useState([]);
-
-  React.useEffect(() => {
-    onChange(value);
-  }, [value]);
 
   React.useEffect(() => {
     getCoaList();
@@ -61,7 +56,7 @@ const CoaDropdown = ({onChange, placeholder, disabled}) => {
         value={value}
         items={coa}
         setOpen={disabled ? undefined : setOpen}
-        setValue={setValue}
+        setValue={onChange}
       />
     </View>
   );

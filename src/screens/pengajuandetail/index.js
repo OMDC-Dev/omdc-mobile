@@ -317,7 +317,11 @@ const PengajuanDetailScreen = () => {
       Alert.alert('Sukses', 'Pengajuan berhasil dibatalkan dan dihapus', [
         {
           text: 'OK',
-          onPress: () => navigation.goBack(),
+          onPress: () => {
+            setIsLoading(false);
+            hideModal();
+            navigation.goBack();
+          },
         },
       ]);
     } else {
@@ -1052,6 +1056,7 @@ const PengajuanDetailScreen = () => {
       ) {
         return (
           <>
+            <Gap h={8} />
             <Button onPress={() => onRealisasiPressed()} mode={'contained'}>
               Lihat Laporan Realisasi
             </Button>
@@ -1093,10 +1098,13 @@ const PengajuanDetailScreen = () => {
   function renderPengajuanUlangButton() {
     if (requestStatus !== 'REJECTED') return;
     if (IS_PUSHED) return;
+    if (data.jenis_reimbursement == 'Cash Advance Report') return;
 
     return (
       <>
-        <Button mode="contained" onPress={() => setCancelDialog(true)}>
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate('Pengajuan', {existing: data})}>
           Buat Ulang Pengajuan
         </Button>
       </>
@@ -1155,6 +1163,7 @@ const PengajuanDetailScreen = () => {
         <Dropdown.BankDropdown
           placeholder={selectedBank !== '-' ? selectedBank : 'Pilih Bank'}
           disabled={isLoading}
+          value={selectedBank}
           onChange={val => setSelectedBank(getLabelByValue(val))}
         />
       </>
@@ -1875,7 +1884,8 @@ const PengajuanDetailScreen = () => {
                 ? null
                 : user?.isAdmin &&
                   ACCEPTANCE_STATUS_BY_ID == 'WAITING' &&
-                  !IS_REPORT
+                  !IS_REPORT &&
+                  !IS_PUSHED
                 ? setNomEdit(true)
                 : null
             }>
@@ -1949,7 +1959,8 @@ const PengajuanDetailScreen = () => {
                   ) : null}
                   {user?.isAdmin &&
                   ACCEPTANCE_STATUS_BY_ID == 'WAITING' &&
-                  !IS_REPORT ? (
+                  !IS_REPORT &&
+                  !IS_PUSHED ? (
                     <>
                       <Gap h={8} />
                       <Text style={styles.textTotal} variant={'labelMedium'}>

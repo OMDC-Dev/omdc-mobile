@@ -4,13 +4,8 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import {Colors, Scaler, Size} from '../../styles';
 import Banks from '../../../assets/files/banks.json';
 
-const BankDropdown = ({disabled, data = [], onChange, placeholder}) => {
+const BankDropdown = ({disabled, data = [], onChange, placeholder, value}) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(null);
-
-  React.useEffect(() => {
-    onChange(value);
-  }, [value]);
 
   return (
     <View
@@ -30,7 +25,7 @@ const BankDropdown = ({disabled, data = [], onChange, placeholder}) => {
         value={value}
         items={Banks}
         setOpen={setOpen}
-        setValue={setValue}
+        setValue={onChange}
       />
     </View>
   );

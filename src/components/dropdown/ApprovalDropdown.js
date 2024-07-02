@@ -9,14 +9,10 @@ const ApprovalDropdown = ({
   loading,
   disabled,
   placeholder,
+  value,
 }) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(null);
   const [items, setItems] = React.useState([]);
-
-  React.useEffect(() => {
-    onChange(value);
-  }, [value]);
 
   return (
     <View
@@ -38,7 +34,7 @@ const ApprovalDropdown = ({
         items={data}
         setItems={setItems}
         setOpen={setOpen}
-        setValue={setValue}
+        setValue={onChange}
       />
     </View>
   );

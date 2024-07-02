@@ -155,6 +155,7 @@ const SuperReimbursementScreen = () => {
           <Gap h={14} />
           <InputLabel>Bank Finance</InputLabel>
           <Dropdown.BankDropdown
+            value={selectedBank}
             onChange={val => setSelectBank(val)}
             placeholder={'Pilih bank'}
           />

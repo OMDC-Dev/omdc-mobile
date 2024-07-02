@@ -33,6 +33,7 @@ import {GET_CABANG, GET_SUPLIER, SUPERUSER} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
 import {convertRupiahToNumber, formatRupiah} from '../../utils/rupiahFormatter';
+import SuplierPickList from '../../components/SuplierPickList';
 
 const PengajuanScreen = () => {
   const [showCalendar, setShowCalendar] = React.useState(false);
@@ -48,6 +49,7 @@ const PengajuanScreen = () => {
 
   const ROUTE_TYPE = route?.params?.type;
   const ROUTE_DATA = route?.params?.data;
+  const EXISTING_DATA = route?.params?.existing;
 
   // input state
   const [jenis, setJenis] = React.useState(ROUTE_TYPE);
@@ -65,6 +67,7 @@ const PengajuanScreen = () => {
   const [suplierDetail, setSuplierDetail] = React.useState();
   const [paymentType, setPaymentType] = React.useState();
   const [tipePembayaran, setTipePembayaran] = React.useState();
+  const [suplierType, setSuplierType] = React.useState('LIST');
 
   // CAR
   const [needBank, setNeedBank] = React.useState(true);
@@ -105,7 +108,7 @@ const PengajuanScreen = () => {
 
   const disabledByType = () => {
     if (isNeedName) {
-      if (jenis == 'PR' && hasPaymentRequest) {
+      if (jenis == 'PR' && hasPaymentRequest && suplierType == 'LIST') {
         return !suplier;
       }
       return !name;
@@ -328,6 +331,35 @@ const PengajuanScreen = () => {
     }
   }, [jenis]);
 
+  // Handle if existing
+  React.useEffect(() => {
+    if (EXISTING_DATA) {
+      const EXT = EXISTING_DATA;
+      console.log('EXT', EXISTING_DATA);
+
+      // Jenis
+      const TYPE_LIST = require('../../../assets/files/type.json');
+      const findJenis = TYPE_LIST.find(
+        item => item.label == EXT.jenis_reimbursement,
+      ).value;
+
+      // Cabang
+      const cabangSplit = EXT.kode_cabang.split('-');
+      const extCabang = cabangSplit[0].replace(' ', '');
+
+      // Admin
+      const extAdmin = EXT.accepted_by[0].iduser;
+
+      setJenis(findJenis);
+      setTipePembayaran(EXT.tipePembayaran);
+      setCoa(EXT.coa);
+      setCabang(extCabang);
+      setAdmin(extAdmin);
+      setDesc(EXT.description);
+      setItem(EXT.item);
+    }
+  }, []);
+
   // =========================================
   //
   // ==================================== GAP
@@ -363,13 +395,17 @@ const PengajuanScreen = () => {
           ) : (
             <Dropdown.TypeDropdown
               user={user}
+              value={jenis}
               onChange={val => setJenis(val)}
             />
           )}
 
           <Gap h={14} />
           <InputLabel>Kategori Permintaan</InputLabel>
-          <Dropdown.PaymentDropdown onChange={val => setTipePembayaran(val)} />
+          <Dropdown.PaymentDropdown
+            value={tipePembayaran}
+            onChange={val => setTipePembayaran(val)}
+          />
 
           <Gap h={6} />
           <InputLabel>COA / Grup Biaya</InputLabel>
@@ -380,7 +416,7 @@ const PengajuanScreen = () => {
               </Card.Content>
             </Card>
           ) : (
-            <Dropdown.CoaDropdown onChange={val => setCoa(val)} />
+            <Dropdown.CoaDropdown value={coa} onChange={val => setCoa(val)} />
           )}
 
           <Gap h={6} />
@@ -416,6 +452,7 @@ const PengajuanScreen = () => {
             <Dropdown.CabangDropdown
               data={cabangList}
               loading={!cabangList}
+              value={cabang}
               onChange={val => setCabang(val)}
             />
           )}
@@ -425,6 +462,7 @@ const PengajuanScreen = () => {
           <Dropdown.ApprovalDropdown
             data={adminList}
             loading={!adminList}
+            value={admin}
             onChange={val => setAdmin(val)}
           />
 
@@ -447,7 +485,27 @@ const PengajuanScreen = () => {
               <Gap h={6} />
               <InputLabel>Nama Vendor / Client</InputLabel>
               {jenis == 'PR' && hasPaymentRequest ? (
-                <Dropdown.SuplierDropdown onChange={val => setSuplier(val)} />
+                <>
+                  <SuplierPickList
+                    checked={suplierType}
+                    setChecked={val => setSuplierType(val)}
+                  />
+                  <Gap h={14} />
+                  {suplierType == 'LIST' ? (
+                    <Dropdown.SuplierDropdown
+                      onChange={val => setSuplier(val)}
+                    />
+                  ) : (
+                    <TextInput
+                      style={styles.input}
+                      mode={'outlined'}
+                      placeholder={'Nama Vendor / Client'}
+                      placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                      onChangeText={text => setName(text)}
+                      value={name}
+                    />
+                  )}
+                </>
               ) : (
                 <TextInput
                   style={styles.input}

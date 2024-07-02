@@ -6,9 +6,9 @@ import {cekAkses} from '../../utils/utils';
 
 const TYPE_LIST = require('../../../assets/files/type.json');
 
-const TypeDropdown = ({onChange, user}) => {
+const TypeDropdown = ({onChange, value}) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(null);
+  // const [value, setValue] = React.useState(null);
   const [list, setList] = React.useState([]);
 
   //const hasPaymentRequest = cekAkses('#6', user?.kodeAkses);
@@ -27,9 +27,9 @@ const TypeDropdown = ({onChange, user}) => {
     setList(TYPE_LIST);
   }, []);
 
-  React.useEffect(() => {
-    onChange(value);
-  }, [value]);
+  // React.useEffect(() => {
+  //   onChange(value);
+  // }, [value]);
 
   return (
     <View
@@ -45,7 +45,7 @@ const TypeDropdown = ({onChange, user}) => {
         value={value}
         items={list}
         setOpen={setOpen}
-        setValue={setValue}
+        setValue={onChange}
       />
     </View>
   );

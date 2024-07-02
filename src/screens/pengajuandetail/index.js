@@ -1164,7 +1164,7 @@ const PengajuanDetailScreen = () => {
           placeholder={selectedBank !== '-' ? selectedBank : 'Pilih Bank'}
           disabled={isLoading}
           value={selectedBank}
-          onChange={val => setSelectedBank(getLabelByValue(val))}
+          onChange={val => setSelectedBank(val)}
         />
       </>
     );
@@ -2198,7 +2198,7 @@ const PengajuanDetailScreen = () => {
                     Dikirim oleh Finance dari
                   </InputLabel>
                   <Text style={styles.textValueColumn} variant={'labelMedium'}>
-                    {financeBank || '-'}
+                    {getLabelByValue(financeBank) || '-'}
                   </Text>
                   <Gap h={6} />
                 </View>

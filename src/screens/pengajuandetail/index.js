@@ -487,7 +487,7 @@ const PengajuanDetailScreen = () => {
 
       if (state == API_STATES.OK) {
         setIsLoading(false);
-        setSnakMsg('Permintaan telah berhasil disimpan dan disetujui!');
+        setSnakMsg('Permintaan telah diproses!');
         setSnak(true);
         setCoaDisabled(true);
       } else {
@@ -1089,6 +1089,20 @@ const PengajuanDetailScreen = () => {
     );
   }
 
+  // render pengajuan ulang button
+  function renderPengajuanUlangButton() {
+    if (requestStatus !== 'REJECTED') return;
+    if (IS_PUSHED) return;
+
+    return (
+      <>
+        <Button mode="contained" onPress={() => setCancelDialog(true)}>
+          Buat Ulang Pengajuan
+        </Button>
+      </>
+    );
+  }
+
   // render admin done card
   function renderAdminDoneCard() {
     if (statusLoading) return;
@@ -1267,6 +1281,7 @@ const PengajuanDetailScreen = () => {
       if (IS_PUSHED) return;
       // USER SECTION
       const renderCancelButton = renderCancelPengajuanButton();
+      const renderRemakeButton = renderPengajuanUlangButton();
       const renderDetailReport = renderCARCreateDetailReport('USER');
       const renderPengajuanButton = renderCARPengajuanButton();
       const renderDownloadButtonView =
@@ -1280,11 +1295,13 @@ const PengajuanDetailScreen = () => {
         renderCancelButton ||
         renderDetailReport ||
         renderPengajuanButton ||
-        renderDownloadButtonView;
+        renderDownloadButtonView ||
+        renderRemakeButton;
 
       return hasContent ? (
         <View style={styles.bottomButton}>
           {renderCancelButton}
+          {renderRemakeButton}
           {renderDetailReport}
           {renderPengajuanButton}
           {renderDownloadButtonView}
@@ -1967,7 +1984,7 @@ const PengajuanDetailScreen = () => {
               <>
                 {adminStatus?.map((item, index) => {
                   return (
-                    <View style={styles.statusContainer}>
+                    <View key={item + index} style={styles.statusContainer}>
                       <Row>
                         <View style={STATUS_TEXT(item).circle} />
                         <Gap w={8} />

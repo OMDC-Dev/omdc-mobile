@@ -94,16 +94,6 @@ const TypeFilterModal = ({
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => handlePressStatus('waiting')}>
-            <Row justify={'space-between'}>
-              <Text>Menunggu Disetujui</Text>
-              <Checkbox
-                status={statusChecked === 'waiting' ? 'checked' : 'unchecked'}
-              />
-            </Row>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.8}
             onPress={() => handlePressStatus('approved')}>
             <Row justify={'space-between'}>
               <Text>Disetujui</Text>

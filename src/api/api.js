@@ -18,6 +18,7 @@ export const fetchApi = async props => {
   }
 
   try {
+    console.log('\x1b[32m%s\x1b[0m', 'Hit API -> ', BASE_URL + url);
     return axios({
       baseURL: BASE_URL,
       url: url,

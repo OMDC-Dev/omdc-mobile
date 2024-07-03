@@ -93,8 +93,8 @@ const AddBarangModal = ({data, onAddPress}) => {
   const isButtonDisabled = !noNeedAttachment ? !selectedImage : false;
 
   const CB_DATA = {
-    stock: qtyStock,
-    request: qtyRequest,
+    stock: qtyStock?.replace(/,/g, '.'),
+    request: qtyRequest?.replace(/,/g, '.'),
     keterangan: keterangan || '',
     attachment: selectedImage?.base64 ?? '',
   };

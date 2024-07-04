@@ -11,9 +11,6 @@ import {API_STATES} from '../../../../utils/constant';
 
 const EditBarangModal = ({data, onResponse, loading, setLoading}) => {
   // input state
-  const [qtyStock, setQtyStock] = React.useState(
-    parseInt(data.qty_stock).toString(),
-  );
   const [qtyRequest, setQtyRequest] = React.useState(
     parseInt(data.jml_kemasan).toString(),
   );
@@ -23,8 +20,7 @@ const EditBarangModal = ({data, onResponse, loading, setLoading}) => {
   async function onUpdateDetail() {
     setLoading(true);
     const body = {
-      stock: qtyStock,
-      request: qtyRequest,
+      request: qtyRequest?.replace(/,/g, '.'),
     };
 
     const {state, data, error} = await fetchApi({
@@ -50,21 +46,6 @@ const EditBarangModal = ({data, onResponse, loading, setLoading}) => {
         <Card.Title title={'Edit Detail'} />
 
         <Card.Content>
-          <InputLabel>Jumlah Stok</InputLabel>
-          <Row>
-            <TextInput
-              placeholder="Jumlah Stok"
-              style={styles.input}
-              mode={'outlined'}
-              keyboardType={'decimal-pad'}
-              returnKeyType={'done'}
-              value={qtyStock}
-              onChangeText={tx => setQtyStock(tx)}
-            />
-            <Text variant={'labelMedium'}>{data?.nm_kemasan}</Text>
-            {/* <Dropdown.KemasanDropdown onChange={val => null} /> */}
-          </Row>
-          <Gap h={12} />
           <InputLabel>Jumlah Permintaan</InputLabel>
           <Row>
             <TextInput
@@ -77,12 +58,11 @@ const EditBarangModal = ({data, onResponse, loading, setLoading}) => {
               onChangeText={tx => setQtyRequest(tx)}
             />
             <Text variant={'labelMedium'}>{data?.nm_kemasan}</Text>
-            {/* <Dropdown.KemasanDropdown onChange={val => null} /> */}
           </Row>
           <Gap h={32} />
           <Button
             loading={loading}
-            disabled={!qtyRequest || !qtyStock || qtyRequest < 1 || loading}
+            disabled={!qtyRequest || qtyRequest < 1 || loading}
             onPress={() => onUpdateDetail()}>
             Simpan Perubahan
           </Button>

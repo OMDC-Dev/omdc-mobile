@@ -8,10 +8,19 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import {Button, Dropdown, Gap, Header, InputLabel, Row} from '../../components';
+import {
+  Button,
+  Dropdown,
+  FileCheckbox,
+  Gap,
+  Header,
+  InputLabel,
+  Row,
+} from '../../components';
 import {Colors, Scaler, Size} from '../../styles';
 import {
   Card,
+  Checkbox,
   Icon,
   IconButton,
   Snackbar,
@@ -71,6 +80,7 @@ const PengajuanScreen = () => {
 
   // CAR
   const [needBank, setNeedBank] = React.useState(true);
+  const [useExtFile, setUseExtFile] = React.useState(false);
 
   // dropdown state
   const [cabangList, setCabangList] = React.useState([]);
@@ -115,6 +125,14 @@ const PengajuanScreen = () => {
     }
   };
 
+  const disableByFile = () => {
+    if (useExtFile) {
+      return false;
+    }
+
+    return !result;
+  };
+
   const buttonDisabled =
     !jenis ||
     !coa ||
@@ -122,7 +140,7 @@ const PengajuanScreen = () => {
     !nominal ||
     !nomorWA ||
     !desc ||
-    !result ||
+    disableByFile() ||
     !selectDate ||
     !admin ||
     !item.length ||
@@ -357,8 +375,18 @@ const PengajuanScreen = () => {
       setAdmin(extAdmin);
       setDesc(EXT.description);
       setItem(EXT.item);
+      setFileInfo(EXT.file_info);
+      setUseExtFile(true);
     }
   }, []);
+
+  React.useEffect(() => {
+    if (useExtFile) {
+      setFileInfo(EXISTING_DATA.file_info);
+    } else {
+      setFileInfo();
+    }
+  }, [useExtFile]);
 
   // =========================================
   //
@@ -532,13 +560,30 @@ const PengajuanScreen = () => {
 
           <Gap h={6} />
           <InputLabel>Lampiran ( Maks. 1 MB )</InputLabel>
+          {EXISTING_DATA ? (
+            <>
+              <Gap h={4} />
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setUseExtFile(!useExtFile)}>
+                <Row>
+                  <Checkbox status={useExtFile ? 'checked' : 'unchecked'} />
+                  <Gap w={8} />
+                  <Text variant={'labelLarge'}>
+                    Gunakan lampiran sebelumnya
+                  </Text>
+                </Row>
+              </TouchableOpacity>
+              <Gap h={14} />
+            </>
+          ) : null}
           <View style={fileInfo ? styles.fileContainer : undefined}>
             {fileInfo ? (
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() =>
                   navigation.navigate('Preview', {
-                    file: result,
+                    file: useExtFile ? EXISTING_DATA.attachment : result,
                     type: fileInfo.type,
                   })
                 }>
@@ -559,15 +604,17 @@ const PengajuanScreen = () => {
                         : 'Lampiran'}
                     </Text>
                   </Row>
-                  <IconButton
-                    icon={'close'}
-                    size={24}
-                    iconColor={Colors.COLOR_DARK_GRAY}
-                    onPress={() => {
-                      setFileInfo(null);
-                      setResult(null);
-                    }}
-                  />
+                  {EXISTING_DATA && useExtFile ? null : (
+                    <IconButton
+                      icon={'close'}
+                      size={24}
+                      iconColor={Colors.COLOR_DARK_GRAY}
+                      onPress={() => {
+                        setFileInfo(null);
+                        setResult(null);
+                      }}
+                    />
+                  )}
                 </Row>
               </TouchableOpacity>
             ) : (
@@ -702,6 +749,8 @@ const PengajuanScreen = () => {
                     suplier: suplierDetail,
                     payment_type: paymentType,
                     tipePembayaran: tipePembayaran,
+                    useExtFile: useExtFile,
+                    uploadedFile: EXISTING_DATA.attachment,
                   },
                 });
               }}>

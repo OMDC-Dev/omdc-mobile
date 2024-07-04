@@ -318,6 +318,7 @@ const PengajuanBankScreen = () => {
       parentId: REPORT_DATA?.id || '',
       payment_type: jenisPembayaran,
       tipePembayaran: RR.tipePembayaran,
+      uploadedFile: RR.useExtFile ? RR.uploadedFile : null,
     };
 
     const {state, data, error} = await fetchApi({

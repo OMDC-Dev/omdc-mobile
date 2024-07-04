@@ -47,6 +47,11 @@ const PengajuanBankScreen = () => {
   const PRE_BANK_NAME =
     RR.jenis == 'PR' && hasPaymentRequest ? SUPLIER_NAME : RR.name;
 
+  // Payment mode
+  const PAYMENT_MODE = RR.extJenisPembayaran;
+
+  console.log('MODE', PAYMENT_MODE);
+
   // STATE
   const [banks, setBanks] = React.useState();
   const [selectedBank, setSelectBank] = React.useState();
@@ -84,7 +89,21 @@ const PengajuanBankScreen = () => {
     setNoBank('');
     setSelectBank();
     setAcc();
+
+    if (RR.extBankDetail) {
+      setSelectBank(RR.extBankDetail.bankcode);
+      setNoBank(RR.extBankDetail.accountnumber);
+      getBankNameExt(RR.extBankDetail.bankcode, RR.extBankDetail.accountnumber);
+    }
   }, [mode]);
+
+  React.useEffect(() => {
+    if (PAYMENT_MODE && !IS_PRE_BANK) {
+      setMode(PAYMENT_MODE);
+    }
+  }, []);
+
+  console.log('select bank', selectedBank);
 
   // get bank list
   async function getBank() {
@@ -105,6 +124,24 @@ const PengajuanBankScreen = () => {
     setCheckLoading(true);
     const {state, data, error} = await fetchApi({
       url: GET_BANK_NAME(selectedBank, noBank),
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setCheckLoading(false);
+      setAcc(data);
+    } else {
+      setCheckLoading(false);
+      setSnakMsg(error);
+      setSnak(true);
+    }
+  }
+
+  // get bank acc name
+  async function getBankNameExt(bankCode, noBank) {
+    setCheckLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: GET_BANK_NAME(bankCode, noBank),
       method: 'GET',
     });
 
@@ -385,7 +422,7 @@ const PengajuanBankScreen = () => {
             mode={mode == 'TRANSFER' ? 'contained' : 'outlined'}>
             Transfer
           </PaperButton>
-          {RR.jenis == 'PR' ? (
+          {RR.jenis == 'PR' && !IS_PRE_BANK ? (
             <PaperButton
               disabled={isLoading}
               onPress={() => setMode('VA')}

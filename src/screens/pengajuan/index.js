@@ -382,7 +382,7 @@ const PengajuanScreen = () => {
 
   React.useEffect(() => {
     if (useExtFile) {
-      setFileInfo(EXISTING_DATA.file_info);
+      setFileInfo(EXISTING_DATA?.file_info);
     } else {
       setFileInfo();
     }
@@ -583,7 +583,7 @@ const PengajuanScreen = () => {
                 activeOpacity={0.8}
                 onPress={() =>
                   navigation.navigate('Preview', {
-                    file: useExtFile ? EXISTING_DATA.attachment : result,
+                    file: useExtFile ? EXISTING_DATA?.attachment : result,
                     type: fileInfo.type,
                   })
                 }>
@@ -729,6 +729,17 @@ const PengajuanScreen = () => {
             <Button
               disabled={buttonDisabled}
               onPress={() => {
+                let modePembayaran;
+
+                if (
+                  EXISTING_DATA?.payment_type == 'TRANSFER' &&
+                  EXISTING_DATA?.bank_detail.accountname == 'Virtual Account'
+                ) {
+                  modePembayaran = 'VA';
+                } else {
+                  modePembayaran = EXISTING_DATA?.payment_type;
+                }
+
                 navigation.navigate('PengajuanBank', {
                   data: {
                     jenis: jenis,
@@ -750,7 +761,9 @@ const PengajuanScreen = () => {
                     payment_type: paymentType,
                     tipePembayaran: tipePembayaran,
                     useExtFile: useExtFile,
-                    uploadedFile: EXISTING_DATA.attachment,
+                    uploadedFile: EXISTING_DATA?.attachment || null,
+                    extJenisPembayaran: modePembayaran || null,
+                    extBankDetail: EXISTING_DATA?.bank_detail || null,
                   },
                 });
               }}>

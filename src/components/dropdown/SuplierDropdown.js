@@ -6,14 +6,9 @@ import {fetchApi} from '../../api/api';
 import {GET_SUPLIER} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 
-const SuplierDropdown = ({onChange}) => {
+const SuplierDropdown = ({onChange, value}) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(null);
   const [list, setList] = React.useState([]);
-
-  React.useEffect(() => {
-    onChange(value);
-  }, [value]);
 
   React.useEffect(() => {
     getList();
@@ -58,7 +53,7 @@ const SuplierDropdown = ({onChange}) => {
         value={value}
         items={list}
         setOpen={setOpen}
-        setValue={setValue}
+        setValue={onChange}
       />
     </View>
   );

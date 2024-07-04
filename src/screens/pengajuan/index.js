@@ -377,6 +377,14 @@ const PengajuanScreen = () => {
       setItem(EXT.item);
       setFileInfo(EXT.file_info);
       setUseExtFile(true);
+      if (EXT.kdsp) {
+        setSuplierType('LIST');
+        setSuplier(EXT.kdsp);
+        setSuplierDetail(EXT.suplierDetail);
+      } else {
+        setSuplierType('MANUAL');
+        setName(EXT.name);
+      }
     }
   }, []);
 
@@ -521,6 +529,7 @@ const PengajuanScreen = () => {
                   <Gap h={14} />
                   {suplierType == 'LIST' ? (
                     <Dropdown.SuplierDropdown
+                      value={suplier}
                       onChange={val => setSuplier(val)}
                     />
                   ) : (
@@ -757,13 +766,18 @@ const PengajuanScreen = () => {
                     admin: admin,
                     report: reportData,
                     needBank: CAR_NEED_BANK,
-                    suplier: suplierDetail,
+                    suplier: suplierType == 'LIST' ? suplierDetail : {},
                     payment_type: paymentType,
                     tipePembayaran: tipePembayaran,
                     useExtFile: useExtFile,
                     uploadedFile: EXISTING_DATA?.attachment || null,
                     extJenisPembayaran: modePembayaran || null,
                     extBankDetail: EXISTING_DATA?.bank_detail || null,
+                    useSuplier: hasPaymentRequest
+                      ? false
+                      : suplierType == 'LIST'
+                      ? true
+                      : false,
                   },
                 });
               }}>

@@ -44,8 +44,7 @@ const PengajuanBankScreen = () => {
   const SUPLIER_NAME = PR_BANK?.kdsp
     ? `${PR_BANK?.kdsp} - ${PR_BANK?.nmsp}`
     : RR.name;
-  const PRE_BANK_NAME =
-    RR.jenis == 'PR' && hasPaymentRequest ? SUPLIER_NAME : RR.name;
+  const PRE_BANK_NAME = SUPLIER_NAME;
 
   // Payment mode
   const PAYMENT_MODE = RR.extJenisPembayaran;
@@ -90,10 +89,20 @@ const PengajuanBankScreen = () => {
     setSelectBank();
     setAcc();
 
-    if (RR.extBankDetail && PAYMENT_MODE == 'TRANSFER') {
+    if (RR.extBankDetail && PAYMENT_MODE == 'TRANSFER' && mode == 'TRANSFER') {
       setSelectBank(RR.extBankDetail.bankcode);
       setNoBank(RR.extBankDetail.accountnumber);
-      getBankNameExt(RR.extBankDetail.bankcode, RR.extBankDetail.accountnumber);
+      if (!IS_PRE_BANK) {
+        getBankNameExt(
+          RR.extBankDetail.bankcode,
+          RR.extBankDetail.accountnumber,
+        );
+      }
+    }
+
+    if (RR.extBankDetail && PAYMENT_MODE == 'VA' && mode == 'VA') {
+      setSelectBank(RR.extBankDetail.bankcode);
+      setNoBank(RR.extBankDetail.accountnumber);
     }
   }, [mode]);
 
@@ -356,6 +365,7 @@ const PengajuanBankScreen = () => {
       payment_type: jenisPembayaran,
       tipePembayaran: RR.tipePembayaran,
       uploadedFile: RR.useExtFile ? RR.uploadedFile : null,
+      kdsp: PR_BANK?.kdsp || '',
     };
 
     const {state, data, error} = await fetchApi({

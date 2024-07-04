@@ -90,7 +90,7 @@ const PengajuanBankScreen = () => {
     setSelectBank();
     setAcc();
 
-    if (RR.extBankDetail) {
+    if (RR.extBankDetail && PAYMENT_MODE == 'TRANSFER') {
       setSelectBank(RR.extBankDetail.bankcode);
       setNoBank(RR.extBankDetail.accountnumber);
       getBankNameExt(RR.extBankDetail.bankcode, RR.extBankDetail.accountnumber);

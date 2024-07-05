@@ -2177,7 +2177,11 @@ const PengajuanDetailScreen = () => {
                 <Gap h={6} />
               </View>
               <View>
-                <InputLabel style={styles.rowLeft}>Nomor Rekening</InputLabel>
+                <InputLabel style={styles.rowLeft}>
+                  {BANK_DATA?.accountname == 'Virtual Account'
+                    ? 'Nomor Virtual Account'
+                    : 'Nomor Rekening'}
+                </InputLabel>
                 <Text style={styles.textValueColumn} variant={'labelMedium'}>
                   {BANK_DATA?.accountnumber}
                 </Text>
@@ -2185,7 +2189,9 @@ const PengajuanDetailScreen = () => {
               </View>
               <View>
                 <InputLabel style={styles.rowLeft}>
-                  Nama Pemilik Rekening
+                  {BANK_DATA?.accountname == 'Virtual Account'
+                    ? 'Tipe'
+                    : 'Nama Pemilik Rekening'}
                 </InputLabel>
                 <Text style={styles.textValueColumn} variant={'labelMedium'}>
                   {BANK_DATA?.accountname}

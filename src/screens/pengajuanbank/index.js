@@ -20,9 +20,6 @@ const PengajuanBankScreen = () => {
   const route = useRoute();
 
   const RR = route?.params?.data;
-  // user session
-  const {user} = React.useContext(AuthContext);
-  const hasPaymentRequest = cekAkses('#6', user?.kodeAkses);
 
   // Cash Advance Report
   const REPORT_DATA = RR?.report;
@@ -49,13 +46,11 @@ const PengajuanBankScreen = () => {
   // Payment mode
   const PAYMENT_MODE = RR.extJenisPembayaran;
 
-  console.log('MODE', PAYMENT_MODE);
-
   // STATE
   const [banks, setBanks] = React.useState();
   const [selectedBank, setSelectBank] = React.useState();
   const [noBank, setNoBank] = React.useState();
-  const [acc, setAcc] = React.useState();
+  const [holderBank, setHolderBank] = React.useState();
   const [mode, setMode] = React.useState('TRANSFER');
 
   // proccess
@@ -76,43 +71,45 @@ const PengajuanBankScreen = () => {
     }
 
     if (mode == 'TRANSFER') {
-      return !acc;
+      return !selectedBank || !noBank || !holderBank;
     }
 
     if (mode == 'VA') {
-      return !selectedBank && !noBank;
+      return !selectedBank || !noBank;
     }
   };
 
   React.useEffect(() => {
+    setHolderBank('');
     setNoBank('');
     setSelectBank();
-    setAcc();
 
-    if (RR.extBankDetail && PAYMENT_MODE == 'TRANSFER' && mode == 'TRANSFER') {
-      setSelectBank(RR.extBankDetail.bankcode);
-      setNoBank(RR.extBankDetail.accountnumber);
-      if (!IS_PRE_BANK) {
-        getBankNameExt(
-          RR.extBankDetail.bankcode,
-          RR.extBankDetail.accountnumber,
-        );
-      }
-    }
-
-    if (RR.extBankDetail && PAYMENT_MODE == 'VA' && mode == 'VA') {
-      setSelectBank(RR.extBankDetail.bankcode);
-      setNoBank(RR.extBankDetail.accountnumber);
-    }
+    // if (!IS_PRE_BANK) {
+    //   if (
+    //     RR.extBankDetail &&
+    //     PAYMENT_MODE == 'TRANSFER' &&
+    //     mode == 'TRANSFER'
+    //   ) {
+    //     setSelectBank(RR.extBankDetail.bankcode);
+    //     setNoBank(RR.extBankDetail.accountnumber);
+    //     setHolderBank(RR.extBankDetail.accountname);
+    //   } else if (RR.extBankDetail && PAYMENT_MODE == 'VA' && mode == 'VA') {
+    //     setSelectBank(RR.extBankDetail.bankcode);
+    //     setNoBank(RR.extBankDetail.accountnumber);
+    //     setHolderBank(RR.extBankDetail.accountname);
+    //   } else {
+    //     setSelectBank();
+    //     setHolderBank('');
+    //     setNoBank('');
+    //   }
+    // }
   }, [mode]);
 
-  React.useEffect(() => {
-    if (PAYMENT_MODE && !IS_PRE_BANK) {
-      setMode(PAYMENT_MODE);
-    }
-  }, []);
-
-  console.log('select bank', selectedBank);
+  // React.useEffect(() => {
+  //   if (PAYMENT_MODE && !IS_PRE_BANK) {
+  //     setMode(PAYMENT_MODE);
+  //   }
+  // }, []);
 
   // get bank list
   async function getBank() {
@@ -128,47 +125,9 @@ const PengajuanBankScreen = () => {
     }
   }
 
-  // get bank acc name
-  async function getBankName() {
-    setCheckLoading(true);
-    const {state, data, error} = await fetchApi({
-      url: GET_BANK_NAME(selectedBank, noBank),
-      method: 'GET',
-    });
-
-    if (state == API_STATES.OK) {
-      setCheckLoading(false);
-      setAcc(data);
-    } else {
-      setCheckLoading(false);
-      setSnakMsg(error);
-      setSnak(true);
-    }
-  }
-
-  // get bank acc name
-  async function getBankNameExt(bankCode, noBank) {
-    setCheckLoading(true);
-    const {state, data, error} = await fetchApi({
-      url: GET_BANK_NAME(bankCode, noBank),
-      method: 'GET',
-    });
-
-    if (state == API_STATES.OK) {
-      setCheckLoading(false);
-      setAcc(data);
-    } else {
-      setCheckLoading(false);
-      setSnakMsg(error);
-      setSnak(true);
-    }
-  }
-
   React.useEffect(() => {
     getBank();
   }, []);
-
-  console.log('ACC', acc);
 
   function renderDetailContent() {
     if (mode == 'CASH') {
@@ -195,23 +154,13 @@ const PengajuanBankScreen = () => {
           <InputLabel>Bank</InputLabel>
           {IS_PRE_BANK ? (
             <Text variant={'bodyMedium'}>{PR_BANK?.nm_bank}</Text>
-          ) : acc?.accountname?.length ? (
-            <TextInput
-              disabled
-              editable={false}
-              style={styles.inputNormal}
-              mode={'outlined'}
-              placeholder={'Bank'}
-              placeholderTextColor={Colors.COLOR_DARK_GRAY}
-              value={acc?.bankname || ''}
-            />
           ) : (
             <Dropdown.BankDropdown
-              disabled={checkLoading || isLoading || acc?.accountname?.length}
+              disabled={checkLoading || isLoading}
               data={banks}
               value={selectedBank}
               onChange={val => setSelectBank(val)}
-              placeholder={acc?.accountname?.length || 'Pilih bank'}
+              placeholder={'Pilih bank'}
             />
           )}
 
@@ -224,7 +173,7 @@ const PengajuanBankScreen = () => {
               <TextInput
                 style={styles.input}
                 mode={'outlined'}
-                disabled={acc?.accountname?.length}
+                disabled={!selectedBank || isLoading}
                 editable={!checkLoading && !isLoading}
                 keyboardType={'number-pad'}
                 returnKeyType={'done'}
@@ -233,19 +182,6 @@ const PengajuanBankScreen = () => {
                 onChangeText={text => setNoBank(text)}
                 value={noBank}
               />
-              <View style={styles.checkerView}>
-                <PaperButton
-                  disabled={
-                    !noBank ||
-                    acc?.accountname?.length ||
-                    checkLoading ||
-                    !selectedBank
-                  }
-                  loading={checkLoading}
-                  onPress={() => getBankName()}>
-                  {checkLoading ? '' : 'Cek Nomor'}
-                </PaperButton>
-              </View>
             </Row>
           )}
           <Gap h={8} />
@@ -254,30 +190,15 @@ const PengajuanBankScreen = () => {
             <Text variant={'bodyMedium'}>{PR_BANK?.nm_pemilik_rek}</Text>
           ) : (
             <TextInput
-              disabled
-              editable={false}
+              disabled={!selectedBank || isLoading}
               style={styles.inputNormal}
               mode={'outlined'}
               placeholder={'Nama Pemilik Rekening'}
               placeholderTextColor={Colors.COLOR_DARK_GRAY}
-              value={acc?.accountname || ''}
+              value={holderBank}
+              onChangeText={tx => setHolderBank(tx)}
             />
           )}
-          {!IS_PRE_BANK && acc?.accountname?.length ? (
-            <>
-              <Gap h={24} />
-              <PaperButton
-                disabled={isLoading}
-                mode={'outlined'}
-                onPress={() => {
-                  setAcc();
-                  setNoBank('');
-                  setSelectBank('');
-                }}>
-                Ganti Data Bank
-              </PaperButton>
-            </>
-          ) : null}
         </>
       );
     }
@@ -291,11 +212,11 @@ const PengajuanBankScreen = () => {
           <Gap h={8} />
           <InputLabel>Bank</InputLabel>
           <Dropdown.BankDropdown
-            disabled={checkLoading || isLoading || acc?.accountname?.length}
+            disabled={checkLoading || isLoading}
             data={banks}
             value={selectedBank}
             onChange={val => setSelectBank(val)}
-            placeholder={acc?.accountname?.length || 'Pilih bank'}
+            placeholder={'Pilih bank'}
           />
 
           <Gap h={8} />
@@ -303,7 +224,7 @@ const PengajuanBankScreen = () => {
           <TextInput
             style={styles.inputVA}
             mode={'outlined'}
-            disabled={acc?.accountname?.length}
+            disabled={isLoading}
             editable={!checkLoading && !isLoading}
             keyboardType={'number-pad'}
             returnKeyType={'done'}
@@ -316,9 +237,6 @@ const PengajuanBankScreen = () => {
       );
     }
   }
-
-  console.log('pre bank', PRE_BANK_NAME);
-
   // ON AJUKAN
   async function onPengajuan() {
     setIsLoading(true);
@@ -329,7 +247,12 @@ const PengajuanBankScreen = () => {
       bankData = PRE_BANK_DATA;
     } else {
       if (mode == 'TRANSFER') {
-        bankData = acc;
+        bankData = {
+          bankcode: selectedBank,
+          bankname: getLabelByValue(selectedBank),
+          accountnumber: noBank,
+          accountname: holderBank,
+        };
       } else if (mode == 'VA') {
         bankData = {
           bankcode: selectedBank,

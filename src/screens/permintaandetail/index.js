@@ -151,6 +151,7 @@ const PermintaanDetailScreen = () => {
     if (state == API_STATES.OK) {
       setIsLoading(false);
       setAdminResult(data);
+      getDetailRequested();
     } else {
       setIsLoading(false);
       setSnak('Ada sesuatu yang tidak beres, mohon coba lagi!');

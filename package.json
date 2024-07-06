@@ -11,7 +11,8 @@
     "pod:m1": "cd ios && arch -x86_64 pod install && cd ..",
     "postinstall": "patch-package",
     "bundle:android": "npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle",
-    "build:android": "cd android && ./gradlew assembleRelease && cd .."
+    "build:android": "cd android && ./gradlew assembleRelease && cd ..",
+    "build:dev": "cd android && ./gradlew assembleDevRelease && cd .."
   },
   "dependencies": {
     "@likashefqet/react-native-image-zoom": "^3.0.0",

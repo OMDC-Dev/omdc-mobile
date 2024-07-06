@@ -149,6 +149,7 @@ const BarangRequestScreen = () => {
         <Dropdown.CabangDropdown
           data={cabangInduk}
           loading={!cabangInduk}
+          value={cabangIndukSelected}
           onChange={val => setCabangIndukSelected(val)}
         />
         <Gap h={8} />
@@ -156,6 +157,7 @@ const BarangRequestScreen = () => {
         <Dropdown.CabangDropdown
           data={cabangAnak}
           loading={!cabangAnak}
+          value={cabangAnakSelected}
           onChange={val => setCabangAnakSelected(val)}
         />
         {cabangDetail?.alamat_cabang && (

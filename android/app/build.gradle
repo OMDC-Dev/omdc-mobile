@@ -153,7 +153,6 @@ android {
             versionNameSuffix "-dev"
         }
         prod {
-            resValue "string", "app_name", ""
             applicationIdSuffix ""
         }
     }
@@ -162,8 +161,8 @@ android {
         applicationId "com.ardclient.omdc"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 20
-        versionName "0.9.4.3"
+        versionCode 21
+        versionName "0.9.5"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
         if (isNewArchitectureEnabled()) {

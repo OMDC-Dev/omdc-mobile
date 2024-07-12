@@ -4,11 +4,16 @@ import {Text} from 'react-native-paper';
 import LottieView from 'lottie-react-native';
 import ASSETS from '../../utils/assetLoader';
 import {Button} from '../../components';
-import {Size} from '../../styles';
-import {useNavigation} from '@react-navigation/native';
+import {Colors, Size} from '../../styles';
+import {useNavigation, useRoute} from '@react-navigation/native';
 
 const PengajuanDoneScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+
+  const DATA = route.params?.data;
+
+  console.log('SUCCESS EXT', DATA);
 
   function generateRandomInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -20,6 +25,12 @@ const PengajuanDoneScreen = () => {
       <View style={styles.mainContainer}>
         <Text style={styles.textTitle} variant={'headlineSmall'}>
           Pengajuan Request of Payment Berhasil!
+        </Text>
+        <Text style={styles.textSubtitle} variant={'titleMedium'}>
+          Nomor Pengajuan:{' '}
+          <Text style={{fontWeight: 'bold', color: Colors.COLOR_PRIMARY}}>
+            {DATA.no_doc}
+          </Text>
         </Text>
         <LottieView
           source={ASSETS.animation.done2}
@@ -63,6 +74,12 @@ const styles = StyleSheet.create({
   // text
   textTitle: {
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+
+  // text
+  textSubtitle: {
+    marginTop: Size.SIZE_14,
     textAlign: 'center',
   },
 });

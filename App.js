@@ -4,6 +4,7 @@ import {DefaultTheme, PaperProvider} from 'react-native-paper';
 import {Colors} from './src/styles';
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform} from 'react-native';
+import codePush from 'react-native-code-push';
 
 const theme = {
   ...DefaultTheme,
@@ -44,4 +45,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default codePush(App);

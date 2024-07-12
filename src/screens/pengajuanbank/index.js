@@ -299,7 +299,7 @@ const PengajuanBankScreen = () => {
 
     if (state == API_STATES.OK) {
       setIsLoading(false);
-      navigation.navigate('PengajuanDone');
+      navigation.navigate('PengajuanDone', {data: data});
     } else {
       setIsLoading(false);
       setSnakMsg(error);

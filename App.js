@@ -15,6 +15,12 @@ const theme = {
   },
 };
 
+const options = {
+  updateDialog: true,
+  installMode: codePush.InstallMode.IMMEDIATE,
+  checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
+};
+
 const App = () => {
   async function requestUserPermission() {
     if (Platform.OS == 'ios') {
@@ -45,4 +51,4 @@ const App = () => {
   );
 };
 
-export default codePush(App);
+export default codePush(options)(App);

@@ -25,6 +25,7 @@ export const fetchApi = async props => {
       method: method || 'GET',
       data: data,
       headers: customHeaders,
+      timeout: 120000,
     })
       .then(resData => {
         return {state: API_STATES.OK, data: resData?.data?.data, error: []};

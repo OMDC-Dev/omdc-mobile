@@ -178,8 +178,8 @@ const PengajuanScreen = () => {
 
       console.log(pickerResult);
 
-      if (size > 1000000) {
-        setSnackMsg('Ukuran file tidak boleh lebih dari 1 MB');
+      if (size > 5000000) {
+        setSnackMsg('Ukuran file tidak boleh lebih dari 5 MB');
         setSnack(true);
         return;
       }
@@ -211,8 +211,8 @@ const PengajuanScreen = () => {
 
   // handle on pick from camera / gallery
   function onPickFromRes(data) {
-    if (data.fileSize > 1000000) {
-      setSnackMsg('Ukuran file tidak boleh lebih dari 1 MB');
+    if (data.fileSize > 5000000) {
+      setSnackMsg('Ukuran file tidak boleh lebih dari 5 MB');
       setSnack(true);
       return;
     }
@@ -568,7 +568,7 @@ const PengajuanScreen = () => {
           />
 
           <Gap h={6} />
-          <InputLabel>Lampiran ( Maks. 1 MB )</InputLabel>
+          <InputLabel>Lampiran ( Maks. 5 MB )</InputLabel>
           {EXISTING_DATA ? (
             <>
               <Gap h={4} />

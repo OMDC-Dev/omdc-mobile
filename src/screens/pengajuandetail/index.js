@@ -2204,7 +2204,7 @@ const PengajuanDetailScreen = () => {
                     Dikirim oleh Finance dari
                   </InputLabel>
                   <Text style={styles.textValueColumn} variant={'labelMedium'}>
-                    {getLabelByValue(financeBank) || '-'}
+                    {getLabelByValue(financeBank) || FINANCE_BANK}
                   </Text>
                   <Gap h={6} />
                 </View>

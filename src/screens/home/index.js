@@ -59,7 +59,7 @@ const HomeScreen = () => {
     const {state, data, error} = await fetchApi({
       url:
         REIMBURSEMENT +
-        `?page=${page}&limit=4&status=00&cari=${clear ? '' : search}`,
+        `?page=${page}&limit=20&status=00&cari=${clear ? '' : search}`,
       method: 'GET',
     });
 
@@ -78,7 +78,7 @@ const HomeScreen = () => {
   async function getNextRecentRequest() {
     setMoreLoading(true);
     const {state, data, error} = await fetchApi({
-      url: REIMBURSEMENT + `?page=${page}&limit=4&status=00&cari=${search}`,
+      url: REIMBURSEMENT + `?page=${page}&limit=20&status=00&cari=${search}`,
       method: 'GET',
     });
 
@@ -109,6 +109,9 @@ const HomeScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
+      setRefreshing(true);
+      setRecent([]);
+      setPage(1);
       getNotificationCount();
       getRecentRequest();
     }, []),
@@ -147,6 +150,9 @@ const HomeScreen = () => {
       setPage(page + 1);
     } else {
       console.log('LOAD LIMIT');
+      console.log('PAGE', parseInt(page));
+      console.log('PC', parseInt(listInfo?.pageCount));
+      console.log('ML', moreLoading);
     }
   }
 

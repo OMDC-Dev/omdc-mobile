@@ -6,13 +6,13 @@ import {wait} from '../../utils/utils';
 import styles from './styles';
 import ASSETS from '../../utils/assetLoader';
 import {fetchApi} from '../../api/api';
-import {GET_ICON, USER_KODE_AKSES} from '../../api/apiRoutes';
+import {GET_ICON, USER_KODE_AKSES, USER_STATUS} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import ModalView from '../../components/modal';
 
 const SplashScreen = () => {
   const [icon, setIcon] = React.useState();
-  const {restoreToken} = React.useContext(AuthContext);
+  const {restoreToken, signOut} = React.useContext(AuthContext);
   const [errorType, setErrorType] = React.useState();
   const [showAlert, setShowAlert] = React.useState(false);
   const CODE_VERSION = '9.5.0';
@@ -48,27 +48,45 @@ const SplashScreen = () => {
     return () => null;
   }, []);
 
+  async function getUserStatus(id) {
+    const {state, data, error} = await fetchApi({
+      url: USER_STATUS(id),
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      return data.status;
+    }
+  }
+
   // Fetch the token from storage then navigate to our appropriate place
   const bootstrapAsync = async () => {
     let user;
+    let statusUser;
 
     try {
       user = await retrieveData('USER_SESSION', true);
 
-      const {state, data, error} = await fetchApi({
-        url: USER_KODE_AKSES(user.iduser),
-        method: 'GET',
-      });
+      if (user) {
+        statusUser = await getUserStatus(user.iduser);
 
-      if (state == API_STATES.OK) {
-        console.log('UPDATE KODE AKSES', data.kodeAkses);
-        user = {...user, kodeAkses: data.kodeAkses};
+        const {state, data, error} = await fetchApi({
+          url: USER_KODE_AKSES(user.iduser),
+          method: 'GET',
+        });
+
+        if (state == API_STATES.OK) {
+          console.log('UPDATE KODE AKSES', data.kodeAkses);
+          user = {...user, kodeAkses: data.kodeAkses};
+        }
       }
     } catch (e) {
       // Restoring token failed
     }
 
-    wait(1500).then(() => restoreToken(user));
+    console.log('User Status', statusUser);
+
+    wait(1500).then(() => restoreToken(statusUser == 'Aktif' ? user : null));
   };
 
   async function checkVersion() {

@@ -15,6 +15,7 @@ export const LOGOUT = 'user/logout';
 export const USER_COMPLETE = 'user/complete';
 export const UPDATE_PASSWORD = 'user/update-password';
 export const USER_KODE_AKSES = id => `user/kodeakses/${id}`;
+export const USER_STATUS = id => `user/status/${id}`;
 export const GET_NOTIFICATION = 'pengumuman';
 export const GET_NOTIFICATION_COUNT = 'pengumuman/count';
 export const READ_NOTIFICATION = id => {

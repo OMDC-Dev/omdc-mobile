@@ -832,8 +832,10 @@ const PengajuanDetailScreen = () => {
       const saldo = calculateSaldo(data?.pengajuan_ca, nominal);
       const getSaldo = convertRupiahToNumber(saldo);
 
-      if (getSaldo > 0) {
+      if (getSaldo >= 0) {
         setIsNeedBank(false);
+      } else {
+        setIsNeedBank(true);
       }
     }
   }, []);
@@ -1854,6 +1856,8 @@ const PengajuanDetailScreen = () => {
     );
   }
 
+  console.log('JENIS', BANK_DATA);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1891,7 +1895,9 @@ const PengajuanDetailScreen = () => {
             }>
             <Card.Content style={styles.cardTop}>
               <Text style={styles.textTotal} variant={'labelMedium'}>
-                Total Nominal
+                {data.jenis_reimbursement == 'Cash Advance Report'
+                  ? 'Total Nominal Realisasi'
+                  : 'Total Nominal'}
               </Text>
               <Gap h={8} />
               {nomEdit ? (
@@ -2161,7 +2167,7 @@ const PengajuanDetailScreen = () => {
           {renderSenderBankFinance()}
 
           {typeName !== 'Petty Cash Report' &&
-          !_.isEmpty(BANK_DATA) &&
+          BANK_DATA?.bankname &&
           data?.payment_type !== 'CASH' ? (
             <>
               <Gap h={24} />

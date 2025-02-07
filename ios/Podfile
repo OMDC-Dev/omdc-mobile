@@ -1,15 +1,33 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require_relative '../node_modules/react-native-permissions/scripts/setup'
 
 platform :ios, '12.4'
 install! 'cocoapods', :deterministic_uuids => false
 
-target 'ArdxReactNativeBoilerplate' do
+pod 'Firebase', :modular_headers => true
+pod 'FirebaseCoreInternal', :modular_headers => true
+pod 'GoogleUtilities', :modular_headers => true
+pod 'FirebaseCore', :modular_headers => true
+
+# Permisson
+setup_permissions([
+  'Camera',
+  'Notifications',
+  'PhotoLibrary',
+])
+
+
+$RNFirebaseAsStaticFramework = true
+
+target 'OMDCMobile' do
   config = use_native_modules!
 
   # Flags change depending on the env values.
   flags = get_default_flags()
 
+
+  use_frameworks! :linkage => :static
   use_react_native!(
     :path => config[:reactNativePath],
     # to enable hermes on iOS, change `false` to `true` and then install pods
@@ -21,7 +39,7 @@ target 'ArdxReactNativeBoilerplate' do
 
 
 
-  target 'ArdxReactNativeBoilerplateTests' do
+  target 'OMDCMobileTests' do
     inherit! :complete
     # Pods for testing
   end
@@ -30,17 +48,43 @@ target 'ArdxReactNativeBoilerplate' do
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable the next line.
-  use_flipper!()
+  # use_flipper!()
+
+  def __xcode_15_workaround(installer)
+  xcode_version_output = `xcodebuild -version`
+  xcode_version_match = xcode_version_output.match(/Xcode (\d+(\.\d+)?)/)
+
+  if xcode_version_match
+    xcode_version = Gem::Version.new(xcode_version_match[1])
+    if xcode_version >= Gem::Version.new('15.0')
+      installer.pods_project.targets.each do |target|
+        target.build_configurations.each do |config|
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION']
+        end
+      end
+    end
+  end
+end
 
   post_install do |installer|
     react_native_post_install(installer)
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
     installer.pods_project.targets.each do |target|
-      if target.name == "React-Codegen"
-        target.build_configurations.each do |config|
-            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
-        end
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
       end
+      #if target.name == "React-Codegen"
+      #  target.build_configurations.each do |config|
+      #      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
+      #  end
+      #end
     end
+    installer.pods_project.build_configurations.each do |config|
+      config.build_settings["CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES"] = true
+    end
+     # Call the Xcode 15 workaround function
+    __xcode_15_workaround(installer)
   end
+
+  
 end

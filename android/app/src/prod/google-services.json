@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "347986091948",
+    "project_id": "omdc-c1085",
+    "storage_bucket": "omdc-c1085.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347986091948:android:64b539c617e47b1138a409",
+        "android_client_info": {
+          "package_name": "com.ardclient.omdc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCe-NvQmAEcGXyMl59_-HbKkdGR6_EtjgY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

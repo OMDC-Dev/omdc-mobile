@@ -7,39 +7,89 @@ import {
   StatusBar,
   FlatList,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
-import {Avatar, Text, Button as PaperButton, Icon} from 'react-native-paper';
+import {
+  Avatar,
+  Text,
+  Button as PaperButton,
+  Icon,
+  ActivityIndicator,
+  Searchbar,
+} from 'react-native-paper';
 import {Colors, Scaler, Size} from '../../styles';
 import {BlankScreen, Button, Card, Gap, Row} from '../../components';
 import ASSETS from '../../utils/assetLoader';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {AuthContext} from '../../context';
 import {GET_NOTIFICATION_COUNT, REIMBURSEMENT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {fetchApi} from '../../api/api';
 import {cekAkses} from '../../utils/utils';
+import _ from 'lodash';
+import {retrieveData} from '../../utils/store';
 
 const HomeScreen = () => {
-  const [recent, setRecent] = React.useState();
+  const [recent, setRecent] = React.useState([]);
   const [unreadCount, setUnreadCount] = React.useState();
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [listInfo, setListInfo] = React.useState();
+  const [page, setPage] = React.useState(1);
+  const [moreLoading, setMoreLoading] = React.useState(false);
+  const [firstLoad, setFirstLoad] = React.useState(true);
+  const [search, setSearch] = React.useState('');
+  const [icon, setIcon] = React.useState();
 
   // navigation
   const navigation = useNavigation();
+  const route = useRoute();
 
   // user context
   const {signOut, user} = React.useContext(AuthContext);
 
   const hasReimbursement = cekAkses('#1', user?.kodeAkses);
 
-  async function getRecentRequest() {
+  async function getRecentRequest(clear) {
+    console.log('Get Recent On Progress');
+    setMoreLoading(true);
     const {state, data, error} = await fetchApi({
-      url: REIMBURSEMENT + '?page=1&limit=5',
+      url:
+        REIMBURSEMENT +
+        `?page=${page}&limit=20&status=00&cari=${clear ? '' : search}`,
       method: 'GET',
     });
 
     if (state == API_STATES.OK) {
+      setMoreLoading(false);
       setRecent(data?.rows);
+      setListInfo(data?.pageInfo);
+      setRefreshing(false);
     } else {
+      setMoreLoading(false);
+      setRefreshing(false);
+      console.log(error);
+    }
+  }
+
+  async function getNextRecentRequest() {
+    setMoreLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: REIMBURSEMENT + `?page=${page}&limit=20&status=00&cari=${search}`,
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setMoreLoading(false);
+      setRecent(prev => [...prev, ...data.rows]);
+      setListInfo(data?.pageInfo);
+      setRefreshing(false);
+    } else {
+      setMoreLoading(false);
+      setRefreshing(false);
       console.log(error);
     }
   }
@@ -59,10 +109,61 @@ const HomeScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      getRecentRequest();
+      setRefreshing(true);
+      setRecent([]);
+      setPage(1);
       getNotificationCount();
+      getRecentRequest();
     }, []),
   );
+
+  // React.useEffect(() => {
+  //   if (firstLoad) {
+  //     console.log('IT WAS FIRST LOAD');
+  //     getRecentRequest();
+  //   }
+  // }, [firstLoad]);
+
+  React.useEffect(() => {
+    if (!refreshing && !firstLoad) {
+      // Hanya panggil getNextRecentRequest jika bukan refresh pertama kali
+      getNextRecentRequest();
+    } else {
+      setFirstLoad(false); // Setelah render pertama kali, atur flag firstLoad menjadi false
+    }
+  }, [page]);
+
+  // React.useEffect(() => {
+
+  // }, [page]);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setRecent([]);
+    setPage(1);
+    getRecentRequest();
+  }, []);
+
+  function onLoadMore() {
+    if (parseInt(page) < parseInt(listInfo?.pageCount) && !moreLoading) {
+      console.log('CAN LOAD MORE');
+      setPage(page + 1);
+    } else {
+      console.log('LOAD LIMIT');
+      console.log('PAGE', parseInt(page));
+      console.log('PC', parseInt(listInfo?.pageCount));
+      console.log('ML', moreLoading);
+    }
+  }
+
+  React.useEffect(() => {
+    loadIcon();
+  }, []);
+
+  async function loadIcon() {
+    const getIcon = await retrieveData('APP_ICON');
+    setIcon(getIcon);
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -73,7 +174,7 @@ const HomeScreen = () => {
       <View style={styles.main}>
         <View style={styles.topContent}>
           <Image
-            source={ASSETS.logo}
+            source={{uri: `data:image/png;base64,${icon}`}}
             style={styles.logo}
             resizeMode={'contain'}
           />
@@ -82,9 +183,14 @@ const HomeScreen = () => {
             <Row style={styles.topInfoLeft}>
               <Avatar.Icon icon={'account'} size={40} />
               <Gap w={10} />
-              <Text style={styles.textName} variant="labelLarge">
-                {user?.nm_user}
-              </Text>
+              <View>
+                <Text style={styles.textName} variant="labelLarge">
+                  {user?.nm_user}
+                </Text>
+                <Text style={styles.textLvl} variant="labelSmall">
+                  {user?.level_user}
+                </Text>
+              </View>
             </Row>
             <TouchableOpacity
               style={styles.bellButton}
@@ -107,7 +213,7 @@ const HomeScreen = () => {
               <Button
                 style={styles.buttonRequest}
                 onPress={() => navigation.navigate('PengajuanStack')}>
-                Ajukan Reimbursement
+                Ajukan Request of Payment
               </Button>
             </>
           )}
@@ -115,7 +221,7 @@ const HomeScreen = () => {
         <View style={styles.mainContent}>
           <Row style={styles.rowSub}>
             <Text style={styles.textSubtitleLeft} variant="labelMedium">
-              Pengajuan Terbaru
+              Pengajuan Dalam Proses
             </Text>
             <Text
               onPress={() => navigation.navigate('HistoryReimbursementStack')}
@@ -124,27 +230,55 @@ const HomeScreen = () => {
               Riwayat Pengajuan
             </Text>
           </Row>
+          <Searchbar
+            placeholder="Cari no. dokumen, jenis, coa..."
+            value={search}
+            onChangeText={text => setSearch(text)}
+            onBlur={() => getRecentRequest()}
+            onClearIconPress={() => getRecentRequest(true)}
+          />
           {recent?.length ? (
-            <FlatList
-              data={recent}
-              contentContainerStyle={{paddingBottom: 120}}
-              showsVerticalScrollIndicator={false}
-              renderItem={({item, index}) => {
-                return (
-                  <Card.PengajuanCard
-                    data={item}
-                    onPress={() =>
-                      navigation.navigate('PengajuanStack', {
-                        screen: 'PengajuanDetail',
-                        params: {
-                          data: item,
-                        },
-                      })
-                    }
+            <>
+              <FlatList
+                data={recent}
+                contentContainerStyle={{paddingBottom: 120}}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
                   />
-                );
-              }}
-            />
+                }
+                onEndReachedThreshold={0.5}
+                onEndReached={onLoadMore}
+                ListFooterComponent={
+                  moreLoading ? (
+                    <View style={styles.footerLoading}>
+                      <Gap h={24} />
+                      <ActivityIndicator />
+                      <Gap h={14} />
+                      <Text variant={'bodySmall'}>Memuat lebih banyak...</Text>
+                    </View>
+                  ) : null
+                }
+                renderItem={({item, index}) => {
+                  return (
+                    <Card.PengajuanCard
+                      data={item}
+                      onPress={() =>
+                        navigation.navigate('PengajuanStack', {
+                          screen: 'PengajuanDetail',
+                          params: {
+                            data: item,
+                            type: 'MINE',
+                          },
+                        })
+                      }
+                    />
+                  );
+                }}
+              />
+            </>
           ) : (
             <BlankScreen>Anda tidak memiliki pengajuan terbaru</BlankScreen>
           )}
@@ -176,7 +310,7 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: Scaler.scaleSize(60),
+    width: Scaler.scaleSize(54),
     height: Scaler.scaleSize(24),
   },
 
@@ -189,7 +323,7 @@ const styles = StyleSheet.create({
   },
 
   rowSub: {
-    marginVertical: Size.SIZE_10,
+    marginBottom: Size.SIZE_14,
   },
 
   bellButton: {
@@ -207,9 +341,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
 
+  footerLoading: {
+    alignItems: 'center',
+  },
+
   // text
   textName: {
     color: Colors.COLOR_WHITE,
+  },
+
+  textLvl: {
+    color: Colors.COLOR_LIGHT_GRAY,
   },
 
   textSubtitle: {

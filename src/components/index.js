@@ -8,6 +8,8 @@ import Header from './Header';
 import * as Dropdown from './dropdown';
 import InputLabel from './InputLabel';
 import Container from './Container';
+import PickList from './PickList';
+import ErrorHelperText from './ErrorHelperText';
 
 export {
   Button,
@@ -20,4 +22,6 @@ export {
   Dropdown,
   InputLabel,
   Container,
+  PickList,
+  ErrorHelperText,
 };

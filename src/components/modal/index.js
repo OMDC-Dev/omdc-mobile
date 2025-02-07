@@ -5,10 +5,15 @@ import styles from './styles';
 import ModalPopUp from './type/popup';
 import DateYearModal from './type/dateyear';
 import CalendarModal from './type/calendar';
-import {Platform} from 'react-native';
+import {Platform, View} from 'react-native';
 import BarangModal from './type/barang';
 import AddBarangModal from './type/addbarang';
 import NotifModal from './type/notif';
+import SelectFileModal from './type/selectfile';
+import TypeFilterModal from './type/typefilter';
+import ModalPopUpVersion from './type/newversion';
+import ModalPopUpMessage from './type/message';
+import EditBarangModal from './type/editbarang';
 
 const ModalView = ({
   children,
@@ -23,6 +28,20 @@ const ModalView = ({
   onCancelCalendar,
   onButtonPress,
   message,
+  toggle,
+  pickFromFile,
+  fileCallback,
+  typeCallback,
+  statusCallback,
+  command,
+  onClose,
+  state,
+  status,
+  setState,
+  tabState,
+  onSave,
+  isLoading,
+  setIsLoading,
 }) => {
   //render modal children
   const renderContent = () => {
@@ -33,6 +52,12 @@ const ModalView = ({
       case 'popup':
         return <ModalPopUp message={message} onButtonPress={onPress} />;
         break;
+      case 'message':
+        return <ModalPopUpMessage message={message} onPress={onPress} />;
+        break;
+      case 'version':
+        return <ModalPopUpVersion error={data} onButtonPress={onPress} />;
+        break;
       case 'barang':
         return <BarangModal data={data} onButtonPress={onPress} />;
         break;
@@ -42,8 +67,41 @@ const ModalView = ({
       case 'addbarang':
         return <AddBarangModal data={data} onAddPress={onButtonPress} />;
         break;
+      case 'editbarang':
+        return (
+          <EditBarangModal
+            data={data}
+            onSavePress={onSave}
+            loading={isLoading}
+            setLoading={setIsLoading}
+            onResponse={statusCallback}
+          />
+        );
+        break;
       case 'dateyear':
         return <DateYearModal cb={dateCallback} />;
+        break;
+      case 'typefilter':
+        return (
+          <TypeFilterModal
+            tab={tabState}
+            statusCb={statusCallback}
+            statusActive={status}
+            active={state}
+            cb={typeCallback}
+            onClose={onClose}
+          />
+        );
+        break;
+      case 'selectfile':
+        return (
+          <SelectFileModal
+            value={fileCallback}
+            pickFromfile={pickFromFile}
+            toggle={toggle}
+            command={command}
+          />
+        );
         break;
       case 'calendar':
         return (
@@ -55,7 +113,7 @@ const ModalView = ({
         );
         break;
       default:
-        return children;
+        return <View />;
         break;
     }
   };

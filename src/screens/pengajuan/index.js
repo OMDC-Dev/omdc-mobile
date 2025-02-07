@@ -8,10 +8,19 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import {Button, Dropdown, Gap, Header, InputLabel, Row} from '../../components';
+import {
+  Button,
+  Dropdown,
+  FileCheckbox,
+  Gap,
+  Header,
+  InputLabel,
+  Row,
+} from '../../components';
 import {Colors, Scaler, Size} from '../../styles';
 import {
   Card,
+  Checkbox,
   Icon,
   IconButton,
   Snackbar,
@@ -20,6 +29,7 @@ import {
 } from 'react-native-paper';
 import ModalView from '../../components/modal';
 import {
+  cekAkses,
   getDateFormat,
   hitungTotalNominal,
   imgToBase64,
@@ -28,10 +38,11 @@ import {
 import {useNavigation, useRoute} from '@react-navigation/native';
 import DocumentPicker, {types} from 'react-native-document-picker';
 import {fetchApi} from '../../api/api';
-import {GET_CABANG, SUPERUSER} from '../../api/apiRoutes';
+import {GET_CABANG, GET_SUPLIER, SUPERUSER} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {AuthContext} from '../../context';
-import {formatRupiah} from '../../utils/rupiahFormatter';
+import {convertRupiahToNumber, formatRupiah} from '../../utils/rupiahFormatter';
+import SuplierPickList from '../../components/SuplierPickList';
 
 const PengajuanScreen = () => {
   const [showCalendar, setShowCalendar] = React.useState(false);
@@ -47,6 +58,7 @@ const PengajuanScreen = () => {
 
   const ROUTE_TYPE = route?.params?.type;
   const ROUTE_DATA = route?.params?.data;
+  const EXISTING_DATA = route?.params?.existing;
 
   // input state
   const [jenis, setJenis] = React.useState(ROUTE_TYPE);
@@ -60,6 +72,15 @@ const PengajuanScreen = () => {
   const [selectDate, setSelectDate] = React.useState();
   const [item, setItem] = React.useState([]);
   const [admin, setAdmin] = React.useState();
+  const [suplier, setSuplier] = React.useState();
+  const [suplierDetail, setSuplierDetail] = React.useState();
+  const [paymentType, setPaymentType] = React.useState();
+  const [tipePembayaran, setTipePembayaran] = React.useState();
+  const [suplierType, setSuplierType] = React.useState('LIST');
+
+  // CAR
+  const [needBank, setNeedBank] = React.useState(true);
+  const [useExtFile, setUseExtFile] = React.useState(false);
 
   // dropdown state
   const [cabangList, setCabangList] = React.useState([]);
@@ -72,12 +93,44 @@ const PengajuanScreen = () => {
   // REPORT
   const [reportData, setReportData] = React.useState();
 
+  // MODAL
+  const [showSelectFile, setShowSelectFile] = React.useState(false);
+
   const isNeedName = jenis == 'PR' || jenis == 'CAR' || jenis == 'PC';
+  const hasPaymentRequest = cekAkses('#6', user?.kodeAkses);
+
+  // CAR
+  let CAR_NEED_BANK = false;
+
+  // handle need bank CAR
+  if (jenis == 'CAR') {
+    const nomine = convertRupiahToNumber(nominal);
+    const cashadv = convertRupiahToNumber(reportData?.nominal);
+
+    if (nomine > cashadv) {
+      CAR_NEED_BANK = true;
+    } else {
+      CAR_NEED_BANK = false;
+    }
+  } else {
+    CAR_NEED_BANK = true;
+  }
 
   const disabledByType = () => {
     if (isNeedName) {
+      if (jenis == 'PR' && hasPaymentRequest && suplierType == 'LIST') {
+        return !suplier;
+      }
       return !name;
     }
+  };
+
+  const disableByFile = () => {
+    if (useExtFile) {
+      return false;
+    }
+
+    return !result;
   };
 
   const buttonDisabled =
@@ -87,10 +140,11 @@ const PengajuanScreen = () => {
     !nominal ||
     !nomorWA ||
     !desc ||
-    !result ||
+    disableByFile() ||
     !selectDate ||
     !admin ||
     !item.length ||
+    !tipePembayaran ||
     disabledByType();
 
   // handle on add item
@@ -116,17 +170,19 @@ const PengajuanScreen = () => {
         type: [types.pdf, types.images],
       });
 
+      //const newFile = await renameFile(pickerResult.fileCopyUri);
+
+      //console.log('NEW FILE', newFile);
+
       const size = pickerResult.size;
 
-      if (size > 1200000) {
-        setSnackMsg('Ukuran file tidak boleh lebih dari 1 MB');
+      console.log(pickerResult);
+
+      if (size > 5000000) {
+        setSnackMsg('Ukuran file tidak boleh lebih dari 5 MB');
         setSnack(true);
         return;
       }
-
-      //   delete pickerResult.copyError;
-      //   delete pickerResult.fileCopyUri;
-      //   delete pickerResult.uri;
 
       const fileInfo = {
         name: pickerResult.name,
@@ -134,20 +190,42 @@ const PengajuanScreen = () => {
         type: pickerResult.type,
       };
 
-      setFileInfo(fileInfo);
-
-      const path = pickerResult.fileCopyUri.split('Caches/')[1];
+      const path =
+        Platform.OS == 'android'
+          ? pickerResult.fileCopyUri
+          : pickerResult.fileCopyUri.split('Caches/')[1];
 
       if (pickerResult.type == 'application/pdf') {
-        const picker = await uriToBas64(path);
+        const picker = await uriToBas64(path, Platform.OS == 'android');
         setResult(picker);
       } else {
-        const base64 = await imgToBase64(path);
+        const base64 = await imgToBase64(path, Platform.OS == 'android');
         setResult(base64);
       }
+
+      setFileInfo(fileInfo);
     } catch (error) {
       console.log(error);
     }
+  }
+
+  // handle on pick from camera / gallery
+  function onPickFromRes(data) {
+    if (data.fileSize > 5000000) {
+      setSnackMsg('Ukuran file tidak boleh lebih dari 5 MB');
+      setSnack(true);
+      return;
+    }
+
+    setResult(data.base64);
+
+    const fileInfo = {
+      name: data.fileName,
+      size: data.fileSize,
+      type: data.fileType,
+    };
+
+    setFileInfo(fileInfo);
   }
 
   // API
@@ -217,12 +295,116 @@ const PengajuanScreen = () => {
     if (ROUTE_TYPE) {
       setJenis(ROUTE_TYPE);
       setReportData(ROUTE_DATA);
+      setCabang(ROUTE_DATA?.cabang);
+      setCoa(ROUTE_DATA?.coa);
+      setPaymentType(ROUTE_DATA?.payment_type);
     }
   }, []);
 
+  // React.useEffect(() => {
+  //   if (nominal && jenis == 'CAR') {
+  //     const _frel = nominal?.replace('Rp. ', '').replace(/\./g, '');
+  //     const _fnom = reportData?.nominal?.replace('Rp. ', '').replace(/\./g, '');
+
+  //     const _sal = _fnom - _frel;
+
+  //     if (_sal > 0) {
+  //       console.log('No Need Bank');
+  //       setNeedBank(false);
+  //     } else {
+  //       console.log('Need Bank');
+  //       setNeedBank(true);
+  //     }
+
+  //     console.log('SAL', _sal);
+  //   }
+  // }, [nominal]);
+
+  // Get Sup detail
+  React.useEffect(() => {
+    if (suplier) {
+      getSuplierDeatil();
+    }
+  }, [suplier]);
+
+  async function getSuplierDeatil() {
+    const {state, data, error} = await fetchApi({
+      url: GET_SUPLIER + `/${suplier}`,
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setSuplierDetail(data);
+    } else {
+      setSnackMsg('Gagal mendapatkan detail suplier');
+      setSnack(true);
+    }
+  }
+
+  // reset supplier
+  React.useEffect(() => {
+    if (jenis !== 'PR') {
+      setSuplier();
+      setSuplierDetail();
+    }
+  }, [jenis]);
+
+  // Handle if existing
+  React.useEffect(() => {
+    if (EXISTING_DATA) {
+      const EXT = EXISTING_DATA;
+      console.log('EXT', EXISTING_DATA);
+
+      // Jenis
+      const TYPE_LIST = require('../../../assets/files/type.json');
+      const findJenis = TYPE_LIST.find(
+        item => item.label == EXT.jenis_reimbursement,
+      ).value;
+
+      // Cabang
+      const cabangSplit = EXT.kode_cabang.split('-');
+      const extCabang = cabangSplit[0].replace(' ', '');
+
+      // Admin
+      const extAdmin = EXT.accepted_by[0].iduser;
+
+      setJenis(findJenis);
+      setTipePembayaran(EXT.tipePembayaran);
+      setCoa(EXT.coa);
+      setCabang(extCabang);
+      setAdmin(extAdmin);
+      setDesc(EXT.description);
+      setItem(EXT.item);
+      setFileInfo(EXT.file_info);
+      setUseExtFile(true);
+      if (EXT.kdsp) {
+        setSuplierType('LIST');
+        setSuplier(EXT.kdsp);
+        setSuplierDetail(EXT.suplierDetail);
+      } else {
+        setSuplierType('MANUAL');
+        setName(EXT.name);
+      }
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (useExtFile) {
+      setFileInfo(EXISTING_DATA?.file_info);
+    } else {
+      setFileInfo();
+    }
+  }, [useExtFile]);
+
+  // =========================================
+  //
+  // ==================================== GAP
+  //
+  // =========================================
+
   return (
     <View style={styles.container}>
-      <Header title={'Reimbursement'} />
+      <Header title={'Request of Payment'} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{flex: 1}}>
@@ -235,11 +417,11 @@ const PengajuanScreen = () => {
             paddingBottom: Scaler.scaleSize(60),
           }}>
           <Text style={styles.subtitle} variant="titleSmall">
-            Data Reimbursement
+            Data Request of Payment
           </Text>
 
           <Gap h={14} />
-          <InputLabel>Jenis Reimbursement</InputLabel>
+          <InputLabel>Jenis Request of Payment</InputLabel>
           {jenis == 'CAR' ? (
             <Card style={styles.card} mode={'outlined'}>
               <Card.Content>
@@ -247,15 +429,34 @@ const PengajuanScreen = () => {
               </Card.Content>
             </Card>
           ) : (
-            <Dropdown.TypeDropdown onChange={val => setJenis(val)} />
+            <Dropdown.TypeDropdown
+              user={user}
+              value={jenis}
+              onChange={val => setJenis(val)}
+            />
+          )}
+
+          <Gap h={14} />
+          <InputLabel>Kategori Permintaan</InputLabel>
+          <Dropdown.PaymentDropdown
+            value={tipePembayaran}
+            onChange={val => setTipePembayaran(val)}
+          />
+
+          <Gap h={6} />
+          <InputLabel>COA / Grup Biaya</InputLabel>
+          {jenis == 'CAR' ? (
+            <Card style={styles.card} mode={'outlined'}>
+              <Card.Content>
+                <Text variant="labelLarge">{reportData?.coa}</Text>
+              </Card.Content>
+            </Card>
+          ) : (
+            <Dropdown.CoaDropdown value={coa} onChange={val => setCoa(val)} />
           )}
 
           <Gap h={6} />
-          <InputLabel>COA</InputLabel>
-          <Dropdown.CoaDropdown onChange={val => setCoa(val)} />
-
-          <Gap h={6} />
-          <InputLabel>Tanggal</InputLabel>
+          <InputLabel>Tanggal Invoice</InputLabel>
           <Card
             style={styles.card}
             mode={'outlined'}
@@ -269,7 +470,7 @@ const PengajuanScreen = () => {
                 />
                 <Gap w={10} />
                 <Text variant="labelLarge">
-                  {selectDate || 'Pilih Tanggal'}
+                  {selectDate || 'Pilih Tanggal Invoice'}
                 </Text>
               </Row>
             </Card.Content>
@@ -277,17 +478,27 @@ const PengajuanScreen = () => {
 
           <Gap h={6} />
           <InputLabel>Cabang</InputLabel>
-          <Dropdown.CabangDropdown
-            data={cabangList}
-            loading={!cabangList}
-            onChange={val => setCabang(val)}
-          />
+          {jenis == 'CAR' ? (
+            <Card style={styles.card} mode={'outlined'}>
+              <Card.Content>
+                <Text variant="labelLarge">{reportData?.cabang}</Text>
+              </Card.Content>
+            </Card>
+          ) : (
+            <Dropdown.CabangDropdown
+              data={cabangList}
+              loading={!cabangList}
+              value={cabang}
+              onChange={val => setCabang(val)}
+            />
+          )}
 
           <Gap h={6} />
           <InputLabel>Approval ke</InputLabel>
           <Dropdown.ApprovalDropdown
             data={adminList}
             loading={!adminList}
+            value={admin}
             onChange={val => setAdmin(val)}
           />
 
@@ -309,14 +520,39 @@ const PengajuanScreen = () => {
             <>
               <Gap h={6} />
               <InputLabel>Nama Vendor / Client</InputLabel>
-              <TextInput
-                style={styles.input}
-                mode={'outlined'}
-                placeholder={'Nama Vendor / Client'}
-                placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                onChangeText={text => setName(text)}
-                value={name}
-              />
+              {jenis == 'PR' && hasPaymentRequest ? (
+                <>
+                  <SuplierPickList
+                    checked={suplierType}
+                    setChecked={val => setSuplierType(val)}
+                  />
+                  <Gap h={14} />
+                  {suplierType == 'LIST' ? (
+                    <Dropdown.SuplierDropdown
+                      value={suplier}
+                      onChange={val => setSuplier(val)}
+                    />
+                  ) : (
+                    <TextInput
+                      style={styles.input}
+                      mode={'outlined'}
+                      placeholder={'Nama Vendor / Client'}
+                      placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                      onChangeText={text => setName(text)}
+                      value={name}
+                    />
+                  )}
+                </>
+              ) : (
+                <TextInput
+                  style={styles.input}
+                  mode={'outlined'}
+                  placeholder={'Nama Vendor / Client'}
+                  placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                  onChangeText={text => setName(text)}
+                  value={name}
+                />
+              )}
             </>
           )}
 
@@ -332,14 +568,31 @@ const PengajuanScreen = () => {
           />
 
           <Gap h={6} />
-          <InputLabel>Lampiran ( Maks. 1 MB )</InputLabel>
+          <InputLabel>Lampiran ( Maks. 5 MB )</InputLabel>
+          {EXISTING_DATA ? (
+            <>
+              <Gap h={4} />
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setUseExtFile(!useExtFile)}>
+                <Row>
+                  <Checkbox status={useExtFile ? 'checked' : 'unchecked'} />
+                  <Gap w={8} />
+                  <Text variant={'labelLarge'}>
+                    Gunakan lampiran sebelumnya
+                  </Text>
+                </Row>
+              </TouchableOpacity>
+              <Gap h={14} />
+            </>
+          ) : null}
           <View style={fileInfo ? styles.fileContainer : undefined}>
             {fileInfo ? (
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() =>
                   navigation.navigate('Preview', {
-                    file: result,
+                    file: useExtFile ? EXISTING_DATA?.attachment : result,
                     type: fileInfo.type,
                   })
                 }>
@@ -351,19 +604,26 @@ const PengajuanScreen = () => {
                       color={Colors.COLOR_DARK_GRAY}
                     />
                     <Gap w={8} />
-                    <Text numberOfLines={1} variant={'labelLarge'}>
-                      {fileInfo?.name}
+                    <Text
+                      style={{marginRight: Size.SIZE_24}}
+                      numberOfLines={1}
+                      variant={'labelLarge'}>
+                      {fileInfo?.name?.length <= 30
+                        ? fileInfo?.name
+                        : 'Lampiran'}
                     </Text>
                   </Row>
-                  <IconButton
-                    icon={'close'}
-                    size={24}
-                    iconColor={Colors.COLOR_DARK_GRAY}
-                    onPress={() => {
-                      setFileInfo(null);
-                      setResult(null);
-                    }}
-                  />
+                  {EXISTING_DATA && useExtFile ? null : (
+                    <IconButton
+                      icon={'close'}
+                      size={24}
+                      iconColor={Colors.COLOR_DARK_GRAY}
+                      onPress={() => {
+                        setFileInfo(null);
+                        setResult(null);
+                      }}
+                    />
+                  )}
                 </Row>
               </TouchableOpacity>
             ) : (
@@ -371,7 +631,7 @@ const PengajuanScreen = () => {
                 icon={'plus-box-outline'}
                 size={40}
                 iconColor={Colors.COLOR_DARK_GRAY}
-                onPress={() => pickFile()}
+                onPress={() => setShowSelectFile(!showSelectFile)}
               />
             )}
           </View>
@@ -385,11 +645,19 @@ const PengajuanScreen = () => {
                     <Gap h={6} />
                     <Card style={styles.itemCard} mode={'elevated'}>
                       <Card.Content>
+                        <Text
+                          style={{color: Colors.COLOR_GRAY}}
+                          variant="labelSmall">
+                          Invoice: {item.invoice || '-'}
+                        </Text>
+                        <Gap h={4} />
                         <Row>
                           <Text style={{flex: 1}} variant="labelLarge">
                             {item.name}
                           </Text>
-                          <Text variant="labelLarge">Rp. {item.nominal}</Text>
+                          <Text variant="labelLarge">
+                            {formatRupiah(item.nominal, true)}
+                          </Text>
                           <Gap w={10} />
                           <TouchableOpacity
                             activeOpacity={0.8}
@@ -421,7 +689,7 @@ const PengajuanScreen = () => {
           <Card
             style={styles.card}
             mode={'outlined'}
-            onPress={() => navigation.navigate('PengajuanItem')}>
+            onPress={() => navigation.navigate('PengajuanItem', {data: item})}>
             <Card.Content>
               <Row>
                 <Icon
@@ -448,16 +716,46 @@ const PengajuanScreen = () => {
             placeholderTextColor={Colors.COLOR_DARK_GRAY}
             value={nominal}
           />
+          {jenis == 'CAR' ? (
+            <>
+              <Gap h={6} />
+              <InputLabel>Nominal Cash Advance</InputLabel>
+              <TextInput
+                style={styles.input}
+                mode={'outlined'}
+                editable={false}
+                disabled
+                keyboardType={'phone-pad'}
+                returnKeyType={'done'}
+                placeholder={'Nominal'}
+                defaultValue={reportData?.nominal}
+                placeholderTextColor={Colors.COLOR_DARK_GRAY}
+              />
+            </>
+          ) : null}
+
           <View style={styles.bottomContainer}>
             <Button
               disabled={buttonDisabled}
-              onPress={() =>
+              onPress={() => {
+                let modePembayaran;
+
+                if (
+                  EXISTING_DATA?.payment_type == 'TRANSFER' &&
+                  EXISTING_DATA?.bank_detail.accountname == 'Virtual Account'
+                ) {
+                  modePembayaran = 'VA';
+                } else {
+                  modePembayaran = EXISTING_DATA?.payment_type;
+                }
+
                 navigation.navigate('PengajuanBank', {
                   data: {
                     jenis: jenis,
                     coa: coa,
                     tanggal: selectDate,
-                    cabang: cabang,
+                    cabang:
+                      jenis == 'CAR' ? cabang.split('-')[0].trim() : cabang,
                     nominal: nominal,
                     nomor: nomorWA,
                     desc: desc,
@@ -467,14 +765,36 @@ const PengajuanScreen = () => {
                     fileInfo: fileInfo,
                     admin: admin,
                     report: reportData,
+                    needBank: CAR_NEED_BANK,
+                    suplier: suplierType == 'LIST' ? suplierDetail : {},
+                    payment_type: paymentType,
+                    tipePembayaran: tipePembayaran,
+                    useExtFile: useExtFile,
+                    uploadedFile: EXISTING_DATA?.attachment || null,
+                    extJenisPembayaran: modePembayaran || null,
+                    extBankDetail: EXISTING_DATA?.bank_detail || null,
+                    useSuplier: hasPaymentRequest
+                      ? false
+                      : suplierType == 'LIST'
+                      ? true
+                      : false,
                   },
-                })
-              }>
+                });
+              }}>
               Lanjut
             </Button>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <ModalView
+        type={'selectfile'}
+        visible={showSelectFile}
+        toggle={() => setShowSelectFile(!showSelectFile)}
+        pickFromFile={() => pickFile()}
+        //fileCallback={cb => onPickFromRes(cb)}
+        command={cmd => onPickFromRes(cmd)}
+      />
 
       <ModalView
         type={'calendar'}
@@ -506,7 +826,6 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    height: Scaler.scaleSize(48),
     backgroundColor: Colors.COLOR_WHITE,
     fontSize: Scaler.scaleFont(14),
   },

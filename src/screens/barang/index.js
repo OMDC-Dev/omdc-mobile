@@ -1,74 +1,58 @@
-import {FlatList, Platform, StyleSheet, View} from 'react-native';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import React from 'react';
-import {BlankScreen, Card, Container, Gap, Header} from '../../components';
-import {Colors, Size} from '../../styles';
-import {FAB, Text} from 'react-native-paper';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {fetchApi} from '../../api/api';
-import {LIST_REQUEST_BARANG} from '../../api/apiRoutes';
-import {API_STATES} from '../../utils/constant';
+import {Platform, StatusBar, StyleSheet, View} from 'react-native';
+import {Container, Header} from '../../components';
+import {Colors} from '../../styles';
+import BarangDone from './BarangDone';
+import BarangProcess from './BarangProcess';
 
 const BarangScreen = () => {
-  const navigation = useNavigation();
+  // define tab
+  const Tab = createMaterialTopTabNavigator();
 
-  // state
-  const [list, setList] = React.useState();
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  // gte list
-  useFocusEffect(
-    React.useCallback(() => {
-      getRequestedList();
-    }, []),
-  );
-
-  async function getRequestedList() {
-    setIsLoading(true);
-    const {state, data, error} = await fetchApi({
-      url: LIST_REQUEST_BARANG,
-      method: 'GET',
-    });
-
-    if (state == API_STATES.OK) {
-      setIsLoading(false);
-      setList(data?.rows);
-    } else {
-      setIsLoading(false);
-      setList([]);
-    }
+  function renderTab() {
+    return (
+      <Tab.Navigator
+        screenOptions={{
+          tabBarStyle: {
+            backgroundColor: Colors.COLOR_SECONDARY,
+          },
+          tabBarLabelStyle: {
+            textTransform: 'none',
+          },
+          tabBarActiveTintColor: Colors.COLOR_WHITE,
+          tabBarInactiveTintColor: Colors.COLOR_DARK_GRAY,
+          tabBarIndicatorStyle: {
+            backgroundColor: Colors.COLOR_PRIMARY,
+            height: 6,
+          },
+        }}>
+        <Tab.Screen
+          name="Diajukan"
+          component={BarangProcess}
+          options={{
+            title: 'Dalam Proses',
+          }}
+        />
+        <Tab.Screen
+          name="Disetujui"
+          component={BarangDone}
+          options={{
+            title: 'Selesai',
+          }}
+        />
+      </Tab.Navigator>
+    );
   }
 
   return (
     <Container>
+      <StatusBar
+        backgroundColor={Colors.COLOR_SECONDARY}
+        barStyle={'light-content'}
+      />
       <Header hideBack={true} title={'Permintaan Barang'} />
-      <View style={styles.container}>
-        {list && !isLoading ? (
-          <FlatList
-            data={list}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{paddingBottom: 120}}
-            renderItem={({item, index}) => (
-              <Card.PermintaanCard
-                data={item}
-                onPress={() =>
-                  navigation.navigate('BarangDetail', {data: item})
-                }
-              />
-            )}
-          />
-        ) : (
-          <BlankScreen loading={isLoading}>
-            Belum ada permintaan barang!
-          </BlankScreen>
-        )}
-
-        <FAB
-          mode={'flat'}
-          icon="plus"
-          style={styles.fab}
-          onPress={() => navigation.navigate('BarangRequest')}
-        />
-      </View>
+      <View style={styles.container}>{renderTab()}</View>
     </Container>
   );
 };
@@ -79,7 +63,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.COLOR_WHITE,
-    padding: Size.SIZE_14,
   },
 
   fab: {

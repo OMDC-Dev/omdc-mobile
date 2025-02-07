@@ -1,6 +1,8 @@
 import * as React from 'react';
+import {ModalContext} from '.';
+import ModalView from '../components/modal';
 
-const ModalProvider = () => {
+const ModalProvider = ({children}) => {
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
       switch (action.type) {
@@ -8,8 +10,19 @@ const ModalProvider = () => {
           return {
             ...prevState,
             visible: action.visible,
+            type: action.modal,
+          };
+        case 'SHOW_MESSAGE':
+          return {
+            ...prevState,
+            visible: action.visible,
+            type: action.modal,
             message: action.message,
-            type: action.type,
+          };
+        case 'HIDE_MODAL':
+          return {
+            ...prevState,
+            visible: action.visible,
           };
       }
     },
@@ -22,15 +35,35 @@ const ModalProvider = () => {
 
   const modalContext = React.useMemo(
     () => ({
-      showLoading: async data => {
-        // In a production app, we need to send some data (usually username, password) to server and get a token
-        // We will also need to handle errors if sign in failed
-        // After getting token, we need to persist the token using `SecureStore`
-        // In the example, we'll use a dummy token
-
-        dispatch({type: 'SIGN_IN', token: 'dummy-auth-token'});
+      showLoading: () => {
+        dispatch({type: 'SHOW_LOADING', modal: 'loading', visible: true});
+      },
+      showMessage: msg => {
+        dispatch({
+          type: 'SHOW_MESSAGE',
+          modal: 'message',
+          visible: true,
+          message: msg,
+        });
+      },
+      hideModal: () => {
+        dispatch({type: 'HIDE_MODAL', visible: false});
       },
     }),
-    [],
+    [state],
+  );
+
+  return (
+    <ModalContext.Provider value={modalContext}>
+      {children}
+      <ModalView
+        type={state.type}
+        visible={state.visible}
+        message={state.message}
+        onPress={() => dispatch({type: 'HIDE_MODAL', visible: false})}
+      />
+    </ModalContext.Provider>
   );
 };
+
+export default ModalProvider;

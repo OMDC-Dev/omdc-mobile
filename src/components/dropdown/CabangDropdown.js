@@ -3,14 +3,9 @@ import React from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Colors, Scaler, Size} from '../../styles';
 
-const CabangDropdown = ({data = [], onChange, loading}) => {
+const CabangDropdown = ({data = [], onChange, loading, value}) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(null);
   const [items, setItems] = React.useState([]);
-
-  React.useEffect(() => {
-    onChange(value);
-  }, [value]);
 
   return (
     <View
@@ -31,7 +26,7 @@ const CabangDropdown = ({data = [], onChange, loading}) => {
         items={data}
         setItems={setItems}
         setOpen={setOpen}
-        setValue={setValue}
+        setValue={onChange}
       />
     </View>
   );

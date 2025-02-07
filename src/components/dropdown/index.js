@@ -5,6 +5,14 @@ import CoaDropdown from './CoaDropdown';
 import DeptDropdown from './DeptDropdown';
 import ApprovalDropdown from './ApprovalDropdown';
 import KemasanDropdown from './KemasanDropdown';
+import SuplierDropdown from './SuplierDropdown';
+import PaymentDropdown from './PaymentDropdown';
+import ApprovalPBDropdown from './ApprovalPBDropdown';
+import GrupDropdown from './GrupDropdown';
+import KategoryDropdown from './KategoryDropdown';
+import SuplierDropdownV2 from './SuplierDropdownV2';
+import KemasanBarangDropdown from './KemasanBarangDropdown';
+import SatuanDropdown from './SatuanDropdown';
 
 export {
   TypeDropdown,
@@ -14,4 +22,12 @@ export {
   DeptDropdown,
   ApprovalDropdown,
   KemasanDropdown,
+  SuplierDropdown,
+  PaymentDropdown,
+  ApprovalPBDropdown,
+  GrupDropdown,
+  KategoryDropdown,
+  SuplierDropdownV2,
+  KemasanBarangDropdown,
+  SatuanDropdown,
 };

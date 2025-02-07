@@ -1,3 +1,23 @@
+diff --git a/node_modules/react-native/Libraries/PermissionsAndroid/PermissionsAndroid.js b/node_modules/react-native/Libraries/PermissionsAndroid/PermissionsAndroid.js
+index 227af12..608c1a7 100644
+--- a/node_modules/react-native/Libraries/PermissionsAndroid/PermissionsAndroid.js
++++ b/node_modules/react-native/Libraries/PermissionsAndroid/PermissionsAndroid.js
+@@ -59,6 +59,7 @@ const PERMISSIONS = Object.freeze({
+   RECEIVE_MMS: 'android.permission.RECEIVE_MMS',
+   READ_EXTERNAL_STORAGE: 'android.permission.READ_EXTERNAL_STORAGE',
+   WRITE_EXTERNAL_STORAGE: 'android.permission.WRITE_EXTERNAL_STORAGE',
++  POST_NOTIFICATIONS: 'android.permission.POST_NOTIFICATIONS',
+   BLUETOOTH_CONNECT: 'android.permission.BLUETOOTH_CONNECT',
+   BLUETOOTH_SCAN: 'android.permission.BLUETOOTH_SCAN',
+   BLUETOOTH_ADVERTISE: 'android.permission.BLUETOOTH_ADVERTISE',
+@@ -112,6 +113,7 @@ class PermissionsAndroid {
+     WRITE_CALL_LOG: string,
+     WRITE_CONTACTS: string,
+     WRITE_EXTERNAL_STORAGE: string,
++    POST_NOTIFICATIONS: string,
+   |} = PERMISSIONS;
+   RESULTS: {|
+     DENIED: $TEMPORARY$string<'denied'>,
 diff --git a/node_modules/react-native/ReactCommon/yoga/yoga/Yoga.cpp b/node_modules/react-native/ReactCommon/yoga/yoga/Yoga.cpp
 index 9986279..20389d4 100644
 --- a/node_modules/react-native/ReactCommon/yoga/yoga/Yoga.cpp
@@ -13,9 +33,8 @@ index 9986279..20389d4 100644
    return deltaFreeSpace;
 diff --git a/node_modules/react-native/scripts/.packager.env b/node_modules/react-native/scripts/.packager.env
 new file mode 100644
-index 0000000..21a13cf
+index 0000000..361f5fb
 --- /dev/null
 +++ b/node_modules/react-native/scripts/.packager.env
 @@ -0,0 +1 @@
 +export RCT_METRO_PORT=8081
-\ No newline at end of file

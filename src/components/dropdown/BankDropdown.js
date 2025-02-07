@@ -2,14 +2,10 @@ import {Platform, StyleSheet, View} from 'react-native';
 import React from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Colors, Scaler, Size} from '../../styles';
+import Banks from '../../../assets/files/banks.json';
 
-const BankDropdown = ({disabled, data = [], onChange}) => {
+const BankDropdown = ({disabled, data = [], onChange, placeholder, value}) => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(null);
-
-  React.useEffect(() => {
-    onChange(value);
-  }, [value]);
 
   return (
     <View
@@ -23,13 +19,13 @@ const BankDropdown = ({disabled, data = [], onChange}) => {
         searchPlaceholder="Cari bank..."
         searchTextInputStyle={styles.searchInput}
         listMode={Platform.OS == 'android' ? 'MODAL' : 'SCROLLVIEW'}
-        placeholder="Pilih bank"
+        placeholder={placeholder || 'Pilih bank'}
         placeholderStyle={styles.placeholderStyle}
         open={open}
         value={value}
-        items={data}
+        items={Banks}
         setOpen={setOpen}
-        setValue={setValue}
+        setValue={onChange}
       />
     </View>
   );

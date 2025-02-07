@@ -1,9 +1,12 @@
 import moment from 'moment';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import ImgToBase64 from 'react-native-image-base64';
+import BANKS from '../../assets/files/banks.json';
+import {createPdf} from 'react-native-images-to-pdf';
+import {Alert, Platform} from 'react-native';
 
 //create simple log
-export const cLog = (log = '', color) => {
+export const cLog = (key = '', log = '', color) => {
   const _selectColor = () => {
     switch (color) {
       case 'red':
@@ -17,7 +20,14 @@ export const cLog = (log = '', color) => {
         break;
     }
   };
-  console.log(`${_selectColor()}${log}`);
+  console.log(`${_selectColor()}${key}`, log);
+};
+
+export const generateRandomNumber = (min, max) => {
+  // Menggunakan formula Math.random() untuk menghasilkan nomor acak antara 0 dan 1
+  // Kemudian, dikalikan dengan (max - min + 1) untuk mendapatkan nomor acak dalam rentang yang diinginkan
+  // Ditambahkan dengan min untuk menyesuaikan rentang
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 //callback to avoid re-render
@@ -46,26 +56,44 @@ export const getDate = date => {
 };
 
 //uri to base64
-export const uriToBas64 = async uri => {
-  const fp = ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + uri;
+export const uriToBas64 = async (uri, android) => {
+  const fp = android ? uri : ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + uri;
   return await ReactNativeBlobUtil.fs
-    .readFile(fp, 'base64')
+    .readFile(fp.replace(/%20/g, ' '), 'base64')
     .then(data => {
       return data;
     })
     .catch(err => {
-      console.log(err);
+      console.log('URI TO BASE 64', err);
     });
 };
 
 // image to base64
-export const imgToBase64 = async uri => {
-  const fp = ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + uri;
+export const imgToBase64 = async (uri, android) => {
+  const fp = android ? uri : ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + uri;
   return await ImgToBase64.getBase64String(fp)
     .then(base64String => {
       return base64String;
     })
     .catch(err => console.log(err));
+};
+
+export const downloadPdf = async (image, id) => {
+  const androidPath = `file://${ReactNativeBlobUtil.fs.dirs.LegacyDownloadDir}`;
+  const iosPath = `file:///${ReactNativeBlobUtil.fs.dirs.DocumentDir}`;
+
+  const source = `data:image/png;base64,${image}`;
+
+  const outPath = Platform.OS == 'android' ? androidPath : iosPath;
+  const options = {
+    pages: [{imagePath: source}],
+    outputPath: `${outPath}/report-ID${id}-${generateRandomNumber(
+      10000,
+      999999,
+    )}.pdf`,
+  };
+
+  return createPdf(options);
 };
 
 export const formatToRupiah = value => {
@@ -93,7 +121,7 @@ export function hitungTotalNominal(data) {
   let total = 0;
   data.forEach(item => {
     // Hilangkan "Rp" dan koma, lalu ubah ke tipe number
-    const nominal = Number(item.nominal.replace('Rp', '').replace('/./g', ''));
+    const nominal = Number(item.nominal);
     // Tambahkan nominal ke total
     total += nominal;
   });
@@ -124,6 +152,13 @@ export const cekAkses = (akses, userAkses = []) => {
    * REIMBURSEMENT -> 1170 -> #1
    * PERMINTAAN BARANG -> 1157 -> #2
    * PENGUMUMAN -> 1171 -> #3
+   * DETAIL BARANG -> 1151 -> #4
+   * SUPER REIMBURSEMENT -> 1175 -> #5
+   * PAYMENT REQUEST -> 1176 -> #6
+   * no need REQUEST BARANG W/ ATTACHMENT -> 1179 -> #7
+   * ADMIN PB -> 999123 -> #8
+   * nO NEED PB APPROVAL -> 1177 -> #9
+   * Master Barang -> 1128 -> #10
    */
 
   if (akses == '#1') {
@@ -137,4 +172,61 @@ export const cekAkses = (akses, userAkses = []) => {
   if (akses == '#3') {
     return userAkses.findIndex(item => item == '1171') !== -1;
   }
+
+  if (akses == '#4') {
+    return userAkses.findIndex(item => item == '1151') !== -1;
+  }
+
+  if (akses == '#5') {
+    return userAkses.findIndex(item => item == '1175') !== -1;
+  }
+
+  if (akses == '#6') {
+    return userAkses.findIndex(item => item == '1176') !== -1;
+  }
+
+  if (akses == '#7') {
+    return userAkses.findIndex(item => item == '1179') !== -1;
+  }
+
+  if (akses == '#8') {
+    return userAkses.findIndex(item => item == '999123') !== -1;
+  }
+
+  if (akses == '#9') {
+    return userAkses.findIndex(item => item == '1177') !== -1;
+  }
+
+  if (akses == '#10') {
+    return userAkses.findIndex(item => item == '1128') !== -1;
+  }
+};
+
+export function getLabelByValue(value) {
+  const item = BANKS.find(item => item.value === value);
+  return item ? item.label : null;
+}
+
+export function hitungSelisihHari(tanggalAwal, tanggalAkhir) {
+  // Menggunakan moment untuk membuat objek tanggal dari string atau tipe data tanggal JavaScript
+  const awal = moment(tanggalAwal);
+  const akhir = moment(tanggalAkhir);
+
+  // Menghitung selisih dalam hari
+  const selisih = akhir.diff(awal, 'days');
+
+  return selisih;
+}
+
+export const isValidUrl = urlString => {
+  var urlPattern = new RegExp(
+    '^(https?:\\/\\/)?' + // validate protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // validate domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // validate port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
+      '(\\#[-a-z\\d_]*)?$',
+    'i',
+  ); // validate fragment locator
+  return !!urlPattern.test(urlString);
 };

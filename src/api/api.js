@@ -18,17 +18,20 @@ export const fetchApi = async props => {
   }
 
   try {
+    console.log('\x1b[32m%s\x1b[0m', 'Hit API -> ', BASE_URL + url);
     return axios({
       baseURL: BASE_URL,
       url: url,
       method: method || 'GET',
       data: data,
       headers: customHeaders,
+      timeout: 120000,
     })
       .then(resData => {
         return {state: API_STATES.OK, data: resData?.data?.data, error: []};
       })
       .catch(error => {
+        console.log(error);
         return {
           state: API_STATES.ERROR,
           data: [],
@@ -36,6 +39,7 @@ export const fetchApi = async props => {
         };
       });
   } catch (error) {
+    console.log(error);
     return {
       state: API_STATES.ERROR,
       data: [],

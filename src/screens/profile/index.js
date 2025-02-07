@@ -1,70 +1,147 @@
-import {StyleSheet, View} from 'react-native';
+import {StatusBar, StyleSheet, View} from 'react-native';
 import React from 'react';
-import {Avatar, Card, Icon, Text} from 'react-native-paper';
+import {Avatar, Card, Icon, Snackbar, Text} from 'react-native-paper';
 import {Container, Gap, Header, Row} from '../../components';
 import {Colors, Scaler, Size} from '../../styles';
 import {AuthContext} from '../../context';
 import {useNavigation} from '@react-navigation/native';
+import packageInfo from '../../../package.json';
+import {fetchApi} from '../../api/api';
+import {LOGOUT} from '../../api/apiRoutes';
+import {API_STATES} from '../../utils/constant';
+import {cekAkses} from '../../utils/utils';
+import RNRestart from 'react-native-restart';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const {user, signOut} = React.useContext(AuthContext);
+
+  const [showSnack, setShowSnack] = React.useState(false);
+  const [snackMessage, setSnackMessage] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const hasMasterBarang = cekAkses('#10', user.kodeAkses);
+
+  let PROFILE_MENU = [
+    {
+      id: 'button',
+      icon: 'archive-plus-outline',
+      title: 'Master Barang',
+      navTo: () =>
+        navigation.navigate('MasterBarang', {
+          screen: 'BarangCari',
+          params: {
+            fromMaster: true,
+          },
+        }),
+      style: styles.textIconButton,
+    },
+    {
+      id: 'button',
+      icon: 'account-lock-open-outline',
+      title: 'Ubah Password',
+      navTo: () => navigation.navigate('UpdatePassword'),
+      style: styles.textIconButton,
+    },
+    {
+      id: 'button',
+      icon: 'account-edit-outline',
+      title: 'Update Profile',
+      navTo: () => navigation.navigate('UpdateUser'),
+      style: styles.textIconButton,
+    },
+    {
+      id: 'button',
+      icon: 'account-reactivate-outline',
+      title: 'Refresh Status',
+      navTo: () => RNRestart.restart(),
+      style: styles.textIconButton,
+    },
+    {
+      id: 'exit',
+      icon: 'exit-to-app',
+      title: 'Keluar',
+      navTo: () => onLogout(),
+      style: styles.textIconButtonExit,
+    },
+  ];
+
+  if (!hasMasterBarang) {
+    PROFILE_MENU.shift();
+  }
+
+  async function onLogout() {
+    setIsLoading(true);
+    const {state, data, error} = await fetchApi({url: LOGOUT, method: 'POST'});
+    if (state == API_STATES.OK) {
+      setIsLoading(false);
+      signOut();
+    } else {
+      setIsLoading(false);
+      setSnackMessage('Ada sesuatu yang tidak beres, mohon coba lagi!');
+      setShowSnack(true);
+    }
+  }
+
   return (
     <Container>
+      <StatusBar
+        backgroundColor={Colors.COLOR_SECONDARY}
+        barStyle={'light-content'}
+      />
       <Header hideBack={true} title={'Profile'} />
       <View style={styles.headerTop}>
         <Avatar.Icon icon={'account'} size={56} />
         <Gap h={8} />
         <Text variant={'labelMedium'} style={styles.textTitle}>
-          Hola
+          {user?.nm_user}
         </Text>
+        <Gap h={4} />
         <Text variant={'labelSmall'} style={styles.textDepart}>
-          Ini departemen
+          {user?.level_user}
         </Text>
       </View>
       <Gap h={8} />
       <View style={styles.mainContainer}>
-        <Card
-          mode={'outlined'}
-          onPress={() => navigation.navigate('UpdatePassword')}>
-          <Card.Content>
-            <Row>
-              <Icon
-                source={'account-lock-open-outline'}
-                size={24}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-              <Gap w={14} />
-              <Text variant={'labelMedium'} style={styles.textIconButton}>
-                Ubah Password
-              </Text>
-              <Icon
-                source={'arrow-right-circle-outline'}
-                size={24}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-            </Row>
-          </Card.Content>
-        </Card>
-        <Gap h={8} />
-        <Card
-          mode={'outlined'}
-          style={styles.exitButton}
-          onPress={() => signOut()}>
-          <Card.Content>
-            <Row>
-              <Icon source={'exit-to-app'} size={24} color={Colors.COLOR_RED} />
-              <Gap w={14} />
-              <Text variant={'labelMedium'} style={styles.textIconButtonExit}>
-                Keluar
-              </Text>
-            </Row>
-          </Card.Content>
-        </Card>
+        {PROFILE_MENU.map((item, index) => {
+          return (
+            <View key={item + index}>
+              <Card mode={'outlined'} disabled={isLoading} onPress={item.navTo}>
+                <Card.Content>
+                  <Row>
+                    <Icon
+                      source={item.icon}
+                      size={24}
+                      color={
+                        item.id == 'exit'
+                          ? Colors.COLOR_RED
+                          : Colors.COLOR_DARK_GRAY
+                      }
+                    />
+                    <Gap w={14} />
+                    <Text variant={'labelMedium'} style={item.style}>
+                      {item.title}
+                    </Text>
+                    <Icon
+                      source={'arrow-right-circle-outline'}
+                      size={24}
+                      color={Colors.COLOR_DARK_GRAY}
+                    />
+                  </Row>
+                </Card.Content>
+              </Card>
+              <Gap h={14} />
+            </View>
+          );
+        })}
+
         <Text style={styles.textVersion} variant="labelSmall">
-          Version v.0.0.1-alpha
+          Version v.{packageInfo.version}
         </Text>
       </View>
+      <Snackbar visible={showSnack} onDismiss={() => setShowSnack(false)}>
+        {snackMessage}
+      </Snackbar>
     </Container>
   );
 };

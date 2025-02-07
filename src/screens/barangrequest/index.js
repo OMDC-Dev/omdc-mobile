@@ -20,6 +20,8 @@ import {
 } from '../../api/apiRoutes';
 import ModalView from '../../components/modal';
 import {useNavigation} from '@react-navigation/native';
+import {cekAkses} from '../../utils/utils';
+import {AuthContext} from '../../context';
 
 async function getCabang(url, type = 'induk', setResult) {
   try {
@@ -54,8 +56,20 @@ const BarangRequestScreen = () => {
   const [cabangAnakSelected, setCabangAnakSelected] = React.useState();
   const [cabangDetail, setCabangDetail] = React.useState();
 
+  // Approval
+  const [selectedAdmin, setSelectedAdmin] = React.useState();
+
   // state
   const [isLoading, setIsLoading] = React.useState(false);
+
+  // user
+  const {user} = React.useContext(AuthContext);
+
+  // cek akses
+  const needApprovalAdmin = cekAkses('#9', user.kodeAkses);
+
+  // state from akses
+  const isButtonDisabled = !needApprovalAdmin ? !selectedAdmin : false;
 
   // get init induk
   React.useEffect(() => {
@@ -118,11 +132,24 @@ const BarangRequestScreen = () => {
         <Text style={styles.subtitle} variant="titleSmall">
           Data Permintaan Barang
         </Text>
+        {!needApprovalAdmin && (
+          <>
+            <Gap h={8} />
+            <InputLabel>Ajukan Approval ke</InputLabel>
+            <Dropdown.ApprovalPBDropdown
+              loading={!cabangInduk}
+              value={selectedAdmin}
+              setValue={setSelectedAdmin}
+            />
+          </>
+        )}
+
         <Gap h={8} />
         <InputLabel>Cabang</InputLabel>
         <Dropdown.CabangDropdown
           data={cabangInduk}
           loading={!cabangInduk}
+          value={cabangIndukSelected}
           onChange={val => setCabangIndukSelected(val)}
         />
         <Gap h={8} />
@@ -130,6 +157,7 @@ const BarangRequestScreen = () => {
         <Dropdown.CabangDropdown
           data={cabangAnak}
           loading={!cabangAnak}
+          value={cabangAnakSelected}
           onChange={val => setCabangAnakSelected(val)}
         />
         {cabangDetail?.alamat_cabang && (
@@ -197,8 +225,10 @@ const BarangRequestScreen = () => {
             />
             <Gap h={32} />
             <Button
+              disabled={isButtonDisabled}
               onPress={() =>
                 navigation.navigate('BarangList', {
+                  admin: selectedAdmin,
                   cabang: {
                     indukCabang: cabangIndukSelected,
                     anakCabang: cabangAnakSelected,

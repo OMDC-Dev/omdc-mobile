@@ -1,6 +1,5 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import * as React from 'react';
-import HistoryScreen from '../screens/history';
 import PengajuanDetailScreen from '../screens/pengajuandetail';
 import PreviewScreen from '../screens/preview';
 import DiajukanScreen from '../screens/diajukan';

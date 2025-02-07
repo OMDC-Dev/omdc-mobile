@@ -1,8 +1,6 @@
 import * as React from 'react';
 import {AuthContext} from '.';
 import {removeData, storeData} from '../utils/store';
-import {fetchApi} from '../api/api';
-import {USER_COMPLETE} from '../api/apiRoutes';
 
 const AuthProvider = ({children}) => {
   //handle auth flow
@@ -35,6 +33,7 @@ const AuthProvider = ({children}) => {
             ...prevState,
             isSignout: true,
             userToken: null,
+            user: null,
           };
       }
     },

@@ -1,15 +1,36 @@
 import {Platform, StyleSheet, View} from 'react-native';
 import React from 'react';
 import {Colors, Scaler, Size} from '../../styles';
-import {Button, Gap, Header, InputLabel} from '../../components';
+import {
+  Button,
+  ErrorHelperText,
+  Gap,
+  Header,
+  InputLabel,
+  Row,
+} from '../../components';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {TextInput} from 'react-native-paper';
+import {TextInput, Button as PButton} from 'react-native-paper';
 import {formatRupiah} from '../../utils/rupiahFormatter';
+import {fetchApi} from '../../api/api';
+import {CEK_INVOICE} from '../../api/apiRoutes';
+import {API_STATES} from '../../utils/constant';
 
 const PengajuanItemScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+
+  const EXT_ITEM = route.params?.data;
+
+  console.log('EXT', EXT_ITEM);
+
+  const [inv, setInv] = React.useState();
   const [name, setName] = React.useState();
   const [nominal, setNominal] = React.useState();
+
+  const [invAva, setInvAva] = React.useState(false);
+  const [invLoading, setInvLoading] = React.useState(false);
+  const [avaError, setAvaError] = React.useState();
 
   function onInputFocus() {
     if (!nominal) return;
@@ -25,10 +46,63 @@ const PengajuanItemScreen = () => {
     setNominal(formatted);
   }
 
+  async function onCekInvoice() {
+    const extFind = EXT_ITEM.find(
+      item => item.invoice.toLowerCase() == inv.toLowerCase(),
+    );
+
+    if (extFind) {
+      setAvaError('No. Invoice telah digunakan.');
+      setInvLoading(false);
+      setInvAva(false);
+      return;
+    }
+
+    setInvLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: CEK_INVOICE(inv),
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setInvLoading(false);
+      setInvAva(true);
+      setAvaError();
+    } else {
+      setAvaError(error);
+      setInvLoading(false);
+      setInvAva(false);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Header title={'Tambah Item'} />
       <View style={styles.mainContainer}>
+        <InputLabel>No. Invoice / No. Bukti</InputLabel>
+        <TextInput
+          style={styles.input}
+          mode={'outlined'}
+          placeholder={'No. Invoice / No. Bukti'}
+          placeholderTextColor={Colors.COLOR_DARK_GRAY}
+          onChangeText={text => {
+            setInv(text);
+            setInvAva(false);
+          }}
+          value={inv}
+          error={avaError}
+        />
+        <Gap h={14} />
+        <PButton
+          loading={invLoading}
+          mode={'contained'}
+          disabled={!inv || invLoading || invAva}
+          onPress={() => onCekInvoice()}>
+          {invAva ? 'Tersedia' : 'Cek Invoice'}
+        </PButton>
+        <ErrorHelperText error={avaError} />
+        <Gap h={6} />
+
         <InputLabel>Nama Item</InputLabel>
         <TextInput
           style={styles.input}
@@ -47,8 +121,8 @@ const PengajuanItemScreen = () => {
           keyboardType={'phone-pad'}
           returnKeyType={'done'}
           placeholder={'Nominal'}
-          onBlur={onInputBlur}
-          onFocus={onInputFocus}
+          // onBlur={onInputBlur}
+          // onFocus={onInputFocus}
           placeholderTextColor={Colors.COLOR_DARK_GRAY}
           onChangeText={text => setNominal(text)}
           value={nominal}
@@ -56,10 +130,10 @@ const PengajuanItemScreen = () => {
         />
         <Gap h={32} />
         <Button
-          disabled={!name || !nominal}
+          disabled={!name || !nominal || !inv || avaError || !invAva}
           onPress={() =>
             navigation.navigate('Pengajuan', {
-              item: {name: name, nominal: formatRupiah(nominal)},
+              item: {name: name, nominal: nominal, invoice: inv},
             })
           }>
           Tambah Item

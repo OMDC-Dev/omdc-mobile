@@ -77,10 +77,13 @@ const PengajuanScreen = () => {
   const [paymentType, setPaymentType] = React.useState();
   const [tipePembayaran, setTipePembayaran] = React.useState();
   const [suplierType, setSuplierType] = React.useState('LIST');
+  const [selectType, setSelectType] = React.useState('BASIC');
 
   // CAR
   const [needBank, setNeedBank] = React.useState(true);
   const [useExtFile, setUseExtFile] = React.useState(false);
+  const [buktiAttachment, setBuktiAttachment] = React.useState();
+  const [buktiFileInfo, setBuktiFileInfo] = React.useState();
 
   // dropdown state
   const [cabangList, setCabangList] = React.useState([]);
@@ -133,6 +136,12 @@ const PengajuanScreen = () => {
     return !result;
   };
 
+  const disableByCARBukti = () => {
+    if (jenis == 'CAR' && !CAR_NEED_BANK) {
+      return !buktiFileInfo;
+    }
+  };
+
   const buttonDisabled =
     !jenis ||
     !coa ||
@@ -145,7 +154,8 @@ const PengajuanScreen = () => {
     !admin ||
     !item.length ||
     !tipePembayaran ||
-    disabledByType();
+    disabledByType() ||
+    disableByCARBukti();
 
   // handle on add item
   React.useEffect(() => {
@@ -178,8 +188,8 @@ const PengajuanScreen = () => {
 
       console.log(pickerResult);
 
-      if (size > 5000000) {
-        setSnackMsg('Ukuran file tidak boleh lebih dari 5 MB');
+      if (size > 11000000) {
+        setSnackMsg('Ukuran file tidak boleh lebih dari 10 MB');
         setSnack(true);
         return;
       }
@@ -197,13 +207,24 @@ const PengajuanScreen = () => {
 
       if (pickerResult.type == 'application/pdf') {
         const picker = await uriToBas64(path, Platform.OS == 'android');
-        setResult(picker);
+        if (selectType == 'BASIC') {
+          setResult(picker);
+          setFileInfo(fileInfo);
+        } else {
+          setBuktiAttachment(picker);
+          setBuktiFileInfo(fileInfo);
+        }
       } else {
         const base64 = await imgToBase64(path, Platform.OS == 'android');
-        setResult(base64);
+        //setResult(base64);
+        if (selectType == 'BASIC') {
+          setResult(base64);
+          setFileInfo(fileInfo);
+        } else {
+          setBuktiAttachment(base64);
+          setBuktiFileInfo(fileInfo);
+        }
       }
-
-      setFileInfo(fileInfo);
     } catch (error) {
       console.log(error);
     }
@@ -211,13 +232,11 @@ const PengajuanScreen = () => {
 
   // handle on pick from camera / gallery
   function onPickFromRes(data) {
-    if (data.fileSize > 5000000) {
-      setSnackMsg('Ukuran file tidak boleh lebih dari 5 MB');
+    if (data.fileSize > 11000000) {
+      setSnackMsg('Ukuran file tidak boleh lebih dari 10 MB');
       setSnack(true);
       return;
     }
-
-    setResult(data.base64);
 
     const fileInfo = {
       name: data.fileName,
@@ -225,7 +244,13 @@ const PengajuanScreen = () => {
       type: data.fileType,
     };
 
-    setFileInfo(fileInfo);
+    if (selectType == 'BASIC') {
+      setResult(data.base64);
+      setFileInfo(fileInfo);
+    } else {
+      setBuktiAttachment(data.base64);
+      setBuktiFileInfo(fileInfo);
+    }
   }
 
   // API
@@ -568,7 +593,7 @@ const PengajuanScreen = () => {
           />
 
           <Gap h={6} />
-          <InputLabel>Lampiran ( Maks. 5 MB )</InputLabel>
+          <InputLabel>Lampiran ( hanya PDF, maks. 10 MB )</InputLabel>
           {EXISTING_DATA ? (
             <>
               <Gap h={4} />
@@ -631,7 +656,10 @@ const PengajuanScreen = () => {
                 icon={'plus-box-outline'}
                 size={40}
                 iconColor={Colors.COLOR_DARK_GRAY}
-                onPress={() => setShowSelectFile(!showSelectFile)}
+                onPress={() => {
+                  setSelectType('BASIC');
+                  setShowSelectFile(!showSelectFile);
+                }}
               />
             )}
           </View>
@@ -731,6 +759,64 @@ const PengajuanScreen = () => {
                 defaultValue={reportData?.nominal}
                 placeholderTextColor={Colors.COLOR_DARK_GRAY}
               />
+
+              {CAR_NEED_BANK ? null : (
+                <>
+                  <Gap h={6} />
+                  <InputLabel>Bukti Pengembalian ( maks. 10 MB )</InputLabel>
+                  <View
+                    style={buktiFileInfo ? styles.fileContainer : undefined}>
+                    {buktiFileInfo ? (
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() =>
+                          navigation.navigate('Preview', {
+                            file: buktiAttachment,
+                            type: buktiFileInfo.type,
+                          })
+                        }>
+                        <Row>
+                          <Row style={styles.fileLeft}>
+                            <Icon
+                              source={'file-document-outline'}
+                              size={40}
+                              color={Colors.COLOR_DARK_GRAY}
+                            />
+                            <Gap w={8} />
+                            <Text
+                              style={{marginRight: Size.SIZE_24}}
+                              numberOfLines={1}
+                              variant={'labelLarge'}>
+                              {buktiFileInfo?.name?.length <= 30
+                                ? buktiFileInfo?.name
+                                : 'Lampiran'}
+                            </Text>
+                          </Row>
+                          <IconButton
+                            icon={'close'}
+                            size={24}
+                            iconColor={Colors.COLOR_DARK_GRAY}
+                            onPress={() => {
+                              setBuktiFileInfo(null);
+                              setBuktiAttachment(null);
+                            }}
+                          />
+                        </Row>
+                      </TouchableOpacity>
+                    ) : (
+                      <IconButton
+                        icon={'plus-box-outline'}
+                        size={40}
+                        iconColor={Colors.COLOR_DARK_GRAY}
+                        onPress={() => {
+                          setSelectType('BUKTI');
+                          setShowSelectFile(!showSelectFile);
+                        }}
+                      />
+                    )}
+                  </View>
+                </>
+              )}
             </>
           ) : null}
 
@@ -778,6 +864,8 @@ const PengajuanScreen = () => {
                       : suplierType == 'LIST'
                       ? true
                       : false,
+                    buktiFile: buktiAttachment,
+                    buktiFileInfo: buktiFileInfo,
                   },
                 });
               }}>
@@ -794,6 +882,7 @@ const PengajuanScreen = () => {
         pickFromFile={() => pickFile()}
         //fileCallback={cb => onPickFromRes(cb)}
         command={cmd => onPickFromRes(cmd)}
+        pdfOnly={selectType == 'BASIC' ? true : false}
       />
 
       <ModalView

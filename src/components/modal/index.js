@@ -42,6 +42,7 @@ const ModalView = ({
   onSave,
   isLoading,
   setIsLoading,
+  pdfOnly,
 }) => {
   //render modal children
   const renderContent = () => {
@@ -100,6 +101,7 @@ const ModalView = ({
             pickFromfile={pickFromFile}
             toggle={toggle}
             command={command}
+            pdfOnly={pdfOnly}
           />
         );
         break;

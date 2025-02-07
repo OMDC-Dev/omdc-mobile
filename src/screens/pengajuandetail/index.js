@@ -1478,6 +1478,42 @@ const PengajuanDetailScreen = () => {
     }
   }
 
+  // Bukti Lampiran
+  function renderBuktiLampiran() {
+    if (!data.bukti_file_info) return;
+
+    return (
+      <View>
+        <Gap h={12} />
+        <InputLabel style={styles.rowLeft}>Bukti Pengembalian</InputLabel>
+        <View style={styles.fileContainer}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() =>
+              isLoading
+                ? null
+                : navigation.navigate('Preview', {
+                    file: data.bukti_attachment,
+                    type: data.bukti_file_info?.type,
+                  })
+            }>
+            <Row style={styles.fileLeft}>
+              <Icon
+                source={'file-document-outline'}
+                size={40}
+                color={Colors.COLOR_DARK_GRAY}
+              />
+              <Gap w={8} />
+              <Text numberOfLines={1} variant={'labelLarge'}>
+                Lampiran
+              </Text>
+            </Row>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   // ==== COA SELECTOR
   function renderCoaSelector() {
     const TYPE = user?.type;
@@ -1658,7 +1694,7 @@ const PengajuanDetailScreen = () => {
     if (ROLE == 'FINANCE' && extraStatus !== 'IDLE') return;
     if (
       ROLE == 'ADMIN' &&
-      extraAcc.iduser == user.iduser &&
+      extraAcc?.iduser == user?.iduser &&
       extraAcc.status !== 'WAITING'
     )
       return;
@@ -2262,6 +2298,7 @@ const PengajuanDetailScreen = () => {
           })}
           {IS_DOWNLOAD ? null : renderAttachmentFile()}
           {renderCoaSelector()}
+          {renderBuktiLampiran()}
           {renderCabangDropdown()}
           {renderSenderBankFinance()}
 

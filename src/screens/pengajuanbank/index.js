@@ -289,6 +289,9 @@ const PengajuanBankScreen = () => {
       tipePembayaran: RR.tipePembayaran,
       uploadedFile: RR.useExtFile ? RR.uploadedFile : null,
       kdsp: PR_BANK?.kdsp || '',
+      need_bukti: IS_NEED_BANK ? false : true,
+      bukti_attachment: RR.buktiFile,
+      bukti_file_info: RR.buktiFileInfo,
     };
 
     const {state, data, error} = await fetchApi({

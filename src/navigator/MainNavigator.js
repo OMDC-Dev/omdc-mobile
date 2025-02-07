@@ -34,7 +34,7 @@ const MainStackNavigator = () => {
             name="DiajukanStack"
             component={DiajukanStack}
             options={{
-              title: 'Pengajuan',
+              title: 'Acc ROP',
               headerShown: false,
               tabBarIcon: ({color, size}) => (
                 <Icon source={'clipboard-flow'} color={color} size={size} />
@@ -155,7 +155,7 @@ const MainStackNavigator = () => {
           name="AdminBarangStack"
           component={AdminBarangStack}
           options={{
-            title: 'PB Approval',
+            title: 'Acc PB',
             headerShown: false,
             tabBarIcon: ({color, size}) => (
               <Icon source={'basket-unfill'} color={color} size={size} />

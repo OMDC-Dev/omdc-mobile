@@ -15,7 +15,8 @@
     "build:dev": "cd android && ./gradlew assembleDevRelease && cd ..",
     "deploycp:android": "appcenter codepush release-react -a omdcteam-gmail.com/OMDC-Mobile-1 -d Production",
     "deploycp:ios": "appcenter codepush release-react -a omdcteam-gmail.com/OMDC-Mobile -d Production",
-    "android:dev": "react-native run-android --variant=devDebug"
+    "android:dev": "react-native run-android --variant=devDebug",
+    "android:prodDebug": "react-native run-android --variant=prodDebug"
   },
   "dependencies": {
     "@likashefqet/react-native-image-zoom": "^3.0.0",
@@ -39,7 +40,6 @@
     "react-native": "0.68.2",
     "react-native-blob-util": "^0.19.1",
     "react-native-calendars": "^1.1303.0",
-    "react-native-code-push": "^7.1.0",
     "react-native-document-picker": "^9.1.1",
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-encrypted-storage": "^4.0.2",

@@ -32,6 +32,7 @@ import {
   ACCEPT_REVIEW_REIMBURSEMENT,
   FINANCE_ACCEPTANCE,
   FINANCE_UPDATE_COA,
+  GET_CABANG,
   REIMBURSEMENT_ACCEPTANCE,
   REIMBURSEMENT_ACCEPTANCE_EXTRA,
   REIMBURSEMENT_DETAIL,
@@ -129,6 +130,11 @@ const PengajuanDetailScreen = () => {
   const [isNeedBank, setIsNeedBank] = React.useState(true);
   const [showSelectFile, setShowSelectFile] = React.useState(false);
 
+  // cabang
+  const [cabangList, setCabangList] = React.useState([]);
+  const [cabang, setCabang] = React.useState();
+  const [baseCabang, setBaseCabang] = React.useState();
+
   // MODAL
   const {showLoading, hideModal} = React.useContext(ModalContext);
 
@@ -150,7 +156,18 @@ const PengajuanDetailScreen = () => {
   // ==== Get Data
 
   React.useEffect(() => {
+    const ROLE = user.type;
+
     getSuperUser();
+
+    if (
+      ROLE == 'ADMIN' ||
+      ROLE == 'FINANCE' ||
+      ROLE == 'MAKER' ||
+      ROLE == 'REVIEWER'
+    ) {
+      getCabang();
+    }
   }, []);
 
   React.useEffect(() => {
@@ -256,6 +273,27 @@ const PengajuanDetailScreen = () => {
     }
   }
 
+  // get cabang
+  async function getCabang() {
+    try {
+      const {state, data, error} = await fetchApi({
+        url: GET_CABANG,
+        method: 'GET',
+      });
+
+      if (state == API_STATES.OK) {
+        const doCabang = data.map(item => {
+          return {label: item.nm_induk, value: item?.kd_induk};
+        });
+        setCabangList(doCabang);
+      } else {
+        setCabangList([]);
+      }
+    } catch (error) {
+      setCabangList([]);
+    }
+  }
+
   console.log('AS', adminStatus);
 
   // get status
@@ -288,6 +326,7 @@ const PengajuanDetailScreen = () => {
         setExtraStatus(data.extraAcceptanceStatus);
         setFileStatus(data?.file_info);
         setAttachmentStatus(data?.attachment);
+        setBaseCabang(data?.kode_cabang);
         if (
           data.needExtraAcceptance &&
           user.type == 'FINANCE' &&
@@ -343,6 +382,7 @@ const PengajuanDetailScreen = () => {
       nominal: formatRupiah(nominal),
       note: note,
       coa: coa,
+      cabang: cabang ? cabang : null,
     };
 
     try {
@@ -377,6 +417,7 @@ const PengajuanDetailScreen = () => {
     const body = {
       status: status,
       note: note,
+      cabang: cabang ? cabang : null,
     };
 
     try {
@@ -413,6 +454,7 @@ const PengajuanDetailScreen = () => {
       coa: coa,
       bank: selectedBank,
       extra: admin,
+      cabang: cabang ? cabang : null,
     };
 
     try {
@@ -446,6 +488,7 @@ const PengajuanDetailScreen = () => {
       note: note,
       coa: coa,
       status: status,
+      cabang: cabang ? cabang : null,
     };
 
     try {
@@ -480,6 +523,7 @@ const PengajuanDetailScreen = () => {
       coa: coa,
       status: status,
       bank: selectedBank,
+      cabang: cabang ? cabang : null,
     };
 
     try {
@@ -612,7 +656,7 @@ const PengajuanDetailScreen = () => {
     },
     {
       title: 'Cabang',
-      value: data?.kode_cabang,
+      value: baseCabang || data?.kode_cabang,
       isColumn: false,
     },
     {
@@ -1593,6 +1637,60 @@ const PengajuanDetailScreen = () => {
     }
   }
 
+  console.log('EXTRA ACC', extraAcc, user);
+
+  function renderCabangDropdown() {
+    const ROLE = user?.type;
+
+    if (IS_DOWNLOAD) return;
+    if (IS_REPORT) return;
+    if (IS_PUSHED) return;
+
+    if (
+      ROLE == 'ADMIN' &&
+      ACCEPTANCE_STATUS_BY_ID !== 'WAITING' &&
+      extraStatus == 'IDLE'
+    )
+      return;
+    if (ROLE == 'REVIEWER' && reviewStatus !== 'IDLE') return;
+    if (ROLE == 'MAKER' && makerStatus !== 'IDLE') return;
+    if (ROLE == 'FINANCE' && financeStatus !== 'WAITING') return;
+    if (ROLE == 'FINANCE' && extraStatus !== 'IDLE') return;
+    if (
+      ROLE == 'ADMIN' &&
+      extraAcc.iduser == user.iduser &&
+      extraAcc.status !== 'WAITING'
+    )
+      return;
+
+    if (
+      ROLE == 'ADMIN' ||
+      ROLE == 'FINANCE' ||
+      ROLE == 'MAKER' ||
+      ROLE == 'REVIEWER'
+    ) {
+      if (!IS_MINE) {
+        return (
+          <>
+            <Gap h={12} />
+            <InputLabel>Cabang</InputLabel>
+            <Dropdown.CabangDropdown
+              placeholder={data.kode_cabang}
+              data={cabangList}
+              loading={!cabangList}
+              value={cabang}
+              onChange={val => setCabang(val)}
+            />
+            <Gap h={4} />
+            <Text variant={'labelSmall'}>
+              * Perubahan akan disimpan jika permintaan disetujui
+            </Text>
+          </>
+        );
+      }
+    }
+  }
+
   // == Render Download Attachmnet
   function renderDownloadAttachment() {
     if (!IS_DOWNLOAD) return;
@@ -2164,6 +2262,7 @@ const PengajuanDetailScreen = () => {
           })}
           {IS_DOWNLOAD ? null : renderAttachmentFile()}
           {renderCoaSelector()}
+          {renderCabangDropdown()}
           {renderSenderBankFinance()}
 
           {typeName !== 'Petty Cash Report' &&

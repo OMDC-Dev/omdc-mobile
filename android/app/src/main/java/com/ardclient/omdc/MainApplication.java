@@ -12,7 +12,7 @@ import com.facebook.soloader.SoLoader;
 import com.ardclient.omdc.newarchitecture.MainApplicationReactNativeHost;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import com.microsoft.codepush.react.CodePush;
+//import com.microsoft.codepush.react.CodePush;
 import androidx.multidex.MultiDexApplication;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
@@ -43,10 +43,10 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
           return "index";
         }
 
-        @Override
-        protected String getJSBundleFile() {
-            return CodePush.getJSBundleFile();
-        }
+        // @Override
+        // protected String getJSBundleFile() {
+        //     return CodePush.getJSBundleFile();
+        // }
       };
 
   private final ReactNativeHost mNewArchitectureNativeHost =

@@ -8,8 +8,6 @@ import {
 import {Colors} from './src/styles';
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform, StyleSheet, View} from 'react-native';
-import codePush from 'react-native-code-push';
-
 const theme = {
   ...DefaultTheme,
   colors: {
@@ -19,58 +17,8 @@ const theme = {
   },
 };
 
-const options = {
-  updateDialog: true,
-  installMode: codePush.InstallMode.IMMEDIATE,
-  checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
-};
-
 const App = () => {
   const [isLoading, setIsLoading] = React.useState(false);
-
-  async function requestUserPermission() {
-    if (Platform.OS == 'ios') {
-      const authStatus = await messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-      if (enabled) {
-        console.log('Authorization status:', authStatus);
-      }
-    } else {
-      PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-      );
-    }
-  }
-
-  // request permission
-  React.useEffect(() => {
-    requestUserPermission();
-
-    const codePushStatusDidChange = status => {
-      switch (status) {
-        case codePush.SyncStatus.DOWNLOADING_PACKAGE:
-          setIsLoading(true);
-          break;
-        case codePush.SyncStatus.INSTALLING_UPDATE:
-          setIsLoading(false);
-          break;
-        case codePush.SyncStatus.UPDATE_INSTALLED:
-          setIsLoading(false);
-          break;
-        default:
-          break;
-      }
-    };
-
-    const syncWithCodePush = () => {
-      codePush.sync({}, codePushStatusDidChange);
-    };
-
-    syncWithCodePush();
-  }, []);
 
   return (
     <PaperProvider theme={theme}>
@@ -93,4 +41,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default codePush(options)(App);
+export default App;

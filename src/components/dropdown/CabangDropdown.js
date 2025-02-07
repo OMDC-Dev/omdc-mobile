@@ -3,7 +3,7 @@ import React from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Colors, Scaler, Size} from '../../styles';
 
-const CabangDropdown = ({data = [], onChange, loading, value}) => {
+const CabangDropdown = ({data = [], onChange, loading, value, placeholder}) => {
   const [open, setOpen] = React.useState(false);
   const [items, setItems] = React.useState([]);
 
@@ -19,7 +19,7 @@ const CabangDropdown = ({data = [], onChange, loading, value}) => {
         searchPlaceholder="Cari cabang..."
         searchTextInputStyle={styles.searchInput}
         listMode={Platform.OS == 'android' ? 'MODAL' : 'SCROLLVIEW'}
-        placeholder="Pilih cabang"
+        placeholder={placeholder || 'Pilih cabang'}
         placeholderStyle={styles.placeholderStyle}
         open={open}
         value={value}

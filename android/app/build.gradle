@@ -353,4 +353,4 @@ def isNewArchitectureEnabled() {
     return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
 }
 
-apply from:"../../node_modules/react-native-code-push/android/codepush.gradle"
+//apply from:"../../node_modules/react-native-code-push/android/codepush.gradle"

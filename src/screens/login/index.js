@@ -51,6 +51,9 @@ const LoginScreen = () => {
   // API
   const login = async () => {
     const token = await messaging().getToken();
+    if (Platform.OS === 'ios') {
+      messaging().setAPNSToken(token);
+    }
 
     console.log('TOKENS', token);
 
@@ -143,7 +146,7 @@ const LoginScreen = () => {
           </Button>
           <Gap h={16} />
           <Text style={styles.textVersion} variant="labelSmall">
-            Version v.{packageInfo.version} - DEV
+            Version v.{packageInfo.version}
           </Text>
         </View>
         <Snackbar visible={showSnack} onDismiss={() => setShowSnack(false)}>

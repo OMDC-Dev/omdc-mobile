@@ -161,8 +161,8 @@ android {
         applicationId "com.ardclient.omdc"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 24
-        versionName "0.9.6.1"
+        versionCode 25
+        versionName "0.9.6.2"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
         multiDexEnabled true
 

@@ -104,6 +104,7 @@ const PengajuanScreen = () => {
 
   // CAR
   let CAR_NEED_BANK = false;
+  let NEED_BUKTI = false;
 
   // handle need bank CAR
   if (jenis == 'CAR') {
@@ -115,8 +116,17 @@ const PengajuanScreen = () => {
     } else {
       CAR_NEED_BANK = false;
     }
+
+    if (nomine < cashadv) {
+      NEED_BUKTI = true;
+    } else {
+      NEED_BUKTI = false;
+    }
+
+    console.log('NEED BUKTI', NEED_BUKTI);
   } else {
     CAR_NEED_BANK = true;
+    NEED_BUKTI = false;
   }
 
   const disabledByType = () => {
@@ -137,7 +147,7 @@ const PengajuanScreen = () => {
   };
 
   const disableByCARBukti = () => {
-    if (jenis == 'CAR' && !CAR_NEED_BANK) {
+    if (jenis == 'CAR' && NEED_BUKTI) {
       return !buktiFileInfo;
     }
   };
@@ -764,7 +774,7 @@ const PengajuanScreen = () => {
                 placeholderTextColor={Colors.COLOR_DARK_GRAY}
               />
 
-              {CAR_NEED_BANK ? null : (
+              {!NEED_BUKTI ? null : (
                 <>
                   <Gap h={6} />
                   <InputLabel>Bukti Pengembalian ( maks. 10 MB )</InputLabel>
@@ -870,6 +880,7 @@ const PengajuanScreen = () => {
                       : false,
                     buktiFile: buktiAttachment,
                     buktiFileInfo: buktiFileInfo,
+                    needBukti: NEED_BUKTI,
                   },
                 });
               }}>

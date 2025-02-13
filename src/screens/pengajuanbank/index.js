@@ -27,6 +27,7 @@ const PengajuanBankScreen = () => {
   // Payment Request Data
   const PR_BANK = RR?.suplier;
   const IS_NEED_BANK = RR?.needBank;
+  const NEED_BUKTI = RR?.needBukti;
   const IS_PRE_BANK =
     PR_BANK?.nm_bank && PR_BANK?.no_rekbank && PR_BANK?.nm_pemilik_rek;
 
@@ -289,7 +290,7 @@ const PengajuanBankScreen = () => {
       tipePembayaran: RR.tipePembayaran,
       uploadedFile: RR.useExtFile ? RR.uploadedFile : null,
       kdsp: PR_BANK?.kdsp || '',
-      need_bukti: IS_NEED_BANK ? false : true,
+      need_bukti: NEED_BUKTI,
       bukti_attachment: RR.buktiFile,
       bukti_file_info: RR.buktiFileInfo,
     };

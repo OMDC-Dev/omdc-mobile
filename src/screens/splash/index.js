@@ -15,7 +15,7 @@ const SplashScreen = () => {
   const {restoreToken, signOut} = React.useContext(AuthContext);
   const [errorType, setErrorType] = React.useState();
   const [showAlert, setShowAlert] = React.useState(false);
-  const CODE_VERSION = '9.6.0';
+  const CODE_VERSION = '9.6.1';
 
   async function checkIcon() {
     try {
@@ -55,7 +55,8 @@ const SplashScreen = () => {
     });
 
     if (state == API_STATES.OK) {
-      return data.status;
+      console.log('User Status XX', data);
+      return data;
     }
   }
 
@@ -68,7 +69,11 @@ const SplashScreen = () => {
       user = await retrieveData('USER_SESSION', true);
 
       if (user) {
-        statusUser = await getUserStatus(user.iduser);
+        const getUserSession = await getUserStatus(user.iduser);
+
+        if (getUserSession) {
+          statusUser = getUserSession.status;
+        }
 
         const {state, data, error} = await fetchApi({
           url: USER_KODE_AKSES(user.iduser),
@@ -77,7 +82,14 @@ const SplashScreen = () => {
 
         if (state == API_STATES.OK) {
           console.log('UPDATE KODE AKSES', data.kodeAkses);
-          user = {...user, kodeAkses: data.kodeAkses};
+          user = {
+            ...user,
+            kodeAkses: data.kodeAkses,
+            isAdmin: getUserSession.isAdmin,
+            type: getUserSession.type,
+          };
+
+          console.log('Updated User', user);
         }
       }
     } catch (e) {

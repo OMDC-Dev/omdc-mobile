@@ -23,6 +23,8 @@ const MainStackNavigator = () => {
   const isAdminPB = cekAkses('#8', user.kodeAkses);
   const hasSuperReimbursement = cekAkses('#5', user.kodeAkses);
 
+  console.log('NAV USER TYPE', user);
+
   // select admin type
   function renderAdminPengajuan() {
     let screen;

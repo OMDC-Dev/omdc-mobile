@@ -7,7 +7,7 @@ const LOCAL =
 
 const NGROK_DEV = 'https://1397-180-244-161-40.ngrok-free.app/';
 
-export const BASE_URL = LOCAL;
+export const BASE_URL = PROD;
 
 // AUTH
 export const LOGIN = 'user/login';

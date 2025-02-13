@@ -200,10 +200,14 @@ const PengajuanScreen = () => {
         type: pickerResult.type,
       };
 
+      // const path =
+      //   Platform.OS == 'android'
+      //     ? pickerResult.fileCopyUri
+      //     : pickerResult.fileCopyUri.split('Caches/')[1];
       const path =
         Platform.OS == 'android'
-          ? pickerResult.fileCopyUri
-          : pickerResult.fileCopyUri.split('Caches/')[1];
+          ? decodeURIComponent(pickerResult.fileCopyUri) // Decode path
+          : decodeURIComponent(pickerResult.fileCopyUri.split('Caches/')[1]);
 
       if (pickerResult.type == 'application/pdf') {
         const picker = await uriToBas64(path, Platform.OS == 'android');

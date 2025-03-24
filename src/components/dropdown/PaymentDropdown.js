@@ -16,7 +16,7 @@ const PaymentDropdown = ({onChange, value}) => {
       }}>
       <DropDownPicker
         listMode={Platform.OS == 'android' ? 'MODAL' : 'SCROLLVIEW'}
-        placeholder="Pilih kategori permintaan"
+        placeholder="Pilih kategori"
         placeholderStyle={styles.placeholderStyle}
         open={open}
         value={value}

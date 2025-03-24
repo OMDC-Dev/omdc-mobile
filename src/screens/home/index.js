@@ -44,6 +44,7 @@ const HomeScreen = () => {
     user.type == 'FINANCE' ||
     user.type == 'MAKER' ||
     user.type == 'REVIEWER';
+  const hasWorkplan = cekAkses('#11', user.kodeAkses);
 
   const onToggleSnackBar = () => setVisible(!visible);
   const onDismissSnackBar = () => setVisible(false);
@@ -164,6 +165,10 @@ const HomeScreen = () => {
             fromMaster: true,
           },
         };
+        break;
+      case 'WP':
+        IS_ERROR = !hasWorkplan;
+        PATH = 'WorkplanStack';
         break;
       default:
         break;

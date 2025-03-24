@@ -18,6 +18,7 @@ import {FinanceStack} from './FinanceStack';
 import {BarangStack} from './BarangNavigator';
 import {AdminBarangStack} from './AdminBarangNavigator';
 import {SuperReimbursementStack} from './ReportReimbursement';
+import {WorkplanStack} from './WorkplanStack';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +39,7 @@ export const HomeStack = () => {
       <Stack.Screen name="PengajuanStack" component={PengajuanStack} />
       <Stack.Screen name="NotifikasiStack" component={NotifStack} />
       <Stack.Screen name="HistoryReimbursementStack" component={HistoryStack} />
+      <Stack.Screen name="WorkplanStack" component={WorkplanStack} />
     </Stack.Navigator>
   );
 };

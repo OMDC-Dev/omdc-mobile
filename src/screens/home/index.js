@@ -1,48 +1,32 @@
-import * as React from 'react';
-import {
-  View,
-  StyleSheet,
-  SafeAreaView,
-  Image,
-  StatusBar,
-  FlatList,
-  TouchableOpacity,
-  RefreshControl,
-} from 'react-native';
-import {
-  Avatar,
-  Text,
-  Button as PaperButton,
-  Icon,
-  ActivityIndicator,
-  Searchbar,
-} from 'react-native-paper';
-import {Colors, Scaler, Size} from '../../styles';
-import {BlankScreen, Button, Card, Gap, Row} from '../../components';
-import ASSETS from '../../utils/assetLoader';
 import {
   useFocusEffect,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import {AuthContext} from '../../context';
-import {GET_NOTIFICATION_COUNT, REIMBURSEMENT} from '../../api/apiRoutes';
-import {API_STATES} from '../../utils/constant';
+import * as React from 'react';
+import {
+  Image,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {Avatar, Icon, Snackbar, Text} from 'react-native-paper';
 import {fetchApi} from '../../api/api';
-import {cekAkses} from '../../utils/utils';
-import _ from 'lodash';
+import {GET_NOTIFICATION_COUNT} from '../../api/apiRoutes';
+import {Gap, Row} from '../../components';
+import {AuthContext} from '../../context';
+import {Colors, Scaler, Size} from '../../styles';
+import {API_STATES} from '../../utils/constant';
 import {retrieveData} from '../../utils/store';
+import {cekAkses} from '../../utils/utils';
 
 const HomeScreen = () => {
-  const [recent, setRecent] = React.useState([]);
   const [unreadCount, setUnreadCount] = React.useState();
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [listInfo, setListInfo] = React.useState();
-  const [page, setPage] = React.useState(1);
-  const [moreLoading, setMoreLoading] = React.useState(false);
-  const [firstLoad, setFirstLoad] = React.useState(true);
-  const [search, setSearch] = React.useState('');
   const [icon, setIcon] = React.useState();
+  const [visible, setVisible] = React.useState(false);
 
   // navigation
   const navigation = useNavigation();
@@ -50,47 +34,147 @@ const HomeScreen = () => {
 
   // user context
   const {signOut, user} = React.useContext(AuthContext);
+  const hasRequestBarang = cekAkses('#2', user.kodeAkses);
+  const hasRR = cekAkses('#1', user.kodeAkses);
+  const isAdminPB = cekAkses('#8', user.kodeAkses);
+  const hasSuperReimbursement = cekAkses('#5', user.kodeAkses);
+  const hasPBMaster = cekAkses('#10', user.kodeAkses);
+  const isAdmin =
+    user.type == 'ADMIN' ||
+    user.type == 'FINANCE' ||
+    user.type == 'MAKER' ||
+    user.type == 'REVIEWER';
 
-  const hasReimbursement = cekAkses('#1', user?.kodeAkses);
+  const onToggleSnackBar = () => setVisible(!visible);
+  const onDismissSnackBar = () => setVisible(false);
 
-  async function getRecentRequest(clear) {
-    console.log('Get Recent On Progress');
-    setMoreLoading(true);
-    const {state, data, error} = await fetchApi({
-      url:
-        REIMBURSEMENT +
-        `?page=${page}&limit=20&status=00&cari=${clear ? '' : search}`,
-      method: 'GET',
-    });
+  const MENU_LIST = [
+    {
+      title: 'R.O.P',
+      icon: 'account-cash',
+      color: Colors.COLOR_PRIMARY,
+      type: 'ROP',
+    },
+    {
+      title: 'Approval R.O.P',
+      icon: 'account-check',
+      color: Colors.COLOR_PRIMARY,
+      type: 'ROP_ACC',
+    },
+    {
+      title: 'Report R.O.P',
+      icon: 'clipboard-flow',
+      color: Colors.COLOR_PRIMARY,
+      type: 'ROP_REPORT',
+    },
+    {
+      title: 'Permintaan Barang',
+      icon: 'basket-unfill',
+      color: Colors.COLOR_ACCENT,
+      type: 'PB',
+    },
+    {
+      title: 'Approval Permintaan Barang',
+      icon: 'archive-check',
+      color: Colors.COLOR_ACCENT,
+      type: 'PB_ACC',
+    },
+    {
+      title: 'Master Barang',
+      icon: 'archive-edit',
+      color: Colors.COLOR_ACCENT,
+      type: 'PB_MASTER',
+    },
+    {
+      title: 'Workplan Saya',
+      icon: 'briefcase',
+      color: Colors.COLOR_ACCENT_2,
+      type: 'WP',
+    },
+    {
+      title: 'Workplan CC',
+      icon: 'briefcase-account',
+      color: Colors.COLOR_ACCENT_2,
+      type: 'WP_CC',
+    },
+    {
+      title: 'Approval Workplan',
+      icon: 'briefcase-check',
+      color: Colors.COLOR_ACCENT_2,
+      type: 'WP_ACC',
+    },
+  ];
 
-    if (state == API_STATES.OK) {
-      setMoreLoading(false);
-      setRecent(data?.rows);
-      setListInfo(data?.pageInfo);
-      setRefreshing(false);
-    } else {
-      setMoreLoading(false);
-      setRefreshing(false);
-      console.log(error);
+  function checkAndGo(type) {
+    let IS_ERROR;
+    let PATH;
+    let PARAM = {};
+
+    function _getAdminPath() {
+      let path = '';
+
+      switch (user.type) {
+        case 'ADMIN':
+          path = 'AdminStack';
+          break;
+        case 'REVIEWER':
+          path = 'ReviewerStack';
+          break;
+        case 'MAKER':
+          path = 'MakerStack';
+          break;
+        case 'FINANCE':
+          path = 'FinanceStack';
+          break;
+        default:
+          path = '';
+          break;
+      }
+
+      return path;
     }
-  }
 
-  async function getNextRecentRequest() {
-    setMoreLoading(true);
-    const {state, data, error} = await fetchApi({
-      url: REIMBURSEMENT + `?page=${page}&limit=20&status=00&cari=${search}`,
-      method: 'GET',
-    });
+    switch (type) {
+      case 'ROP':
+        IS_ERROR = !hasRR;
+        PATH = 'PengajuanStack';
+        break;
+      case 'ROP_ACC':
+        IS_ERROR = !isAdmin;
+        PATH = _getAdminPath();
+        break;
+      case 'ROP_REPORT':
+        IS_ERROR = !hasSuperReimbursement;
+        PATH = 'SuperROPStack';
+        break;
+      case 'PB':
+        IS_ERROR = !hasRequestBarang;
+        PATH = 'BarangStack';
+        break;
+      case 'PB_ACC':
+        IS_ERROR = !isAdminPB;
+        PATH = 'AdminBarangStack';
+        break;
+      case 'PB_MASTER':
+        IS_ERROR = !hasPBMaster;
+        PATH = 'BarangStack';
+        PARAM = {
+          screen: 'BarangCari',
+          params: {
+            fromMaster: true,
+          },
+        };
+        break;
+      default:
+        break;
+    }
 
-    if (state == API_STATES.OK) {
-      setMoreLoading(false);
-      setRecent(prev => [...prev, ...data.rows]);
-      setListInfo(data?.pageInfo);
-      setRefreshing(false);
-    } else {
-      setMoreLoading(false);
-      setRefreshing(false);
-      console.log(error);
+    if (IS_ERROR) {
+      return onToggleSnackBar();
+    }
+
+    if (PATH) {
+      navigation.navigate(PATH, PARAM);
     }
   }
 
@@ -109,52 +193,9 @@ const HomeScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      setRefreshing(true);
-      setRecent([]);
-      setPage(1);
       getNotificationCount();
-      getRecentRequest();
     }, []),
   );
-
-  // React.useEffect(() => {
-  //   if (firstLoad) {
-  //     console.log('IT WAS FIRST LOAD');
-  //     getRecentRequest();
-  //   }
-  // }, [firstLoad]);
-
-  React.useEffect(() => {
-    if (!refreshing && !firstLoad) {
-      // Hanya panggil getNextRecentRequest jika bukan refresh pertama kali
-      getNextRecentRequest();
-    } else {
-      setFirstLoad(false); // Setelah render pertama kali, atur flag firstLoad menjadi false
-    }
-  }, [page]);
-
-  // React.useEffect(() => {
-
-  // }, [page]);
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setRecent([]);
-    setPage(1);
-    getRecentRequest();
-  }, []);
-
-  function onLoadMore() {
-    if (parseInt(page) < parseInt(listInfo?.pageCount) && !moreLoading) {
-      console.log('CAN LOAD MORE');
-      setPage(page + 1);
-    } else {
-      console.log('LOAD LIMIT');
-      console.log('PAGE', parseInt(page));
-      console.log('PC', parseInt(listInfo?.pageCount));
-      console.log('ML', moreLoading);
-    }
-  }
 
   React.useEffect(() => {
     loadIcon();
@@ -206,84 +247,48 @@ const HomeScreen = () => {
               />
             </TouchableOpacity>
           </Row>
-
-          {hasReimbursement && (
-            <>
-              <Gap h={24} />
-              <Button
-                style={styles.buttonRequest}
-                onPress={() => navigation.navigate('PengajuanStack')}>
-                Ajukan Request of Payment
-              </Button>
-            </>
-          )}
         </View>
         <View style={styles.mainContent}>
-          <Row style={styles.rowSub}>
-            <Text style={styles.textSubtitleLeft} variant="labelMedium">
-              Pengajuan Dalam Proses
-            </Text>
-            <Text
-              onPress={() => navigation.navigate('HistoryReimbursementStack')}
-              style={styles.textSubtitle}
-              variant="labelMedium">
-              Riwayat Pengajuan
-            </Text>
-          </Row>
-          <Searchbar
-            placeholder="Cari no. dokumen, jenis, coa..."
-            value={search}
-            onChangeText={text => setSearch(text)}
-            onBlur={() => getRecentRequest()}
-            onClearIconPress={() => getRecentRequest(true)}
-          />
-          {recent?.length ? (
-            <>
-              <FlatList
-                data={recent}
-                contentContainerStyle={{paddingBottom: 120}}
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                  />
-                }
-                onEndReachedThreshold={0.5}
-                onEndReached={onLoadMore}
-                ListFooterComponent={
-                  moreLoading ? (
-                    <View style={styles.footerLoading}>
-                      <Gap h={24} />
-                      <ActivityIndicator />
-                      <Gap h={14} />
-                      <Text variant={'bodySmall'}>Memuat lebih banyak...</Text>
-                    </View>
-                  ) : null
-                }
-                renderItem={({item, index}) => {
-                  return (
-                    <Card.PengajuanCard
-                      data={item}
-                      onPress={() =>
-                        navigation.navigate('PengajuanStack', {
-                          screen: 'PengajuanDetail',
-                          params: {
-                            data: item,
-                            type: 'MINE',
-                          },
-                        })
-                      }
+          <Gap h={8} />
+          <View style={styles.menuContainer}>
+            {MENU_LIST.map((item, index) => {
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  key={index}
+                  style={styles.menuButton}
+                  onPress={() => checkAndGo(item.type)}>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      {backgroundColor: item.color},
+                    ]}>
+                    <Icon
+                      size={20}
+                      color={Colors.COLOR_WHITE}
+                      source={item.icon}
                     />
-                  );
-                }}
-              />
-            </>
-          ) : (
-            <BlankScreen>Anda tidak memiliki pengajuan terbaru</BlankScreen>
-          )}
+                  </View>
+                  <Gap h={6} />
+                  <Text
+                    numberOfLines={2}
+                    style={styles.textMenu}
+                    variant={'labelSmall'}>
+                    {item.title}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
       </View>
+      <Snackbar
+        style={{bottom: Platform.OS == 'ios' ? 80 : 52}}
+        visible={visible}
+        duration={3000}
+        onDismiss={onDismissSnackBar}>
+        Anda tidak memiliki akses ke menu ini.
+      </Snackbar>
     </SafeAreaView>
   );
 };
@@ -296,7 +301,7 @@ const styles = StyleSheet.create({
 
   main: {
     flex: 1,
-    backgroundColor: Colors.COLOR_WHITE,
+    backgroundColor: Colors.COLOR_LIGHT_GRAY,
   },
 
   topContent: {
@@ -306,7 +311,14 @@ const styles = StyleSheet.create({
 
   mainContent: {
     flex: 1,
-    padding: Size.SIZE_14,
+  },
+
+  menuContainer: {
+    backgroundColor: Colors.COLOR_WHITE,
+    paddingVertical: Size.SIZE_10,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
   },
 
   logo: {
@@ -314,16 +326,30 @@ const styles = StyleSheet.create({
     height: Scaler.scaleSize(24),
   },
 
-  buttonRequest: {
-    borderRadius: 8,
-  },
-
   topInfoLeft: {
     flex: 1,
   },
 
-  rowSub: {
-    marginBottom: Size.SIZE_14,
+  iconContainer: {
+    width: Scaler.scaleSize(36),
+    height: Scaler.scaleSize(36),
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  menuButton: {
+    width: '25%',
+    alignItems: 'center',
+    marginVertical: 4,
+    justifyContent: 'flex-start', // Pastikan semua elemen mulai dari atas
+    minHeight: 80, // Atur tinggi minimum agar rata
+  },
+
+  textMenu: {
+    textAlign: 'center',
+    flexShrink: 1, // Mencegah teks melar ke luar
+    maxWidth: '90%', // Batasi lebar teks
   },
 
   bellButton: {
@@ -341,30 +367,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
 
-  footerLoading: {
-    alignItems: 'center',
-  },
-
-  // text
   textName: {
     color: Colors.COLOR_WHITE,
   },
 
   textLvl: {
     color: Colors.COLOR_LIGHT_GRAY,
-  },
-
-  textSubtitle: {
-    color: Colors.COLOR_PRIMARY,
-  },
-
-  textSubtitleLeft: {
-    flex: 1,
-    color: Colors.COLOR_DARK_GRAY,
-  },
-
-  textLogout: {
-    fontWeight: 'bold',
   },
 });
 

@@ -443,7 +443,7 @@ const PengajuanScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Header title={'Request of Payment'} />
+      <Header title={'Buat R.O.P'} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{flex: 1}}>

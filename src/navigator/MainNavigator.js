@@ -130,16 +130,16 @@ const MainStackNavigator = () => {
         name="HomeStack"
         component={HomeStack}
         options={{
-          title: 'R.O.P',
+          title: 'Home',
           headerShown: false,
           tabBarIcon: ({color, size}) => (
             <Icon source={'home-variant'} color={color} size={size} />
           ),
         }}
       />
-      {renderAdminPengajuan()}
+      {/* {renderAdminPengajuan()} */}
       {/* Permintaan Barang Stack */}
-      {hasRequestBarang && (
+      {/* {hasRequestBarang && (
         <Tab.Screen
           name="BarangStack"
           component={BarangStack}
@@ -177,7 +177,7 @@ const MainStackNavigator = () => {
             ),
           }}
         />
-      )}
+      )} */}
       <Tab.Screen
         name="ProfileStack"
         component={ProfileStack}

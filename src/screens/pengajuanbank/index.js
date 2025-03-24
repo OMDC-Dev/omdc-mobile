@@ -289,7 +289,7 @@ const PengajuanBankScreen = () => {
       payment_type: jenisPembayaran,
       tipePembayaran: RR.tipePembayaran,
       uploadedFile: RR.useExtFile ? RR.uploadedFile : null,
-      kdsp: PR_BANK?.kdsp || '',
+      kdsp: PR_BANK?.kdsp ?? null,
       need_bukti: NEED_BUKTI,
       bukti_attachment: RR.buktiFile,
       bukti_file_info: RR.buktiFileInfo,

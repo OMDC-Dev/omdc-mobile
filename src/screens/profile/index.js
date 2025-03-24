@@ -23,19 +23,19 @@ const ProfileScreen = () => {
   const hasMasterBarang = cekAkses('#10', user.kodeAkses);
 
   let PROFILE_MENU = [
-    {
-      id: 'button',
-      icon: 'archive-plus-outline',
-      title: 'Master Barang',
-      navTo: () =>
-        navigation.navigate('MasterBarang', {
-          screen: 'BarangCari',
-          params: {
-            fromMaster: true,
-          },
-        }),
-      style: styles.textIconButton,
-    },
+    // {
+    //   id: 'button',
+    //   icon: 'archive-plus-outline',
+    //   title: 'Master Barang',
+    //   navTo: () =>
+    //     navigation.navigate('MasterBarang', {
+    //       screen: 'BarangCari',
+    //       params: {
+    //         fromMaster: true,
+    //       },
+    //     }),
+    //   style: styles.textIconButton,
+    // },
     {
       id: 'button',
       icon: 'account-lock-open-outline',

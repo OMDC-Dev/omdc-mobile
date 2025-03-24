@@ -107,6 +107,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: 16,
     right: 0,
-    bottom: Platform.OS == 'ios' ? 80 : 52,
+    bottom: 0,
   },
 });

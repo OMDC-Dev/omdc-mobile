@@ -10,6 +10,14 @@ import PengajuanItemScreen from '../screens/pengajuanitem';
 import NotifikasiScreen from '../screens/notifikasi';
 import BuatNotifikasiScreen from '../screens/buatnotifikasi';
 import {HistoryStack} from './HistoryStack';
+import PengajuanListScreen from '../screens/pengajuanlist';
+import {DiajukanStack} from './DiajukanStack';
+import {ReviewerStack} from './ReviewerStack';
+import {MakerStack} from './MakerStack';
+import {FinanceStack} from './FinanceStack';
+import {BarangStack} from './BarangNavigator';
+import {AdminBarangStack} from './AdminBarangNavigator';
+import {SuperReimbursementStack} from './ReportReimbursement';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +28,13 @@ export const HomeStack = () => {
         headerShown: false,
       }}>
       <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="AdminStack" component={DiajukanStack} />
+      <Stack.Screen name="ReviewerStack" component={ReviewerStack} />
+      <Stack.Screen name="MakerStack" component={MakerStack} />
+      <Stack.Screen name="FinanceStack" component={FinanceStack} />
+      <Stack.Screen name="SuperROPStack" component={SuperReimbursementStack} />
+      <Stack.Screen name="BarangStack" component={BarangStack} />
+      <Stack.Screen name="AdminBarangStack" component={AdminBarangStack} />
       <Stack.Screen name="PengajuanStack" component={PengajuanStack} />
       <Stack.Screen name="NotifikasiStack" component={NotifStack} />
       <Stack.Screen name="HistoryReimbursementStack" component={HistoryStack} />
@@ -30,9 +45,11 @@ export const HomeStack = () => {
 const PengajuanStack = () => {
   return (
     <Stack.Navigator
+      initialRouteName="PengajuanList"
       screenOptions={{
         headerShown: false,
       }}>
+      <Stack.Screen name="PengajuanList" component={PengajuanListScreen} />
       <Stack.Screen name="Pengajuan" component={PengajuanScreen} />
       <Stack.Screen name="PengajuanItem" component={PengajuanItemScreen} />
       <Stack.Screen name="PengajuanBank" component={PengajuanBankScreen} />

@@ -3,6 +3,7 @@ export const COLOR_PRIMARY = '#E80264';
 export const COLOR_SECONDARY = '#060048';
 export const COLOR_ACCENT = '#ffa418';
 export const COLOR_DARK_BACKGROUND = '#3c3c3c';
+export const COLOR_ACCENT_2 = '#009688';
 
 //BASIC COLOR
 export const COLOR_WHITE = '#FFFFFF';

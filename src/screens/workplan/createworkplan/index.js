@@ -22,6 +22,9 @@ import ModalView from '../../../components/modal';
 import {getDateFormat} from '../../../utils/utils';
 import {SnackBarContext} from '../../../context';
 import {useNavigation} from '@react-navigation/native';
+import {fetchApi} from '../../../api/api';
+import {WORKPLAN} from '../../../api/apiRoutes';
+import {API_STATES} from '../../../utils/constant';
 
 const WorkplanScreen = () => {
   // date section
@@ -70,6 +73,35 @@ const WorkplanScreen = () => {
 
     setFile(data.base64);
     setFileInfo(fileInfo);
+  }
+
+  async function createWorkplan() {
+    setIsLoading(true);
+    const body = {
+      jenis_workplan: type,
+      tanggal_mulai: startDate,
+      tanggal_selesai: endDate,
+      kd_induk: cabang,
+      perihal: perihal,
+      kategori: kategori,
+      user_cc: cc,
+      attachment_before: file,
+    };
+
+    const {state, data, error} = await fetchApi({
+      url: WORKPLAN,
+      method: 'POST',
+      data: body,
+    });
+
+    if (state == API_STATES.OK) {
+      setIsLoading(false);
+      navigation.navigate('WorkplanDone');
+    } else {
+      setIsLoading(false);
+      setSnakMessage('Ada sesuatu yang tidak beres, mohon coba lagi!');
+      showSnak();
+    }
   }
 
   return (
@@ -190,7 +222,10 @@ const WorkplanScreen = () => {
           />
 
           <Gap h={32} />
-          <Button disabled={BUTTON_DISABLED} mode={'contained'}>
+          <Button
+            onPress={createWorkplan}
+            disabled={BUTTON_DISABLED}
+            mode={'contained'}>
             Buat Workplan
           </Button>
         </ScrollView>

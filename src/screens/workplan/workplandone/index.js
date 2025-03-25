@@ -2,9 +2,9 @@ import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import React from 'react';
 import {Text} from 'react-native-paper';
 import LottieView from 'lottie-react-native';
-import ASSETS from '../../utils/assetLoader';
-import {Button} from '../../components';
-import {Colors, Size} from '../../styles';
+import ASSETS from '../../../utils/assetLoader';
+import {Button} from '../../../components';
+import {Colors, Size} from '../../../styles';
 import {useNavigation, useRoute} from '@react-navigation/native';
 
 const WorkplanDoneScreen = () => {
@@ -40,7 +40,7 @@ const WorkplanDoneScreen = () => {
       <View style={styles.bottomContainer}>
         <Button
           onPress={() =>
-            navigation.navigate('PengajuanList', {
+            navigation.navigate('WorkplanList', {
               refresh: generateRandomInteger(10, 9999),
             })
           }>

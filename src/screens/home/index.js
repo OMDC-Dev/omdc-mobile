@@ -288,7 +288,7 @@ const HomeScreen = () => {
         </View>
       </View>
       <Snackbar
-        style={{bottom: Platform.OS == 'ios' ? 80 : 52}}
+        style={{bottom: 54}}
         visible={visible}
         duration={3000}
         onDismiss={onDismissSnackBar}>

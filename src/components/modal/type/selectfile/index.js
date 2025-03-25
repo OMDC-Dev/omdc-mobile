@@ -101,7 +101,14 @@ async function pickFromCameraIOS() {
   }
 }
 
-const SelectFileModal = ({toggle, pickFromfile, value, command, pdfOnly}) => {
+const SelectFileModal = ({
+  toggle,
+  pickFromfile,
+  value,
+  command,
+  pdfOnly,
+  imageOnly,
+}) => {
   const [selected, setSelected] = React.useState();
 
   console.log(selected);
@@ -235,17 +242,19 @@ const SelectFileModal = ({toggle, pickFromfile, value, command, pdfOnly}) => {
             </>
           )}
 
-          <Button
-            onPress={() => {
-              toggle();
-              setTimeout(() => {
-                pickFromfile();
-              }, 1000);
-            }}
-            style={styles.button}
-            mode={'contained-tonal'}>
-            Pilih dari file
-          </Button>
+          {!imageOnly ? (
+            <Button
+              onPress={() => {
+                toggle();
+                setTimeout(() => {
+                  pickFromfile();
+                }, 1000);
+              }}
+              style={styles.button}
+              mode={'contained-tonal'}>
+              Pilih dari file
+            </Button>
+          ) : null}
           <Button onPress={toggle} style={styles.button} mode={'text'}>
             Batalkan
           </Button>

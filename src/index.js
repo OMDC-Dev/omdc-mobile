@@ -5,24 +5,27 @@ import {AuthStackNavigator} from './navigator';
 import MainStackNavigator from './navigator/MainNavigator';
 import AuthProvider from './context/AuthProvider';
 import ModalProvider from './context/ModalProvider';
+import SnackBarProvider from './context/SnackbarProvider';
 
 const App = () => {
   return (
     <NavigationContainer>
       <ModalProvider>
-        <AuthProvider>
-          {state => {
-            if (state.isLoading) {
-              return <SplashScreen />;
-            }
+        <SnackBarProvider>
+          <AuthProvider>
+            {state => {
+              if (state.isLoading) {
+                return <SplashScreen />;
+              }
 
-            if (!state.userToken) {
-              return <AuthStackNavigator />;
-            }
+              if (!state.userToken) {
+                return <AuthStackNavigator />;
+              }
 
-            return <MainStackNavigator />;
-          }}
-        </AuthProvider>
+              return <MainStackNavigator />;
+            }}
+          </AuthProvider>
+        </SnackBarProvider>
       </ModalProvider>
     </NavigationContainer>
   );

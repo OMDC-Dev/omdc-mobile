@@ -14,6 +14,7 @@ import SuplierDropdownV2 from './SuplierDropdownV2';
 import KemasanBarangDropdown from './KemasanBarangDropdown';
 import SatuanDropdown from './SatuanDropdown';
 import CabangWorkplanDropdown from './workplan/CabangDropdown';
+import WorkplanCCDropdown from './workplan/WorkplanCCDropdown';
 
 export {
   TypeDropdown,
@@ -32,4 +33,5 @@ export {
   KemasanBarangDropdown,
   SatuanDropdown,
   CabangWorkplanDropdown,
+  WorkplanCCDropdown,
 };

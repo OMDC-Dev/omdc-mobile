@@ -10,6 +10,7 @@ import InputLabel from './InputLabel';
 import Container from './Container';
 import PickList from './PickList';
 import ErrorHelperText from './ErrorHelperText';
+import FilePlaceholder from './FilePlaceholder';
 
 export {
   Button,
@@ -24,4 +25,5 @@ export {
   Container,
   PickList,
   ErrorHelperText,
+  FilePlaceholder,
 };

@@ -1,12 +1,27 @@
-import {KeyboardAvoidingView, Platform, StyleSheet, View} from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import React from 'react';
-import {Dropdown, Gap, Header, InputLabel, Row} from '../../../components';
+import {
+  Dropdown,
+  FilePlaceholder,
+  Gap,
+  Header,
+  InputLabel,
+  Row,
+} from '../../../components';
 import WorkplanTypeDropdown from '../../../components/dropdown/workplan/WokrplanTypeDropdown';
 import {Colors, Scaler, Size} from '../../../styles';
 import {ScrollView} from 'react-native';
-import {Card, Icon, Text, TextInput} from 'react-native-paper';
+import {Button, Card, Icon, Text, TextInput} from 'react-native-paper';
 import ModalView from '../../../components/modal';
 import {getDateFormat} from '../../../utils/utils';
+import {SnackBarContext} from '../../../context';
+import {useNavigation} from '@react-navigation/native';
 
 const WorkplanScreen = () => {
   // date section
@@ -16,14 +31,49 @@ const WorkplanScreen = () => {
   const [dateType, setDateType] = React.useState();
 
   // other
+  const [type, setType] = React.useState();
   const [cabang, setCabang] = React.useState();
   const [perihal, setPerihal] = React.useState();
   const [kategori, setKategori] = React.useState();
+  const [cc, setCC] = React.useState();
 
-  console.log('cabang', cabang);
+  // file
+  const [fileInfo, setFileInfo] = React.useState();
+  const [file, setFile] = React.useState();
+
+  // utils
+  const [showSelectFile, setShowSelectFile] = React.useState(false);
+  const {setSnakMessage, showSnak, hideSnak} =
+    React.useContext(SnackBarContext);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  // navigation
+  const navigation = useNavigation();
+
+  // const
+  const BUTTON_DISABLED =
+    !type || !cabang || !startDate || !endDate || !perihal || !kategori;
+
+  // handle on pick from camera / gallery
+  function onPickFromRes(data) {
+    if (data.fileSize > 11000000) {
+      setSnakMessage('Ukuran file tidak boleh lebih dari 10 MB');
+      showSnak();
+      return;
+    }
+
+    const fileInfo = {
+      name: data.fileName,
+      size: data.fileSize,
+      type: data.fileType,
+    };
+
+    setFile(data.base64);
+    setFileInfo(fileInfo);
+  }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Header title={'Buat Workplan'} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -42,7 +92,7 @@ const WorkplanScreen = () => {
 
           <Gap h={14} />
           <InputLabel>Jenis Workplan</InputLabel>
-          <WorkplanTypeDropdown />
+          <WorkplanTypeDropdown value={type} onChange={val => setType(val)} />
 
           <Gap h={6} />
           <InputLabel>Tanggal Mulai</InputLabel>
@@ -100,11 +150,11 @@ const WorkplanScreen = () => {
           />
 
           <Gap h={6} />
-          <InputLabel>Deskripsi</InputLabel>
+          <InputLabel>Perihal</InputLabel>
           <TextInput
             style={styles.input}
             mode={'outlined'}
-            placeholder={'Deskripsi'}
+            placeholder={'Perihal'}
             placeholderTextColor={Colors.COLOR_DARK_GRAY}
             onChangeText={text => setPerihal(text)}
             value={perihal}
@@ -116,6 +166,33 @@ const WorkplanScreen = () => {
             value={kategori}
             onChange={val => setKategori(val)}
           />
+
+          <Gap h={14} />
+          <InputLabel>CC ( Opsional )</InputLabel>
+          <Dropdown.WorkplanCCDropdown
+            value={cc}
+            onChange={val => setCC(val)}
+          />
+
+          <Gap h={14} />
+          <InputLabel>Gambar Awal ( Opsional maks 10 MB )</InputLabel>
+          <FilePlaceholder
+            file={file}
+            fileInfo={fileInfo}
+            onSelectPress={() => {
+              setShowSelectFile(true);
+            }}
+            onClosePress={() => {
+              setFileInfo({});
+              setFile(null);
+            }}
+            navigation={navigation}
+          />
+
+          <Gap h={32} />
+          <Button disabled={BUTTON_DISABLED} mode={'contained'}>
+            Buat Workplan
+          </Button>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -132,7 +209,24 @@ const WorkplanScreen = () => {
             : null
         }
       />
-    </View>
+
+      <ModalView
+        type={'selectfile'}
+        visible={showSelectFile}
+        toggle={() => setShowSelectFile(!showSelectFile)}
+        //pickFromFile={() => pickFile()}
+        //fileCallback={cb => onPickFromRes(cb)}
+        command={cmd => onPickFromRes(cmd)}
+        pdfOnly={false}
+        imageOnly={true}
+      />
+
+      <ModalView
+        type={'loading'}
+        visible={isLoading}
+        toggle={() => setIsLoading(false)}
+      />
+    </SafeAreaView>
   );
 };
 
@@ -141,6 +235,7 @@ export default WorkplanScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.COLOR_SECONDARY,
   },
 
   mainContainer: {
@@ -152,6 +247,14 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: Colors.COLOR_WHITE,
     fontSize: Scaler.scaleFont(14),
+  },
+
+  ccContainer: {
+    borderWidth: 1,
+    borderColor: Colors.COLOR_GRAY,
+    borderRadius: 4,
+    paddingHorizontal: Size.SIZE_12,
+    paddingVertical: Size.SIZE_16,
   },
 
   // text

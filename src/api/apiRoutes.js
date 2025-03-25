@@ -117,3 +117,11 @@ export const UPDATE_BARANG = kode => `barang/update/${kode}`;
 
 // Invoice
 export const CEK_INVOICE = inv => `invoice?inv=${inv}`;
+
+// WORK PLAN API
+export const WORKPLAN = 'workplan';
+export const WORKPLAN_UPDATE = id => `workplan/update/${id}`;
+export const WORKPLAN_UPDATE_STATUS = id => `workplan/status/${id}`;
+export const WORKPLAN_CC_USER = 'workplan/cc';
+export const WORKPLAN_PROGRESS = id => `workplan/progress/${id}`;
+export const WORKPLAN_COMMENT = id => `workplan/comment/${id}`;

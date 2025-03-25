@@ -3,7 +3,7 @@ import React from 'react';
 import {StatusBar, StyleSheet} from 'react-native';
 import {Container, Header} from '../../../components';
 import {Colors, Size} from '../../../styles';
-import ListPlaceholder from './OnProgress';
+import ListPlaceholder from './ListPlaceholder';
 
 const WorkplanListScreen = () => {
   // define tab
@@ -29,6 +29,10 @@ const WorkplanListScreen = () => {
         <Tab.Screen
           name="Diajukan"
           component={ListPlaceholder}
+          initialParams={{
+            type: 'WAITING',
+            user: 'USER',
+          }}
           options={{
             title: 'Dalam Proses',
           }}
@@ -36,6 +40,10 @@ const WorkplanListScreen = () => {
         <Tab.Screen
           name="Disetujui"
           component={ListPlaceholder}
+          initialParams={{
+            type: 'DONE',
+            user: 'USER',
+          }}
           options={{
             title: 'Selesai',
           }}

@@ -107,7 +107,15 @@ const ListPlaceholder = type => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
           renderItem={({item, index}) => {
-            return <Card.WorkplanCard key={index} data={item} />;
+            return (
+              <Card.WorkplanCard
+                key={index}
+                data={item}
+                onPress={() =>
+                  navigation.navigate('WorkplanDetail', {id: item.id})
+                }
+              />
+            );
           }}
           showsVerticalScrollIndicator={false}
           onEndReachedThreshold={0.5}

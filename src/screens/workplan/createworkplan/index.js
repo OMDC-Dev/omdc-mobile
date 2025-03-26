@@ -43,9 +43,9 @@ const WorkplanScreen = () => {
   // file
   const [fileInfo, setFileInfo] = React.useState();
   const [file, setFile] = React.useState();
+  const [showSelectFile, setShowSelectFile] = React.useState(false);
 
   // utils
-  const [showSelectFile, setShowSelectFile] = React.useState(false);
   const {setSnakMessage, showSnak, hideSnak} =
     React.useContext(SnackBarContext);
   const [isLoading, setIsLoading] = React.useState(false);

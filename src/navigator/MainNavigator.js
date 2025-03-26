@@ -14,6 +14,7 @@ import {SuperReimbursementStack} from './ReportReimbursement';
 import {ReviewerStack} from './ReviewerStack';
 import {MakerStack} from './MakerStack';
 import {AdminBarangStack} from './AdminBarangNavigator';
+import ProgressModal from '../screens/workplan/modal/ProgressModal';
 
 const Tab = createBottomTabNavigator();
 

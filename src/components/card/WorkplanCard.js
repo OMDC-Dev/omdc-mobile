@@ -7,7 +7,7 @@ import Gap from '../Gap';
 import moment from 'moment';
 import {WORKPLAN_STATUS} from '../../utils/constant';
 
-const WorkplanCard = ({data}) => {
+const WorkplanCard = ({data, onPress}) => {
   const {workplan_id, user_detail, createdAt, perihal, status} = data;
 
   const renderStatus = () => {
@@ -54,7 +54,7 @@ const WorkplanCard = ({data}) => {
   };
 
   return (
-    <Card style={styles.container}>
+    <Card style={styles.container} onPress={onPress}>
       <Card.Content>
         <Row justify={'space-between'}>
           <Text style={styles.textTitle} variant={'labelSmall'}>

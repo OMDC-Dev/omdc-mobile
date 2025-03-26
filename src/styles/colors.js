@@ -12,6 +12,11 @@ export const COLOR_BLACK = '#090909';
 export const COLOR_ORANGE = '#E87E02';
 export const COLOR_GREEN = '#02E80B';
 
+// MATERIAL OTHER
+export const COLOR_MGREEN = '#009688';
+export const COLOR_MAMBER = '#FFC107';
+export const COLOR_MRED = '#F44336';
+
 //GRAY COLOR
 export const COLOR_GRAY = '#969696';
 export const COLOR_DARK_GRAY = '#7F7F7F';

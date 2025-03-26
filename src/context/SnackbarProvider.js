@@ -9,7 +9,7 @@ const SnackBarProvider = ({children}) => {
         case 'SET_MESSAGE':
           return {
             ...prevState,
-            message: action.snackMessage,
+            message: action.message,
           };
         case 'SHOW':
           return {

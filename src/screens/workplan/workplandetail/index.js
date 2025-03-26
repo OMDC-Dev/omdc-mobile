@@ -64,42 +64,30 @@ const WorkplanDetailScreen = () => {
     {
       title: 'Jenis Workplan',
       key: 'jenis_workplan',
-      subKey: '',
       alias: val => (val == 'APPROVAL' ? 'Approval' : 'Non Approval'),
       type: 'default',
     },
     {
       title: 'Tanggal Mulai',
       key: 'tanggal_mulai',
-      subKey: '',
       alias: val => val,
       type: 'default',
     },
     {
       title: 'Tanggal Selesai',
       key: 'tanggal_selesai',
-      subKey: '',
       alias: val => val,
       type: 'default',
     },
     {
       title: 'Cabang',
       key: 'cabang_detail',
-      subKey: 'nm_induk',
-      alias: val => val,
+      alias: val => val.nm_induk,
       type: 'default',
     },
     {
       title: 'Kategori',
       key: 'kategori',
-      subKey: '',
-      alias: val => val,
-      type: 'default',
-    },
-    {
-      title: 'Perihal',
-      key: 'perihal',
-      subKey: '',
       alias: val => val,
       type: 'default',
     },
@@ -279,16 +267,24 @@ const WorkplanDetailScreen = () => {
                 {item.title}
               </Text>
               <Text style={styles.textValue} variant={'labelMedium'}>
-                {workplanDetail
-                  ? item.subKey
-                    ? item.alias(workplanDetail[item.key]?.[item.subKey])
-                    : item.alias(workplanDetail[item.key])
-                  : '-'}
+                {workplanDetail ? item.alias(workplanDetail[item.key]) : '-'}
               </Text>
             </Row>
           );
         })}
         <Gap h={8} />
+        <Text style={styles.textCaption} variant={'labelMedium'}>
+          Perihal
+        </Text>
+        <Gap h={14} />
+        <Card>
+          <Card.Content>
+            <Text style={styles.textValue} variant={'labelMedium'}>
+              {workplanDetail?.perihal}
+            </Text>
+          </Card.Content>
+        </Card>
+        <Gap h={16} />
         <Text style={styles.textCaption} variant={'labelMedium'}>
           Gambar
         </Text>
@@ -417,7 +413,7 @@ const WorkplanDetailScreen = () => {
         </Text>
         <Gap h={14} />
         <Button
-          onPress={() => navigation.navigate('WPProgressModal')}
+          onPress={() => navigation.navigate('WPProgressModal', {id: WP_ID})}
           mode={'outlined'}>
           Lihat Semua Progress
         </Button>

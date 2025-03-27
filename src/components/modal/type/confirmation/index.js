@@ -23,7 +23,6 @@ const ModalConfirmation = ({toggle, onConfirm}) => {
         <Button
           onPress={() => {
             onConfirm ? onConfirm() : null;
-            toggle();
           }}>
           Ok
         </Button>

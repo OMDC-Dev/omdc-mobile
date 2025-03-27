@@ -1,6 +1,6 @@
 import {StyleSheet} from 'react-native';
 import React from 'react';
-import {Card, Text} from 'react-native-paper';
+import {Card, Chip, Text} from 'react-native-paper';
 import Row from '../Row';
 import {Colors, Scaler, Size} from '../../styles';
 import Gap from '../Gap';
@@ -8,7 +8,8 @@ import moment from 'moment';
 import {WORKPLAN_STATUS} from '../../utils/constant';
 
 const WorkplanCard = ({data, onPress}) => {
-  const {workplan_id, user_detail, createdAt, perihal, status} = data;
+  const {workplan_id, user_detail, createdAt, perihal, status, jenis_workplan} =
+    data;
 
   const renderStatus = () => {
     let title = '';
@@ -65,10 +66,23 @@ const WorkplanCard = ({data, onPress}) => {
         <Gap h={8} />
         <Text variant={'labelMedium'}>{perihal}</Text>
         <Gap h={14} />
+        <Text style={styles.textId} variant={'labelSmall'}>
+          {workplan_id}
+        </Text>
+        <Gap h={8} />
         <Row justify={'space-between'}>
-          <Text style={styles.textId} variant={'labelSmall'}>
-            {workplan_id}
-          </Text>
+          <Chip
+            style={{
+              backgroundColor:
+                jenis_workplan == 'APPROVAL'
+                  ? Colors.COLOR_ACCENT
+                  : Colors.COLOR_ACCENT_2,
+            }}>
+            <Text style={styles.textId} variant={'labelSmall'}>
+              {jenis_workplan == 'APPROVAL' ? 'Approval' : 'Non Approval'}
+            </Text>
+          </Chip>
+
           <Text style={styles.textTime} variant={'labelSmall'}>
             {moment(createdAt).format('ll')}
           </Text>

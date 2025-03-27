@@ -78,6 +78,7 @@ const WorkplanScreen = () => {
   }
 
   async function createWorkplan() {
+    console.log('Creating Workplan...');
     showLoading();
     const body = {
       jenis_workplan: type,

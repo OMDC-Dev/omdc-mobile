@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
@@ -143,27 +144,30 @@ const ProgressModal = () => {
         style={styles.flexContainer}
         keyboardVerticalOffset={72}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <Row justify={'space-between'}>
+          <View style={styles.titleContainer}>
+            <Text variant={'titleMedium'} style={styles.textProgress}>
+              Progress
+            </Text>
+          </View>
+          <IconButton
+            icon={'close'}
+            onPress={() => (loading ? null : navigation.goBack())}
+          />
+        </Row>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.scrollContainer}>
-            <Row justify={'space-between'}>
-              <View style={styles.titleContainer}>
-                <Text variant={'titleMedium'} style={styles.textProgress}>
-                  Progress
-                </Text>
-              </View>
-              <IconButton
-                icon={'close'}
-                onPress={() => (loading ? null : navigation.goBack())}
-              />
-            </Row>
-
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+            }}
+            style={styles.scrollContainer}>
             <View style={styles.mainContainer}>
               {/** List Container */}
               {list?.length > 0 ? (
-                <FlatList
-                  data={list}
-                  renderItem={({item, index}) => (
+                list.map((item, index) => {
+                  return (
                     <Card
+                      key={index}
                       style={{
                         marginHorizontal: 4,
                         marginTop: 4,
@@ -204,13 +208,13 @@ const ProgressModal = () => {
                         </Row>
                       </Card.Content>
                     </Card>
-                  )}
-                />
+                  );
+                })
               ) : (
                 <BlankScreen loading={loading}>Belum ada progress</BlankScreen>
               )}
             </View>
-          </View>
+          </ScrollView>
         </TouchableWithoutFeedback>
 
         {/* Bottom Container */}
@@ -295,7 +299,9 @@ const styles = StyleSheet.create({
 
   mainContainer: {
     flex: 1,
-    padding: Size.SIZE_14,
+    paddingHorizontal: Size.SIZE_14,
+    paddingTop: Size.SIZE_14,
+    paddingBottom: 92,
   },
 
   bottomContainer: {

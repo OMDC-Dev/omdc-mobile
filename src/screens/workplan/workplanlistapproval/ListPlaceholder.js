@@ -28,15 +28,10 @@ const ListPlaceholder = type => {
   const navigation = useNavigation();
   const route = useRoute();
   const PARAM_TYPE = route.params.type;
-  const PARAM_USER = route.params.user;
 
   const STATUS_PARAM =
     PARAM_TYPE == 'WAITING'
-      ? [
-          WORKPLAN_STATUS.ON_PROGRESS,
-          WORKPLAN_STATUS.PENDING,
-          WORKPLAN_STATUS.REVISON,
-        ]
+      ? WORKPLAN_STATUS.ON_PROGRESS
       : WORKPLAN_STATUS.FINISH;
 
   useFocusEffect(
@@ -54,7 +49,9 @@ const ListPlaceholder = type => {
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=4&page=1&search=${clear ? '' : search}&status=${STATUS_PARAM}`, // Selalu mulai dari page 1
+        `?limit=4&page=1&search=${
+          clear ? '' : search
+        }&status=${STATUS_PARAM}&admin=true`, // Selalu mulai dari page 1
       method: 'GET',
     });
 
@@ -77,7 +74,7 @@ const ListPlaceholder = type => {
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}`,
+        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&admin=true`,
       method: 'GET',
     });
 
@@ -116,7 +113,10 @@ const ListPlaceholder = type => {
                 key={index}
                 data={item}
                 onPress={() =>
-                  navigation.navigate('WorkplanDetail', {id: item.id})
+                  navigation.navigate('WorkplanDetail', {
+                    id: item.id,
+                    admin: true,
+                  })
                 }
               />
             );
@@ -142,13 +142,6 @@ const ListPlaceholder = type => {
       ) : (
         <BlankScreen>Belum ada data!</BlankScreen>
       )}
-      {PARAM_USER == 'USER' && PARAM_TYPE == 'WAITING' ? (
-        <FAB
-          icon="plus"
-          style={styles.fab}
-          onPress={() => navigation.navigate('Workplan')}
-        />
-      ) : null}
     </View>
   );
 };

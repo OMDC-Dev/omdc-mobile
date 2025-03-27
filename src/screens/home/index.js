@@ -45,6 +45,7 @@ const HomeScreen = () => {
     user.type == 'MAKER' ||
     user.type == 'REVIEWER';
   const hasWorkplan = cekAkses('#11', user.kodeAkses);
+  const hasWorkplanApproval = cekAkses('#12', user.kodeAkses);
 
   const onToggleSnackBar = () => setVisible(!visible);
   const onDismissSnackBar = () => setVisible(false);
@@ -169,6 +170,20 @@ const HomeScreen = () => {
       case 'WP':
         IS_ERROR = !hasWorkplan;
         PATH = 'WorkplanStack';
+        break;
+      case 'WP_ACC':
+        IS_ERROR = !hasWorkplanApproval;
+        PATH = 'WorkplanStack';
+        PARAM = {
+          screen: 'WorkplanListApproval',
+        };
+        break;
+      case 'WP_CC':
+        IS_ERROR = !hasWorkplan;
+        PATH = 'WorkplanStack';
+        PARAM = {
+          screen: 'WorkplanListCC',
+        };
         break;
       default:
         break;

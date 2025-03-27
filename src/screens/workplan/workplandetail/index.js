@@ -75,9 +75,16 @@ const WorkplanDetailScreen = () => {
 
   const IS_APPROVAL = workplanDetail?.jenis_workplan == 'APPROVAL';
   const WP_ID = route.params?.id;
+  const IS_WP_ADMIN = route.params?.admin;
+  const IS_WP_CC = route.params?.cc;
+
+  const IS_WP_REVISION =
+    workplanDetail?.status == WORKPLAN_STATUS.REVISON && IS_WP_ADMIN;
+
   const IS_WP_DONE =
     workplanDetail?.status == WORKPLAN_STATUS.FINISH ||
-    workplanDetail?.status == WORKPLAN_STATUS.REJECTED;
+    workplanDetail?.status == WORKPLAN_STATUS.REJECTED ||
+    IS_WP_REVISION;
 
   let DETAIL_DATA = [
     {
@@ -307,7 +314,7 @@ const WorkplanDetailScreen = () => {
       <Header
         title={'Detail'}
         right={
-          IS_WP_DONE ? null : (
+          IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? null : (
             <Button
               style={
                 isHasUpdate
@@ -420,6 +427,7 @@ const WorkplanDetailScreen = () => {
                     style={{
                       width: '100%',
                       height: '100%',
+                      backgroundColor: Colors.COLOR_LIGHT_GRAY,
                     }}
                     resizeMode={'cover'}
                   />
@@ -432,6 +440,7 @@ const WorkplanDetailScreen = () => {
                     alignItems: 'center',
                     borderWidth: 0.5,
                     margin: 4,
+                    borderRadius: 8,
                   }}>
                   <Icon source={'image-outline'} size={24} />
                   <Gap h={8} />
@@ -455,7 +464,7 @@ const WorkplanDetailScreen = () => {
           containerStyle={{marginTop: 10}}
         />
 
-        {IS_WP_DONE ? (
+        {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? (
           <>
             <InputLabel>CC</InputLabel>
             <View style={styles.cardCC}>
@@ -563,6 +572,21 @@ const WorkplanDetailScreen = () => {
 
         <Gap h={24} />
         <Text style={styles.subtitle} variant={'titleSmall'}>
+          Riwayat Perubahan Tanggal Selesai
+        </Text>
+        <Gap h={14} />
+        <Button
+          onPress={() =>
+            navigation.navigate('WPHistoryModal', {
+              data: workplanDetail?.workplant_date_history,
+            })
+          }
+          mode={'outlined'}>
+          Lihat Riwayat Perubahan
+        </Button>
+
+        <Gap h={24} />
+        <Text style={styles.subtitle} variant={'titleSmall'}>
           Progress
         </Text>
         <Gap h={14} />
@@ -570,7 +594,7 @@ const WorkplanDetailScreen = () => {
           onPress={() =>
             navigation.navigate('WPProgressModal', {
               id: WP_ID,
-              isDone: IS_WP_DONE,
+              isDone: IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC,
             })
           }
           mode={'outlined'}>
@@ -594,7 +618,7 @@ const WorkplanDetailScreen = () => {
           Lihat Semua Komentar
         </Button>
       </ScrollView>
-      {IS_WP_DONE ? null : (
+      {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? null : (
         <View style={styles.bottomContainer}>
           <ScrollView
             contentContainerStyle={{
@@ -658,6 +682,51 @@ const WorkplanDetailScreen = () => {
         </View>
       )}
 
+      {IS_WP_ADMIN && !IS_WP_DONE && IS_APPROVAL ? (
+        <View style={styles.bottomContainer}>
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+            }}
+            horizontal
+            showsHorizontalScrollIndicator={false}>
+            <Button
+              disabled={false}
+              style={[styles.actionButton, styles.actionDone]}
+              mode={'contained'}
+              onPress={() => {
+                showConfirmation(() =>
+                  updateStatusWorkplan(WORKPLAN_STATUS.FINISH),
+                );
+              }}>
+              Setujui
+            </Button>
+
+            <Button
+              style={[styles.actionButton, styles.actionPending]}
+              mode={'contained'}
+              onPress={() => {
+                showConfirmation(() =>
+                  updateStatusWorkplan(WORKPLAN_STATUS.REVISON),
+                );
+              }}>
+              Revisi
+            </Button>
+
+            <Button
+              style={[styles.actionButton, styles.actionDelete]}
+              mode={'contained'}
+              onPress={() => {
+                showConfirmation(() =>
+                  updateStatusWorkplan(WORKPLAN_STATUS.REJECTED),
+                );
+              }}>
+              Tolak
+            </Button>
+          </ScrollView>
+        </View>
+      ) : null}
+
       <ModalView
         type={'calendar'}
         visible={showCalendar}
@@ -719,6 +788,7 @@ const styles = StyleSheet.create({
   },
 
   actionButton: {
+    flexGrow: 1,
     marginHorizontal: 4,
   },
 
@@ -731,7 +801,6 @@ const styles = StyleSheet.create({
   },
 
   actionDelete: {
-    flexGrow: 1,
     backgroundColor: Colors.COLOR_MRED,
   },
 

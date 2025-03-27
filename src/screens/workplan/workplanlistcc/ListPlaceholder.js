@@ -54,7 +54,9 @@ const ListPlaceholder = type => {
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=4&page=1&search=${clear ? '' : search}&status=${STATUS_PARAM}`, // Selalu mulai dari page 1
+        `?limit=4&page=1&search=${
+          clear ? '' : search
+        }&status=${STATUS_PARAM}&cc=true`, // Selalu mulai dari page 1
       method: 'GET',
     });
 
@@ -77,7 +79,7 @@ const ListPlaceholder = type => {
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}`,
+        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&cc=true`,
       method: 'GET',
     });
 
@@ -116,7 +118,7 @@ const ListPlaceholder = type => {
                 key={index}
                 data={item}
                 onPress={() =>
-                  navigation.navigate('WorkplanDetail', {id: item.id})
+                  navigation.navigate('WorkplanDetail', {id: item.id, cc: true})
                 }
               />
             );

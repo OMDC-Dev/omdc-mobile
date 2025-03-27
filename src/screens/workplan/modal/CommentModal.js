@@ -7,7 +7,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
@@ -71,11 +73,15 @@ const CommentModal = () => {
   async function sendComment() {
     setLoading(true);
 
+    let COMMENT_VALUE = comment;
+
+    setComment('');
+
     const {state, data, error} = await fetchApi({
       url: WORKPLAN_COMMENT(WP_ID),
       method: 'POST',
       data: {
-        message: comment,
+        message: COMMENT_VALUE,
         comment_id: null,
         attachment: selectedFile,
       },
@@ -124,27 +130,32 @@ const CommentModal = () => {
         style={styles.flexContainer}
         keyboardVerticalOffset={72}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <Row justify={'space-between'}>
+          <View style={styles.titleContainer}>
+            <Text variant={'titleMedium'} style={styles.textProgress}>
+              Komentar
+            </Text>
+          </View>
+          <IconButton
+            icon={'close'}
+            onPress={() => (loading ? null : navigation.goBack())}
+          />
+        </Row>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.scrollContainer}>
-            <Row justify={'space-between'}>
-              <View style={styles.titleContainer}>
-                <Text variant={'titleMedium'} style={styles.textProgress}>
-                  Komentar
-                </Text>
-              </View>
-              <IconButton
-                icon={'close'}
-                onPress={() => (loading ? null : navigation.goBack())}
-              />
-            </Row>
-
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={styles.scrollContainer}
+            contentContainerStyle={{
+              flexGrow: 1,
+            }}
+            nestedScrollEnabled>
             <View style={styles.mainContainer}>
               {/** List Container */}
               {list?.length > 0 ? (
-                <FlatList
-                  data={list}
-                  renderItem={({item, index}) => (
+                list.map((item, index) => {
+                  return (
                     <Card
+                      key={index}
                       style={{
                         marginHorizontal: 4,
                         marginTop: 4,
@@ -174,19 +185,27 @@ const CommentModal = () => {
                           {item.attachment ? (
                             <>
                               <Gap h={8} />
-                              <Image
-                                source={{
-                                  uri: item.attachment,
-                                }}
-                                style={{
-                                  height: Scaler.scaleSize(252),
-                                  width: '100%',
-                                  borderRadius: 8,
-                                  margin: 8,
-                                  alignSelf: 'center',
-                                }}
-                                resizeMode={'cover'}
-                              />
+                              <TouchableOpacity
+                                activeOpacity={0.8}
+                                onPress={() => {
+                                  navigation.navigate('PreviewModal', {
+                                    file: item.attachment,
+                                  });
+                                }}>
+                                <Image
+                                  source={{
+                                    uri: item.attachment,
+                                  }}
+                                  style={{
+                                    height: Scaler.scaleSize(252),
+                                    width: '100%',
+                                    borderRadius: 8,
+                                    margin: 8,
+                                    alignSelf: 'center',
+                                  }}
+                                  resizeMode={'cover'}
+                                />
+                              </TouchableOpacity>
                             </>
                           ) : null}
                           <Text variant={'labelSmall'} style={styles.textTime}>
@@ -195,13 +214,13 @@ const CommentModal = () => {
                         </View>
                       </Card.Content>
                     </Card>
-                  )}
-                />
+                  );
+                })
               ) : (
                 <BlankScreen loading={loading}>Belum ada komentar</BlankScreen>
               )}
             </View>
-          </View>
+          </ScrollView>
         </TouchableWithoutFeedback>
 
         {/* Bottom Container */}
@@ -298,7 +317,9 @@ const styles = StyleSheet.create({
 
   mainContainer: {
     flex: 1,
-    padding: Size.SIZE_14,
+    paddingHorizontal: Size.SIZE_14,
+    paddingTop: Size.SIZE_14,
+    paddingBottom: 92,
   },
 
   bottomContainer: {

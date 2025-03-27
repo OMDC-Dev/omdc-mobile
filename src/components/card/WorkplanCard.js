@@ -17,7 +17,7 @@ const WorkplanCard = ({data, onPress}) => {
     switch (status) {
       case WORKPLAN_STATUS.ON_PROGRESS:
         title = 'Dalam Proses';
-        color = Colors.COLOR_ORANGE;
+        color = Colors.COLOR_MAMBER;
         break;
       case WORKPLAN_STATUS.PENDING:
         title = 'Ditunda';
@@ -33,7 +33,7 @@ const WorkplanCard = ({data, onPress}) => {
         break;
       case WORKPLAN_STATUS.FINISH:
         title = 'Selesai';
-        color = Colors.COLOR_GREEN;
+        color = Colors.COLOR_MGREEN;
         break;
       default:
         title = '';

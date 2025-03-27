@@ -6,26 +6,25 @@ import MainStackNavigator from './navigator/MainNavigator';
 import AuthProvider from './context/AuthProvider';
 import ModalProvider from './context/ModalProvider';
 import SnackBarProvider from './context/SnackbarProvider';
+import {Portal} from 'react-native-paper';
 
 const App = () => {
   return (
     <NavigationContainer>
       <ModalProvider>
-        <SnackBarProvider>
-          <AuthProvider>
-            {state => {
-              if (state.isLoading) {
-                return <SplashScreen />;
-              }
+        <AuthProvider>
+          {state => {
+            if (state.isLoading) {
+              return <SplashScreen />;
+            }
 
-              if (!state.userToken) {
-                return <AuthStackNavigator />;
-              }
+            if (!state.userToken) {
+              return <AuthStackNavigator />;
+            }
 
-              return <MainStackNavigator />;
-            }}
-          </AuthProvider>
-        </SnackBarProvider>
+            return <MainStackNavigator />;
+          }}
+        </AuthProvider>
       </ModalProvider>
     </NavigationContainer>
   );

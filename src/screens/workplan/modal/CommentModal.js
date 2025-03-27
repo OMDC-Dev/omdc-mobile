@@ -11,41 +11,55 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {Button, Card, IconButton, Text, TextInput} from 'react-native-paper';
+import {
+  Button,
+  Card,
+  Icon,
+  IconButton,
+  MD3Colors,
+  Snackbar,
+  Text,
+  TextInput,
+} from 'react-native-paper';
 import {fetchApi} from '../../../api/api';
-import {WORKPLAN_PROGRESS} from '../../../api/apiRoutes';
+import {WORKPLAN_COMMENT, WORKPLAN_PROGRESS} from '../../../api/apiRoutes';
 import {BlankScreen, Gap, Row} from '../../../components';
 import ModalView from '../../../components/modal';
 import {Colors, Scaler, Size} from '../../../styles';
 import {API_STATES} from '../../../utils/constant';
+import {AuthContext} from '../../../context';
+import {Image} from 'react-native';
 
-const ProgressModal = () => {
+const CommentModal = () => {
   const [list, setList] = React.useState([]);
-  const [progress, setProgress] = React.useState('');
+  const [comment, setComment] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-
-  const [selectedId, setSelectedId] = React.useState();
+  const [selectedFile, setSelectedFile] = React.useState(null);
+  const [showSelectFile, setShowSelectFile] = React.useState(false);
 
   const [visible, setVisible] = React.useState(false);
   const [type, setType] = React.useState(false);
-  const [context, setContext] = React.useState('');
+  const [message, setMessage] = React.useState('');
+
+  const {user} = React.useContext(AuthContext);
 
   const navigation = useNavigation();
   const route = useRoute();
 
   const WP_ID = route.params?.id;
+  const WP_COMMENT = route.params?.comment;
   const WP_IS_DONE = route?.params.isDone;
 
   async function getList(id) {
     setLoading(true);
 
     const {state, data, error} = await fetchApi({
-      url: WORKPLAN_PROGRESS(id),
+      url: WORKPLAN_COMMENT(id),
       method: 'GET',
     });
 
     if (state == API_STATES.OK) {
-      setList(data);
+      setList(data.rows);
       setLoading(false);
     } else {
       setLoading(false);
@@ -54,85 +68,52 @@ const ProgressModal = () => {
     }
   }
 
-  async function saveProgress() {
+  async function sendComment() {
     setLoading(true);
 
     const {state, data, error} = await fetchApi({
-      url: WORKPLAN_PROGRESS(WP_ID),
+      url: WORKPLAN_COMMENT(WP_ID),
       method: 'POST',
       data: {
-        progress: progress,
+        message: comment,
+        comment_id: null,
+        attachment: selectedFile,
       },
     });
 
     if (state == API_STATES.OK) {
-      setProgress('');
       setLoading(false);
+      setComment('');
+      setSelectedFile(null);
       getList(WP_ID);
-
-      setType('success');
-      setVisible(true);
     } else {
       setLoading(false);
-      setType('failed');
-      setVisible(true);
+      setComment('');
+      setSelectedFile(null);
     }
   }
 
-  async function updateProgress() {
-    setLoading(true);
-
-    const {state, data, error} = await fetchApi({
-      url: WORKPLAN_PROGRESS(list[selectedId].id),
-      data: {
-        progress: progress,
-        wp_id: WP_ID,
-      },
-      method: 'PUT',
-    });
-
-    if (state == API_STATES.OK) {
-      setLoading(false);
-      setProgress('');
-      setSelectedId(null);
-      getList(WP_ID);
-
-      setType('success');
+  // handle on pick from camera / gallery
+  function onPickFromRes(data) {
+    if (data.fileSize > 11000000) {
+      setMessage('Ukuran file tidak boleh lebih dari 10 MB');
       setVisible(true);
-    } else {
-      setLoading(false);
-      setType('failed');
-      setVisible(true);
+      return;
     }
-  }
 
-  async function deleteProgress(id) {
-    setLoading(true);
+    const fileInfo = {
+      name: data.fileName,
+      size: data.fileSize,
+      type: data.fileType,
+    };
 
-    const {state, data, error} = await fetchApi({
-      url: WORKPLAN_PROGRESS(id),
-      method: 'DELETE',
-      data: {
-        wp_id: WP_ID,
-      },
-    });
-
-    if (state == API_STATES.OK) {
-      setLoading(false);
-      getList(WP_ID);
-
-      setType('success');
-      setVisible(true);
-      setSelectedId(null);
-    } else {
-      setLoading(false);
-      setType('failed');
-      setVisible(true);
-    }
+    setSelectedFile(data.base64);
+    // setFileBeforeInfo(fileInfo);
   }
 
   React.useEffect(() => {
     if (WP_ID) {
+      setList(WP_COMMENT);
       getList(WP_ID);
     }
   }, []);
@@ -148,7 +129,7 @@ const ProgressModal = () => {
             <Row justify={'space-between'}>
               <View style={styles.titleContainer}>
                 <Text variant={'titleMedium'} style={styles.textProgress}>
-                  Progress
+                  Komentar
                 </Text>
               </View>
               <IconButton
@@ -168,46 +149,56 @@ const ProgressModal = () => {
                         marginHorizontal: 4,
                         marginTop: 4,
                         marginBottom: 8,
+                        backgroundColor:
+                          item.iduser == user.iduser
+                            ? undefined
+                            : Colors.COLOR_MCYAN,
                       }}>
                       <Card.Content>
-                        <Row justify={'space-between'}>
-                          <View style={{width: '70%', marginRight: 8}}>
-                            <Text variant={'labelMedium'}>{item.progress}</Text>
-                            <Text
-                              variant={'labelSmall'}
-                              style={styles.textTime}>
-                              {moment(item.createdAt).format('lll')}
-                            </Text>
-                          </View>
-                          {WP_IS_DONE ? null : (
+                        <Text
+                          style={[
+                            styles.textName,
+                            {
+                              color:
+                                user.iduser == item.iduser
+                                  ? Colors.COLOR_PRIMARY
+                                  : Colors.COLOR_BLACK,
+                            },
+                          ]}
+                          variant={'labelMedium'}>
+                          {item.create_by}
+                        </Text>
+                        <Gap h={8} />
+                        <View>
+                          <Text variant={'labelMedium'}>{item.message}</Text>
+                          {item.attachment ? (
                             <>
-                              <IconButton
-                                onPress={() => {
-                                  setSelectedId(index);
-                                  setProgress(item.progress);
+                              <Gap h={8} />
+                              <Image
+                                source={{
+                                  uri: item.attachment,
                                 }}
-                                icon={'pencil-outline'}
-                                iconColor={Colors.COLOR_GRAY}
-                              />
-                              <IconButton
-                                onPress={() => {
-                                  setSelectedId(index);
-                                  setContext('delete');
-                                  setType('confirmation');
-                                  setVisible(true);
+                                style={{
+                                  height: Scaler.scaleSize(252),
+                                  width: '100%',
+                                  borderRadius: 8,
+                                  margin: 8,
+                                  alignSelf: 'center',
                                 }}
-                                icon={'trash-can-outline'}
-                                iconColor={Colors.COLOR_GRAY}
+                                resizeMode={'cover'}
                               />
                             </>
-                          )}
-                        </Row>
+                          ) : null}
+                          <Text variant={'labelSmall'} style={styles.textTime}>
+                            {moment(item.createdAt).format('lll')}
+                          </Text>
+                        </View>
                       </Card.Content>
                     </Card>
                   )}
                 />
               ) : (
-                <BlankScreen loading={loading}>Belum ada progress</BlankScreen>
+                <BlankScreen loading={loading}>Belum ada komentar</BlankScreen>
               )}
             </View>
           </View>
@@ -216,48 +207,49 @@ const ProgressModal = () => {
         {/* Bottom Container */}
         {WP_IS_DONE ? null : (
           <View style={styles.bottomContainer}>
-            {selectedId != null && context !== 'delete' ? (
-              <Card style={{marginBottom: Size.SIZE_14}}>
+            {selectedFile ? (
+              <Card style={{marginBottom: Size.SIZE_20, width: '60%'}}>
                 <Card.Content style={{paddingVertical: 0, paddingRight: 0}}>
                   <Row justify={'space-between'}>
-                    <View style={{width: '70%', marginRight: 8}}>
-                      <Text variant={'labelMedium'}>
-                        {list[selectedId]?.progress}
-                      </Text>
-                    </View>
+                    <Row>
+                      <Icon source={'image-outline'} size={20} />
+                      <Gap w={8} />
+                      <Text variant={'labelSmall'}>Gambar Lampiran</Text>
+                    </Row>
                     <IconButton
-                      onPress={() => {
-                        setProgress('');
-                        setSelectedId(null);
-                      }}
                       icon={'close'}
-                      iconColor={Colors.COLOR_GRAY}
+                      onPress={() => {
+                        setSelectedFile(null);
+                      }}
                     />
                   </Row>
                 </Card.Content>
               </Card>
             ) : null}
-
             <Row>
               <TextInput
                 style={styles.input}
                 mode={'outlined'}
                 multiline
                 editable={!loading}
-                placeholder={'Masukan progress'}
+                placeholder={'Tambahkan komentar'}
                 placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                value={progress}
-                onChangeText={tx => setProgress(tx)}
+                value={comment}
+                onChangeText={tx => setComment(tx)}
               />
               <Gap w={8} />
+              {selectedFile ? null : (
+                <IconButton
+                  icon={'image-outline'}
+                  onPress={() => setShowSelectFile(true)}
+                />
+              )}
               <Button
                 loading={loading}
-                onPress={() => {
-                  selectedId != null ? updateProgress() : saveProgress();
-                }}
-                disabled={loading || !progress}
+                onPress={() => sendComment()}
+                disabled={loading || !comment}
                 mode={'contained'}>
-                {selectedId != null ? 'Update' : 'Tambah'}
+                Kirim
               </Button>
             </Row>
           </View>
@@ -267,17 +259,28 @@ const ProgressModal = () => {
         visible={visible}
         type={type}
         toggle={() => setVisible(false)}
-        onPress={() => {
-          if (context == 'delete') {
-            deleteProgress(list[selectedId].id);
-          }
-        }}
+        onPress={() => {}}
       />
+
+      <ModalView
+        type={'selectfile'}
+        visible={showSelectFile}
+        toggle={() => setShowSelectFile(!showSelectFile)}
+        //pickFromFile={() => pickFile()}
+        //fileCallback={cb => onPickFromRes(cb)}
+        command={cmd => onPickFromRes(cmd)}
+        pdfOnly={false}
+        imageOnly={true}
+      />
+
+      <Snackbar visible={visible} onDismiss={() => setVisible(false)}>
+        {message}
+      </Snackbar>
     </SafeAreaView>
   );
 };
 
-export default ProgressModal;
+export default CommentModal;
 
 const styles = StyleSheet.create({
   container: {
@@ -310,6 +313,11 @@ const styles = StyleSheet.create({
     maxHeight: Scaler.scaleSize(120),
   },
 
+  textName: {
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+
   titleContainer: {
     marginLeft: Size.SIZE_14,
   },
@@ -319,7 +327,8 @@ const styles = StyleSheet.create({
   },
 
   textTime: {
-    marginTop: Size.SIZE_8,
+    marginTop: Size.SIZE_14,
     color: Colors.COLOR_GRAY,
+    textAlign: 'right',
   },
 });

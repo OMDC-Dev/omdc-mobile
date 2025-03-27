@@ -20,7 +20,7 @@ import {ScrollView} from 'react-native';
 import {Button, Card, Icon, Text, TextInput} from 'react-native-paper';
 import ModalView from '../../../components/modal';
 import {getDateFormat} from '../../../utils/utils';
-import {SnackBarContext} from '../../../context';
+import {ModalContext, SnackBarContext} from '../../../context';
 import {useNavigation} from '@react-navigation/native';
 import {fetchApi} from '../../../api/api';
 import {WORKPLAN} from '../../../api/apiRoutes';
@@ -49,6 +49,8 @@ const WorkplanScreen = () => {
   const {setSnakMessage, showSnak, hideSnak} =
     React.useContext(SnackBarContext);
   const [isLoading, setIsLoading] = React.useState(false);
+  const {showLoading, showConfirmation, showSuccess, hideModal, showFailed} =
+    React.useContext(ModalContext);
 
   // navigation
   const navigation = useNavigation();
@@ -76,7 +78,7 @@ const WorkplanScreen = () => {
   }
 
   async function createWorkplan() {
-    setIsLoading(true);
+    showLoading();
     const body = {
       jenis_workplan: type,
       tanggal_mulai: startDate,
@@ -95,12 +97,10 @@ const WorkplanScreen = () => {
     });
 
     if (state == API_STATES.OK) {
-      setIsLoading(false);
+      hideModal();
       navigation.navigate('WorkplanDone');
     } else {
-      setIsLoading(false);
-      setSnakMessage('Ada sesuatu yang tidak beres, mohon coba lagi!');
-      showSnak();
+      showFailed();
     }
   }
 
@@ -223,7 +223,7 @@ const WorkplanScreen = () => {
 
           <Gap h={32} />
           <Button
-            onPress={createWorkplan}
+            onPress={() => showConfirmation(() => createWorkplan())}
             disabled={BUTTON_DISABLED}
             mode={'contained'}>
             Buat Workplan

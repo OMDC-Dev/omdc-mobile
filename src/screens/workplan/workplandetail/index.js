@@ -20,12 +20,19 @@ import {Button, Card, Chip, Icon, Text} from 'react-native-paper';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import ModalView from '../../../components/modal';
 import {getDateFormat} from '../../../utils/utils';
-import {SnackBarContext} from '../../../context';
+import {ModalContext, SnackBarContext} from '../../../context';
 import {useSharedValue} from 'react-native-reanimated';
 import Carousel, {Pagination} from 'react-native-reanimated-carousel';
 import {fetchApi} from '../../../api/api';
-import {WORKPLAN, WORKPLAN_UPDATE} from '../../../api/apiRoutes';
+import {
+  WORKPLAN,
+  WORKPLAN_PROGRESS,
+  WORKPLAN_UPDATE,
+  WORKPLAN_UPDATE_STATUS,
+} from '../../../api/apiRoutes';
 import {API_STATES, WORKPLAN_STATUS} from '../../../utils/constant';
+import {Image} from 'react-native';
+import moment from 'moment';
 
 const WorkplanDetailScreen = () => {
   // file
@@ -36,13 +43,18 @@ const WorkplanDetailScreen = () => {
   const [fileAfter, setFileAfter] = React.useState();
   const [fileAfterInfo, setFileAfterInfo] = React.useState();
   const [fileType, setFileType] = React.useState('');
+  const [isEditAfter, setIsEditAfter] = React.useState(false);
 
   const [showCalendar, setShowCalendar] = React.useState(false);
   const [endDate, setEndDate] = React.useState();
 
+  const [progressList, setProgressList] = React.useState([]);
+
   const [cc, setCC] = React.useState();
   const {setSnakMessage, showSnak, hideSnak} =
     React.useContext(SnackBarContext);
+  const {showConfirmation, showLoading, showSuccess, showFailed, hideModal} =
+    React.useContext(ModalContext);
 
   // other
   const [isLoading, setIsLoading] = React.useState(false);
@@ -51,16 +63,29 @@ const WorkplanDetailScreen = () => {
   const [workplanDetail, setWorkplanDetail] = React.useState();
 
   // carousel
-  const data = [...new Array(2).keys()];
+  const WP_IMG = [
+    workplanDetail?.attachment_before,
+    workplanDetail?.attachment_after,
+  ];
   const width = Dimensions.get('window').width;
   const progress = useSharedValue(0);
 
   const navigation = useNavigation();
   const route = useRoute();
 
+  const IS_APPROVAL = workplanDetail?.jenis_workplan == 'APPROVAL';
   const WP_ID = route.params?.id;
+  const IS_WP_DONE =
+    workplanDetail?.status == WORKPLAN_STATUS.FINISH ||
+    workplanDetail?.status == WORKPLAN_STATUS.REJECTED;
 
   let DETAIL_DATA = [
+    {
+      title: 'No. Workplan',
+      key: 'workplan_id',
+      alias: val => val,
+      type: 'default',
+    },
     {
       title: 'Jenis Workplan',
       key: 'jenis_workplan',
@@ -154,6 +179,12 @@ const WorkplanDetailScreen = () => {
       setFileBefore(data.base64);
       setFileBeforeInfo(fileInfo);
     } else {
+      if (workplanDetail?.attachment_after) {
+        setIsEditAfter(true);
+      } else {
+        setIsEditAfter(false);
+      }
+
       setFileAfter(data.base64);
       setFileAfterInfo(fileInfo);
     }
@@ -163,7 +194,23 @@ const WorkplanDetailScreen = () => {
 
   React.useEffect(() => {
     getWorkplanDetail();
+    getProgressList();
   }, []);
+
+  async function getProgressList() {
+    setIsLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: WORKPLAN_PROGRESS(WP_ID),
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setProgressList(data);
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+    }
+  }
 
   async function getWorkplanDetail() {
     setIsLoading(true);
@@ -178,6 +225,7 @@ const WorkplanDetailScreen = () => {
 
       const mappedCC = data.cc_users?.map(item => item.iduser);
       setCC(mappedCC);
+      setFileAfter(data.attachment_after);
 
       setEndDate(data.tanggal_selesai);
     } else {
@@ -194,8 +242,10 @@ const WorkplanDetailScreen = () => {
       user_cc: cc,
       attachment_after: fileAfter,
       attachment_before: fileBefore,
-      isUpdateAfter: false,
+      isUpdateAfter: isEditAfter,
     };
+
+    console.log('BR', body);
 
     const {state, data, error} = await fetchApi({
       url: WORKPLAN_UPDATE(WP_ID),
@@ -217,24 +267,61 @@ const WorkplanDetailScreen = () => {
     }
   };
 
+  const deleteWorkplan = async () => {
+    showLoading();
+
+    const {state, data, error} = await fetchApi({
+      url: WORKPLAN + `/${WP_ID}`,
+      method: 'DELETE',
+    });
+
+    if (state == API_STATES.OK) {
+      showSuccess(() => navigation.goBack());
+    } else {
+      showFailed(() => hideModal());
+    }
+  };
+
+  const updateStatusWorkplan = async status => {
+    showLoading();
+    const body = {
+      status: status,
+    };
+
+    const {state, data, error} = await fetchApi({
+      url: WORKPLAN_UPDATE_STATUS(WP_ID),
+      method: 'POST',
+      data: body,
+    });
+
+    if (state == API_STATES.OK) {
+      showSuccess(() => getWorkplanDetail());
+      setIsHasUpdate(false);
+    } else {
+      showFailed();
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Header
         title={'Detail'}
         right={
-          <Button
-            style={
-              isHasUpdate
-                ? undefined
-                : {
-                    backgroundColor: Colors.COLOR_GRAY,
-                  }
-            }
-            disabled={!isHasUpdate}
-            mode={'contained'}
-            onPress={() => saveWorkplan()}>
-            Simpan
-          </Button>
+          IS_WP_DONE ? null : (
+            <Button
+              style={
+                isHasUpdate
+                  ? undefined
+                  : {
+                      backgroundColor: Colors.COLOR_GRAY,
+                    }
+              }
+              disabled={!isHasUpdate}
+              mode={'contained'}
+              onPress={() => saveWorkplan()}>
+              Simpan
+            </Button>
+          )
         }
       />
       <ScrollView
@@ -247,9 +334,11 @@ const WorkplanDetailScreen = () => {
         <Gap h={8} />
         <Row justify={'space-between'}>
           {renderStatus(workplanDetail?.status)}
-          <Text variant={'labelMedium'} style={styles.textValue}>
-            25 Maret 2025
-          </Text>
+          {workplanDetail?.approved_date ? (
+            <Text variant={'labelMedium'} style={styles.textValue}>
+              {moment(workplanDetail?.approved_date).format('ll')}
+            </Text>
+          ) : null}
         </Row>
 
         <Gap h={24} />
@@ -292,25 +381,69 @@ const WorkplanDetailScreen = () => {
         <Carousel
           width={width - Scaler.scaleSize(28)}
           height={width / 1.5}
-          data={data}
+          data={WP_IMG}
           onProgressChange={progress}
           style={{
             width: width - Scaler.scaleSize(28),
+            borderRadius: 8,
           }}
           renderItem={({index}) => (
-            <View
+            <TouchableOpacity
+              activeOpacity={0.8}
               style={{
                 flex: 1,
-                borderWidth: 1,
+                borderRadius: 8,
                 justifyContent: 'center',
-              }}>
-              <Text style={{textAlign: 'center', fontSize: 30}}>{index}</Text>
-            </View>
+              }}
+              onPress={() =>
+                navigation.navigate('Preview', {
+                  file: WP_IMG[index],
+                })
+              }>
+              {WP_IMG[index] ? (
+                <>
+                  <View
+                    style={{
+                      position: 'absolute',
+                      zIndex: 999,
+                      top: 10,
+                      left: 10,
+                    }}>
+                    <Chip>
+                      <Text variant={'labelSmall'}>
+                        {index == 0 ? 'Gambar Awal' : 'Gambar Akhir'}
+                      </Text>
+                    </Chip>
+                  </View>
+                  <Image
+                    source={{uri: WP_IMG[index]}}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                    }}
+                    resizeMode={'cover'}
+                  />
+                </>
+              ) : (
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderWidth: 0.5,
+                    margin: 4,
+                  }}>
+                  <Icon source={'image-outline'} size={24} />
+                  <Gap h={8} />
+                  <Text variant={'labelSmall'}>Tidak ada gambar</Text>
+                </View>
+              )}
+            </TouchableOpacity>
           )}
         />
         <Pagination.Basic
           progress={progress}
-          data={data}
+          data={WP_IMG}
           activeDotStyle={{
             backgroundColor: Colors.COLOR_PRIMARY,
           }}
@@ -322,90 +455,111 @@ const WorkplanDetailScreen = () => {
           containerStyle={{marginTop: 10}}
         />
 
-        <Gap h={24} />
-        <Text style={styles.subtitle} variant={'titleSmall'}>
-          Data Tambahan
-        </Text>
-        <Gap h={8} />
-        <InputLabel>Ubah Tanggal Selesai</InputLabel>
-        <Card
-          style={styles.card}
-          mode={'outlined'}
-          onPress={() => {
-            setShowCalendar(true);
-          }}>
-          <Card.Content>
-            <Row>
-              <Icon
-                source={'calendar-range'}
-                size={20}
-                color={Colors.COLOR_DARK_GRAY}
-              />
-              <Gap w={10} />
-              <Text variant="labelLarge">
-                {endDate || 'Pilih Tanggal Selesai'}
-              </Text>
-            </Row>
-          </Card.Content>
-        </Card>
-        <Gap h={14} />
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() =>
-            navigation.navigate('WPHistoryModal', {
-              data: workplanDetail?.workplant_date_history,
-            })
-          }>
-          <Text style={styles.textHistoryChange} variant={'labelMedium'}>
-            Lihat riwayat perubahan
-          </Text>
-        </TouchableOpacity>
-
-        {workplanDetail?.attachment_before ? null : (
+        {IS_WP_DONE ? (
           <>
+            <InputLabel>CC</InputLabel>
+            <View style={styles.cardCC}>
+              <Row style={{flexWrap: 'wrap'}}>
+                {workplanDetail?.cc_users.map((item, index) => {
+                  return (
+                    <Chip key={index} style={{margin: 4}}>
+                      <Text variant={'labelSmall'}>{item.nm_user}</Text>
+                    </Chip>
+                  );
+                })}
+              </Row>
+            </View>
+          </>
+        ) : (
+          <>
+            <Gap h={24} />
+            <Text style={styles.subtitle} variant={'titleSmall'}>
+              Data Tambahan
+            </Text>
+            <Gap h={8} />
+            <InputLabel>Ubah Tanggal Selesai</InputLabel>
+            <Card
+              style={styles.card}
+              mode={'outlined'}
+              onPress={() => {
+                setShowCalendar(true);
+              }}>
+              <Card.Content>
+                <Row>
+                  <Icon
+                    source={'calendar-range'}
+                    size={20}
+                    color={Colors.COLOR_DARK_GRAY}
+                  />
+                  <Gap w={10} />
+                  <Text variant="labelLarge">
+                    {endDate || 'Pilih Tanggal Selesai'}
+                  </Text>
+                </Row>
+              </Card.Content>
+            </Card>
             <Gap h={14} />
-            <InputLabel>Gambar Awal ( Opsional maks 10 MB )</InputLabel>
-            <FilePlaceholder
-              file={fileBefore}
-              fileInfo={fileBeforeInfo}
-              onSelectPress={() => {
-                setShowSelectFile(true);
-                setFileType('BEFORE');
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() =>
+                navigation.navigate('WPHistoryModal', {
+                  data: workplanDetail?.workplant_date_history,
+                })
+              }>
+              <Text style={styles.textHistoryChange} variant={'labelMedium'}>
+                Lihat riwayat perubahan
+              </Text>
+            </TouchableOpacity>
+
+            {workplanDetail?.attachment_before ? null : (
+              <>
+                <Gap h={14} />
+                <InputLabel>Gambar Awal ( Opsional maks 10 MB )</InputLabel>
+                <FilePlaceholder
+                  file={fileBefore}
+                  fileInfo={fileBeforeInfo}
+                  onSelectPress={() => {
+                    setShowSelectFile(true);
+                    setFileType('BEFORE');
+                  }}
+                  onClosePress={() => {
+                    setFileBeforeInfo({});
+                    setFileBefore(null);
+                  }}
+                  navigation={navigation}
+                />
+              </>
+            )}
+
+            <>
+              <Gap h={14} />
+              <InputLabel>Gambar Akhir ( Opsional maks 10 MB )</InputLabel>
+              <FilePlaceholder
+                file={fileAfter}
+                fileInfo={fileAfterInfo}
+                onSelectPress={() => {
+                  setShowSelectFile(true);
+                  setFileType('AFTER');
+                }}
+                onClosePress={() => {
+                  setFileAfterInfo({});
+                  setFileAfter(null);
+                }}
+                navigation={navigation}
+              />
+            </>
+
+            <Gap h={14} />
+            <InputLabel>CC ( Opsional )</InputLabel>
+            <Dropdown.WorkplanCCDropdown
+              value={cc}
+              onChange={val => {
+                setCC(val);
+                setIsHasUpdate(true);
               }}
-              onClosePress={() => {
-                setFileBeforeInfo({});
-                setFileBefore(null);
-              }}
-              navigation={navigation}
             />
           </>
         )}
-
-        <Gap h={14} />
-        <InputLabel>Gambar Akhir ( Opsional maks 10 MB )</InputLabel>
-        <FilePlaceholder
-          file={fileAfter}
-          fileInfo={fileAfterInfo}
-          onSelectPress={() => {
-            setShowSelectFile(true);
-            setFileType('AFTER');
-          }}
-          onClosePress={() => {
-            setFileBeforeInfo({});
-            setFileBefore(null);
-          }}
-          navigation={navigation}
-        />
-
-        <Gap h={14} />
-        <InputLabel>CC ( Opsional )</InputLabel>
-        <Dropdown.WorkplanCCDropdown
-          value={cc}
-          onChange={val => {
-            setCC(val);
-            setIsHasUpdate(true);
-          }}
-        />
 
         <Gap h={24} />
         <Text style={styles.subtitle} variant={'titleSmall'}>
@@ -413,7 +567,12 @@ const WorkplanDetailScreen = () => {
         </Text>
         <Gap h={14} />
         <Button
-          onPress={() => navigation.navigate('WPProgressModal', {id: WP_ID})}
+          onPress={() =>
+            navigation.navigate('WPProgressModal', {
+              id: WP_ID,
+              isDone: IS_WP_DONE,
+            })
+          }
           mode={'outlined'}>
           Lihat Semua Progress
         </Button>
@@ -423,27 +582,81 @@ const WorkplanDetailScreen = () => {
           Komentar
         </Text>
         <Gap h={14} />
-        <Button mode={'outlined'}>Lihat Semua Komentar</Button>
+        <Button
+          mode={'outlined'}
+          onPress={() =>
+            navigation.navigate('WPCommentModal', {
+              id: WP_ID,
+              comment: workplanDetail?.workplant_comment,
+              isDone: IS_WP_DONE,
+            })
+          }>
+          Lihat Semua Komentar
+        </Button>
       </ScrollView>
-      <View style={styles.bottomContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Button
-            style={[styles.actionButton, styles.actionPending]}
-            mode={'contained'}>
-            Set ke Pending
-          </Button>
-          <Button
-            style={[styles.actionButton, styles.actionDone]}
-            mode={'contained'}>
-            Set ke Selesai
-          </Button>
-          <Button
-            style={[styles.actionButton, styles.actionDelete]}
-            mode={'contained'}>
-            Hapus Workplan
-          </Button>
-        </ScrollView>
-      </View>
+      {IS_WP_DONE ? null : (
+        <View style={styles.bottomContainer}>
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+            }}
+            horizontal
+            showsHorizontalScrollIndicator={false}>
+            {IS_APPROVAL ? null : (
+              <>
+                {workplanDetail?.status == WORKPLAN_STATUS.ON_PROGRESS ? (
+                  <Button
+                    style={[styles.actionButton, styles.actionPending]}
+                    mode={'contained'}
+                    onPress={() => {
+                      showConfirmation(() =>
+                        updateStatusWorkplan(WORKPLAN_STATUS.PENDING),
+                      );
+                    }}>
+                    Set ke Pending
+                  </Button>
+                ) : null}
+
+                {workplanDetail?.status == WORKPLAN_STATUS.PENDING ? (
+                  <Button
+                    style={[styles.actionButton, styles.actionPending]}
+                    mode={'contained'}
+                    onPress={() => {
+                      showConfirmation(() =>
+                        updateStatusWorkplan(WORKPLAN_STATUS.ON_PROGRESS),
+                      );
+                    }}>
+                    Set ke Dalam Proses
+                  </Button>
+                ) : null}
+                <Button
+                  disabled={
+                    workplanDetail?.status == WORKPLAN_STATUS.PENDING ||
+                    progressList.length < 1
+                  }
+                  style={[styles.actionButton, styles.actionDone]}
+                  mode={'contained'}
+                  onPress={() =>
+                    showConfirmation(() =>
+                      updateStatusWorkplan(WORKPLAN_STATUS.FINISH),
+                    )
+                  }>
+                  Set ke Selesai
+                </Button>
+              </>
+            )}
+
+            <Button
+              style={[styles.actionButton, styles.actionDelete]}
+              mode={'contained'}
+              onPress={() => {
+                showConfirmation(() => deleteWorkplan());
+              }}>
+              Hapus Workplan
+            </Button>
+          </ScrollView>
+        </View>
+      )}
 
       <ModalView
         type={'calendar'}
@@ -518,7 +731,15 @@ const styles = StyleSheet.create({
   },
 
   actionDelete: {
+    flexGrow: 1,
     backgroundColor: Colors.COLOR_MRED,
+  },
+
+  cardCC: {
+    padding: Size.SIZE_8,
+    borderWidth: 0.5,
+    borderRadius: 8,
+    borderColor: Colors.COLOR_LIGHT_GRAY,
   },
 
   // text

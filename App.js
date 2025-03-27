@@ -8,6 +8,7 @@ import {
 import {Colors} from './src/styles';
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform, StyleSheet, View} from 'react-native';
+import SnackBarProvider from './src/context/SnackbarProvider';
 const theme = {
   ...DefaultTheme,
   colors: {
@@ -49,7 +50,9 @@ const App = () => {
           <ActivityIndicator size="large" color={Colors.COLOR_PRIMARY} />
         </View>
       )}
-      <Main />
+      <SnackBarProvider>
+        <Main />
+      </SnackBarProvider>
     </PaperProvider>
   );
 };

@@ -16,6 +16,7 @@ export const COLOR_GREEN = '#02E80B';
 export const COLOR_MGREEN = '#009688';
 export const COLOR_MAMBER = '#FFC107';
 export const COLOR_MRED = '#F44336';
+export const COLOR_MCYAN = '#E1F5FE';
 
 //GRAY COLOR
 export const COLOR_GRAY = '#969696';

@@ -20,7 +20,7 @@ const FilePlaceholder = ({
           onPress={() =>
             navigation.navigate('Preview', {
               file: file,
-              type: fileInfo.type,
+              type: fileInfo?.type,
             })
           }>
           <Row>

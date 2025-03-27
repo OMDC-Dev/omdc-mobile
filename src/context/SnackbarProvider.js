@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {SnackBarContext} from '.';
-import {Snackbar} from 'react-native-paper';
+import {Portal, Snackbar} from 'react-native-paper';
 
 const SnackBarProvider = ({children}) => {
   const [state, dispatch] = React.useReducer(
@@ -53,16 +53,18 @@ const SnackBarProvider = ({children}) => {
   return (
     <SnackBarContext.Provider value={context}>
       {children}
-      <Snackbar
-        visible={state.visible}
-        onDismiss={() =>
-          dispatch({
-            type: 'HIDE',
-            visible: false,
-          })
-        }>
-        {state.message}
-      </Snackbar>
+      <Portal>
+        <Snackbar
+          visible={state.visible}
+          onDismiss={() =>
+            dispatch({
+              type: 'HIDE',
+              visible: false,
+            })
+          }>
+          {state.message}
+        </Snackbar>
+      </Portal>
     </SnackBarContext.Provider>
   );
 };

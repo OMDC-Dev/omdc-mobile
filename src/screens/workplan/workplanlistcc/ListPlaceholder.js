@@ -1,7 +1,13 @@
 import {FlatList, StyleSheet, View} from 'react-native';
 import React from 'react';
-import {ActivityIndicator, FAB, Searchbar, Text} from 'react-native-paper';
-import {BlankScreen, Card, Gap} from '../../../components';
+import {
+  ActivityIndicator,
+  FAB,
+  IconButton,
+  Searchbar,
+  Text,
+} from 'react-native-paper';
+import {BlankScreen, Card, Gap, Row} from '../../../components';
 import {RefreshControl} from 'react-native';
 import {
   useFocusEffect,
@@ -39,11 +45,14 @@ const ListPlaceholder = type => {
         ]
       : WORKPLAN_STATUS.FINISH;
 
+  const FILTER_PARAM = route.params?.filter;
+  let FILTER = FILTER_PARAM ? `&${FILTER_PARAM}` : '';
+
   useFocusEffect(
     React.useCallback(() => {
       setSearch('');
       getList();
-    }, []),
+    }, [FILTER_PARAM]),
   );
 
   async function getList(clear) {
@@ -56,7 +65,7 @@ const ListPlaceholder = type => {
         WORKPLAN +
         `?limit=4&page=1&search=${
           clear ? '' : search
-        }&status=${STATUS_PARAM}&cc=true`, // Selalu mulai dari page 1
+        }&status=${STATUS_PARAM}&cc=true${FILTER}`, // Selalu mulai dari page 1
       method: 'GET',
     });
 
@@ -79,7 +88,7 @@ const ListPlaceholder = type => {
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&cc=true`,
+        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&cc=true${FILTER}`,
       method: 'GET',
     });
 
@@ -94,17 +103,31 @@ const ListPlaceholder = type => {
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     getList();
-  }, []);
+  }, [FILTER_PARAM]);
 
   return (
     <View style={styles.mainContainer}>
-      <Searchbar
-        placeholder="Cari no. workplan, perihal, cabang..."
-        value={search}
-        onChangeText={text => setSearch(text)}
-        onBlur={() => getList()}
-        onClearIconPress={() => getList(true)}
-      />
+      <Row>
+        <Searchbar
+          style={{flex: 1}}
+          placeholder="Cari no. workplan, perihal..."
+          value={search}
+          onChangeText={text => setSearch(text)}
+          onBlur={() => getList()}
+          onClearIconPress={() => getList(true)}
+        />
+        <IconButton
+          onPress={() =>
+            navigation.navigate('WPFilterModal', {
+              ...route.params,
+              name: route?.name,
+              filter: FILTER_PARAM,
+            })
+          }
+          icon={'filter-outline'}
+        />
+      </Row>
+
       <Gap h={14} />
       {list?.length ? (
         <FlatList

@@ -1,6 +1,12 @@
 import {FlatList, StyleSheet, View} from 'react-native';
 import React from 'react';
-import {ActivityIndicator, FAB, Searchbar, Text} from 'react-native-paper';
+import {
+  ActivityIndicator,
+  FAB,
+  IconButton,
+  Searchbar,
+  Text,
+} from 'react-native-paper';
 import {BlankScreen, Card, Gap} from '../../../components';
 import {RefreshControl} from 'react-native';
 import {
@@ -18,6 +24,7 @@ const ListPlaceholder = type => {
   const [refreshing, setRefreshing] = React.useState(false);
   const [search, setSearch] = React.useState('');
   const [loadingMore, setLoadingMore] = React.useState(false);
+  const [filter, setFilter] = React.useState('');
 
   // pagination
   const [page, setPage] = React.useState(1);
@@ -34,11 +41,14 @@ const ListPlaceholder = type => {
       ? WORKPLAN_STATUS.ON_PROGRESS
       : WORKPLAN_STATUS.FINISH;
 
+  const FILTER_PARAM = route.params?.filter;
+
   useFocusEffect(
     React.useCallback(() => {
       setSearch('');
       getList();
-    }, []),
+      setPage(1);
+    }, [FILTER_PARAM]),
   );
 
   async function getList(clear) {
@@ -46,12 +56,14 @@ const ListPlaceholder = type => {
     setRefreshing(true);
     setPage(1); // Reset halaman ke 1 saat refresh
 
+    let FILTER = FILTER_PARAM ? `&${FILTER_PARAM}` : '';
+
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
         `?limit=4&page=1&search=${
           clear ? '' : search
-        }&status=${STATUS_PARAM}&admin=true`, // Selalu mulai dari page 1
+        }&status=${STATUS_PARAM}&admin=true${FILTER}`, // Selalu mulai dari page 1
       method: 'GET',
     });
 
@@ -67,14 +79,16 @@ const ListPlaceholder = type => {
   }
 
   async function getMoreList() {
-    if (loadingMore || page == maxPage) return; // Hindari duplikasi request
+    if (loadingMore || page >= maxPage) return; // Hindari duplikasi request
     setLoadingMore(true);
+
+    let FILTER = FILTER_PARAM ? `&${FILTER_PARAM}` : '';
 
     const nextPage = page + 1;
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&admin=true`,
+        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&admin=true${FILTER}`,
       method: 'GET',
     });
 
@@ -88,18 +102,34 @@ const ListPlaceholder = type => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
+    setPage(1);
     getList();
-  }, []);
+  }, [FILTER_PARAM]);
 
   return (
     <View style={styles.mainContainer}>
-      <Searchbar
-        placeholder="Cari no. workplan, perihal, cabang..."
-        value={search}
-        onChangeText={text => setSearch(text)}
-        onBlur={() => getList()}
-        onClearIconPress={() => getList(true)}
-      />
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <Searchbar
+          style={{flex: 1}}
+          placeholder="Cari no. workplan, perihal ..."
+          value={search}
+          onChangeText={text => setSearch(text)}
+          onBlur={() => getList()}
+          onClearIconPress={() => getList(true)}
+        />
+        <Gap w={8} />
+        <IconButton
+          onPress={() =>
+            navigation.navigate('WPFilterModal', {
+              ...route.params,
+              name: route?.name,
+              filter: FILTER_PARAM,
+            })
+          }
+          icon={'filter-outline'}
+        />
+      </View>
+
       <Gap h={14} />
       {list?.length ? (
         <FlatList

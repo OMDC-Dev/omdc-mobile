@@ -10,6 +10,7 @@ import HistoryTanggalModal from '../screens/workplan/modal/HistoryTanggalModal';
 import CommentModal from '../screens/workplan/modal/CommentModal';
 import WorkplanListApprovalScreen from '../screens/workplan/workplanlistapproval';
 import WorkplanListCCScreen from '../screens/workplan/workplanlistcc';
+import FilterModal from '../screens/workplan/modal/FilterModal';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ export const WorkplanStack = () => {
         <Stack.Screen name="WPProgressModal" component={ProgressModal} />
         <Stack.Screen name="WPCommentModal" component={CommentModal} />
         <Stack.Screen name="WPHistoryModal" component={HistoryTanggalModal} />
+        <Stack.Screen name="WPFilterModal" component={FilterModal} />
         <Stack.Screen name="PreviewModal" component={PreviewScreen} />
       </Stack.Group>
     </Stack.Navigator>

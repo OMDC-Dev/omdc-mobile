@@ -179,7 +179,7 @@ const HomeScreen = () => {
         };
         break;
       case 'WP_CC':
-        IS_ERROR = !hasWorkplan;
+        IS_ERROR = false;
         PATH = 'WorkplanStack';
         PARAM = {
           screen: 'WorkplanListCC',

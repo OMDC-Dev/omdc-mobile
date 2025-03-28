@@ -8,8 +8,15 @@ import moment from 'moment';
 import {WORKPLAN_STATUS} from '../../utils/constant';
 
 const WorkplanCard = ({data, onPress}) => {
-  const {workplan_id, user_detail, createdAt, perihal, status, jenis_workplan} =
-    data;
+  const {
+    workplan_id,
+    user_detail,
+    createdAt,
+    perihal,
+    status,
+    jenis_workplan,
+    kategori,
+  } = data;
 
   const renderStatus = () => {
     let title = '';
@@ -71,17 +78,31 @@ const WorkplanCard = ({data, onPress}) => {
         </Text>
         <Gap h={8} />
         <Row justify={'space-between'}>
-          <Chip
-            style={{
-              backgroundColor:
-                jenis_workplan == 'APPROVAL'
-                  ? Colors.COLOR_ACCENT
-                  : Colors.COLOR_ACCENT_2,
-            }}>
-            <Text style={styles.textId} variant={'labelSmall'}>
-              {jenis_workplan == 'APPROVAL' ? 'Approval' : 'Non Approval'}
-            </Text>
-          </Chip>
+          <Row>
+            <Chip
+              style={{
+                backgroundColor:
+                  jenis_workplan == 'APPROVAL'
+                    ? Colors.COLOR_ACCENT
+                    : Colors.COLOR_ACCENT_2,
+              }}>
+              <Text style={styles.textId} variant={'labelSmall'}>
+                {jenis_workplan == 'APPROVAL' ? 'Approval' : 'Non Approval'}
+              </Text>
+            </Chip>
+            <Gap w={4} />
+            <Chip
+              style={{
+                backgroundColor:
+                  kategori == 'URGENT'
+                    ? Colors.COLOR_PRIMARY
+                    : Colors.COLOR_DARK_GRAY,
+              }}>
+              <Text style={styles.textId} variant={'labelSmall'}>
+                {kategori}
+              </Text>
+            </Chip>
+          </Row>
 
           <Text style={styles.textTime} variant={'labelSmall'}>
             {moment(createdAt).format('ll')}

@@ -19,6 +19,7 @@ import {
   Icon,
   IconButton,
   MD3Colors,
+  MD3LightTheme,
   Snackbar,
   Text,
   TextInput,
@@ -128,7 +129,7 @@ const CommentModal = () => {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         style={styles.flexContainer}
-        keyboardVerticalOffset={72}
+        keyboardVerticalOffset={Platform.OS == 'ios' ? 72 : 32}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Row justify={'space-between'}>
           <View style={styles.titleContainer}>
@@ -162,7 +163,7 @@ const CommentModal = () => {
                         marginBottom: 8,
                         backgroundColor:
                           item.iduser == user.iduser
-                            ? undefined
+                            ? MD3LightTheme.colors.background
                             : Colors.COLOR_MCYAN,
                       }}>
                       <Card.Content>

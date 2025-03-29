@@ -293,6 +293,7 @@ const WorkplanDetailScreen = () => {
     showLoading();
     const body = {
       status: status,
+      fromAdmin: IS_WP_ADMIN,
     };
 
     const {state, data, error} = await fetchApi({

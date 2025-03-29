@@ -5,6 +5,7 @@ import {
 } from '@react-navigation/native';
 import * as React from 'react';
 import {
+  Dimensions,
   Image,
   Platform,
   SafeAreaView,
@@ -15,22 +16,28 @@ import {
 } from 'react-native';
 import {Avatar, Icon, Snackbar, Text} from 'react-native-paper';
 import {fetchApi} from '../../api/api';
-import {GET_NOTIFICATION_COUNT} from '../../api/apiRoutes';
+import {BANNER, GET_NOTIFICATION_COUNT} from '../../api/apiRoutes';
 import {Gap, Row} from '../../components';
 import {AuthContext} from '../../context';
 import {Colors, Scaler, Size} from '../../styles';
 import {API_STATES} from '../../utils/constant';
 import {retrieveData} from '../../utils/store';
 import {cekAkses} from '../../utils/utils';
+import Carousel, {Pagination} from 'react-native-reanimated-carousel';
+import {useSharedValue} from 'react-native-reanimated';
 
 const HomeScreen = () => {
   const [unreadCount, setUnreadCount] = React.useState();
   const [icon, setIcon] = React.useState();
   const [visible, setVisible] = React.useState(false);
+  const [bannerList, setBannerList] = React.useState([]);
 
   // navigation
   const navigation = useNavigation();
   const route = useRoute();
+
+  const width = Dimensions.get('window').width;
+  const progress = useSharedValue(0);
 
   // user context
   const {signOut, user} = React.useContext(AuthContext);
@@ -49,6 +56,8 @@ const HomeScreen = () => {
 
   const onToggleSnackBar = () => setVisible(!visible);
   const onDismissSnackBar = () => setVisible(false);
+
+  const WP_IMG = ['1', '2'];
 
   const MENU_LIST = [
     {
@@ -219,11 +228,23 @@ const HomeScreen = () => {
 
   React.useEffect(() => {
     loadIcon();
+    getBanner();
   }, []);
 
   async function loadIcon() {
     const getIcon = await retrieveData('APP_ICON');
     setIcon(getIcon);
+  }
+
+  async function getBanner() {
+    const {state, data, error} = await fetchApi({
+      url: BANNER,
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setBannerList(data);
+    }
   }
 
   return (
@@ -300,6 +321,73 @@ const HomeScreen = () => {
               );
             })}
           </View>
+
+          <Gap h={8} />
+          <View style={styles.bannerContainer}>
+            {bannerList.length > 0 ? (
+              <>
+                <Carousel
+                  width={width - Scaler.scaleSize(28)}
+                  height={width / 1.5}
+                  data={bannerList}
+                  onProgressChange={progress}
+                  style={{
+                    width: width - Scaler.scaleSize(20),
+                    height: width / 2 - Scaler.scaleSize(32),
+                    borderRadius: 8,
+                  }}
+                  renderItem={({index}) => (
+                    <View
+                      style={{
+                        flex: 1,
+                        borderRadius: 8,
+                        justifyContent: 'center',
+                      }}>
+                      <Image
+                        source={{uri: bannerList[index].banner}}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          backgroundColor: Colors.COLOR_LIGHT_GRAY,
+                        }}
+                        resizeMode={'cover'}
+                      />
+                    </View>
+                  )}
+                />
+
+                <Pagination.Basic
+                  progress={progress}
+                  data={bannerList}
+                  activeDotStyle={{
+                    backgroundColor: Colors.COLOR_PRIMARY,
+                  }}
+                  dotStyle={{
+                    backgroundColor: Colors.COLOR_GRAY,
+                    borderRadius: 50,
+                    margin: 4,
+                  }}
+                  containerStyle={{marginTop: 10}}
+                />
+              </>
+            ) : (
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  borderWidth: 0.5,
+                  margin: 4,
+                  width: width - Scaler.scaleSize(24),
+                  height: width / 2 - Scaler.scaleSize(32),
+                  borderRadius: 8,
+                }}>
+                <Icon source={'image-outline'} size={24} />
+                <Gap h={8} />
+                <Text variant={'labelSmall'}>Belum ada banner</Text>
+              </View>
+            )}
+          </View>
         </View>
       </View>
       <Snackbar
@@ -339,6 +427,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
+  },
+
+  bannerContainer: {
+    backgroundColor: Colors.COLOR_WHITE,
+    padding: Size.SIZE_10,
   },
 
   logo: {

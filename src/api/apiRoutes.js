@@ -125,3 +125,6 @@ export const WORKPLAN_UPDATE_STATUS = id => `workplan/status/${id}`;
 export const WORKPLAN_CC_USER = 'workplan/cc';
 export const WORKPLAN_PROGRESS = id => `workplan/progress/${id}`;
 export const WORKPLAN_COMMENT = id => `workplan/comment/${id}`;
+
+// BANNER
+export const BANNER = 'banner';

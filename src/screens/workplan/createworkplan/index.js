@@ -17,7 +17,14 @@ import {
 import WorkplanTypeDropdown from '../../../components/dropdown/workplan/WokrplanTypeDropdown';
 import {Colors, Scaler, Size} from '../../../styles';
 import {ScrollView} from 'react-native';
-import {Button, Card, Icon, Text, TextInput} from 'react-native-paper';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Icon,
+  Text,
+  TextInput,
+} from 'react-native-paper';
 import ModalView from '../../../components/modal';
 import {getDateFormat} from '../../../utils/utils';
 import {ModalContext, SnackBarContext} from '../../../context';
@@ -25,6 +32,7 @@ import {useNavigation} from '@react-navigation/native';
 import {fetchApi} from '../../../api/api';
 import {WORKPLAN} from '../../../api/apiRoutes';
 import {API_STATES} from '../../../utils/constant';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 const WorkplanScreen = () => {
   // date section
@@ -39,6 +47,9 @@ const WorkplanScreen = () => {
   const [perihal, setPerihal] = React.useState();
   const [kategori, setKategori] = React.useState();
   const [cc, setCC] = React.useState();
+  const [location, setLocation] = React.useState();
+
+  const [useListLocation, setUseListLocation] = React.useState(false);
 
   // file
   const [fileInfo, setFileInfo] = React.useState();
@@ -55,9 +66,23 @@ const WorkplanScreen = () => {
   // navigation
   const navigation = useNavigation();
 
+  // disable by loc
+  function disablebyLocation() {
+    if (useListLocation) {
+      return !cabang;
+    } else {
+      return !location;
+    }
+  }
+
   // const
   const BUTTON_DISABLED =
-    !type || !cabang || !startDate || !endDate || !perihal || !kategori;
+    !type ||
+    disablebyLocation() ||
+    !startDate ||
+    !endDate ||
+    !perihal ||
+    !kategori;
 
   // handle on pick from camera / gallery
   function onPickFromRes(data) {
@@ -77,6 +102,14 @@ const WorkplanScreen = () => {
     setFileInfo(fileInfo);
   }
 
+  React.useEffect(() => {
+    if (useListLocation) {
+      setLocation(null);
+    } else {
+      setCabang(null);
+    }
+  }, [useListLocation]);
+
   async function createWorkplan() {
     console.log('Creating Workplan...');
     showLoading();
@@ -85,6 +118,7 @@ const WorkplanScreen = () => {
       tanggal_mulai: startDate,
       tanggal_selesai: endDate,
       kd_induk: cabang,
+      custom_location: location,
       perihal: perihal,
       kategori: kategori,
       user_cc: cc,
@@ -152,7 +186,7 @@ const WorkplanScreen = () => {
           </Card>
 
           <Gap h={6} />
-          <InputLabel>Tanggal Selesai</InputLabel>
+          <InputLabel>Estimasi Tanggal Selesai</InputLabel>
           <Card
             style={styles.card}
             mode={'outlined'}
@@ -175,12 +209,53 @@ const WorkplanScreen = () => {
             </Card.Content>
           </Card>
 
+          <Gap h={20} />
+          <Row>
+            <Text variant={'labelMedium'}>Pilih lokasi dari list cabang</Text>
+            <Gap w={8} />
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setUseListLocation(!useListLocation)}
+              style={{
+                width: 18,
+                height: 18,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: Colors.COLOR_LIGHT_GRAY,
+                borderRadius: 12,
+              }}>
+              {useListLocation ? (
+                <Icon
+                  source={'check-circle'}
+                  size={18}
+                  color={Colors.COLOR_PRIMARY}
+                />
+              ) : null}
+            </TouchableOpacity>
+          </Row>
+
           <Gap h={6} />
-          <InputLabel>Cabang</InputLabel>
-          <Dropdown.CabangWorkplanDropdown
-            onChange={val => setCabang(val)}
-            value={cabang}
-          />
+          {useListLocation ? (
+            <>
+              <InputLabel>Cabang</InputLabel>
+              <Dropdown.CabangWorkplanDropdown
+                onChange={val => setCabang(val)}
+                value={cabang}
+              />
+            </>
+          ) : (
+            <>
+              <InputLabel>Lokasi</InputLabel>
+              <TextInput
+                style={styles.input}
+                mode={'outlined'}
+                placeholder={'Lokasi'}
+                placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                onChangeText={text => setLocation(text)}
+                value={location}
+              />
+            </>
+          )}
 
           <Gap h={6} />
           <InputLabel>Perihal</InputLabel>

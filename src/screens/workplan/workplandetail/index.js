@@ -111,9 +111,9 @@ const WorkplanDetailScreen = () => {
       type: 'default',
     },
     {
-      title: 'Cabang',
+      title: 'Cabang / Lokasi',
       key: 'cabang_detail',
-      alias: val => val?.nm_induk,
+      alias: (val, arg1) => (val ? val?.nm_induk : arg1['custom_location']),
       type: 'default',
     },
     {
@@ -129,7 +129,7 @@ const WorkplanDetailScreen = () => {
       type: 'default',
     },
     {
-      title: 'Tanggal Selesai',
+      title: 'Estimasi Tanggal Selesai',
       key: 'tanggal_selesai',
       alias: val => val,
       type: 'default',
@@ -477,7 +477,7 @@ const WorkplanDetailScreen = () => {
           Perihal
         </Text>
         <Gap h={14} />
-        <Card>
+        <Card style={{margin: 4}}>
           <Card.Content>
             <Text style={styles.textValue} variant={'labelMedium'}>
               {workplanDetail?.perihal}
@@ -495,7 +495,9 @@ const WorkplanDetailScreen = () => {
                 {item.title}
               </Text>
               <Text style={styles.textValue} variant={'labelMedium'}>
-                {workplanDetail ? item.alias(workplanDetail[item.key]) : '-'}
+                {workplanDetail
+                  ? item.alias(workplanDetail[item.key], workplanDetail)
+                  : '-'}
               </Text>
             </Row>
           );
@@ -716,7 +718,7 @@ const WorkplanDetailScreen = () => {
             );
           })
         ) : (
-          <Card>
+          <Card style={{margin: 4}}>
             <Card.Content
               style={{justifyContent: 'center', alignItems: 'center'}}>
               <Text variant={'labelMedium'}>Belum ada progress</Text>

@@ -18,6 +18,8 @@ const WorkplanCard = ({data, onPress}) => {
     kategori,
     tanggal_mulai,
     tanggal_selesai,
+    cabang_detail,
+    custom_location,
   } = data;
 
   const renderStatus = () => {
@@ -70,20 +72,25 @@ const WorkplanCard = ({data, onPress}) => {
           {/* <Text style={styles.textTitle} variant={'labelSmall'}>
             {user_detail?.nm_user}
           </Text> */}
+          <Text style={styles.textId} variant={'labelSmall'}>
+            {workplan_id}
+          </Text>
           <View />
           {renderStatus()}
         </Row>
-        <Gap h={8} />
-        <Text variant={'labelMedium'}>{perihal}</Text>
-        <Gap h={14} />
-        <Text style={styles.textId} variant={'labelSmall'}>
-          {workplan_id}
+        <Gap h={24} />
+        <Text style={{fontWeight: 'bold'}} variant={'labelMedium'}>
+          {perihal}
         </Text>
-        <Gap h={8} />
+        <Gap h={24} />
         <Text style={styles.textTitle} variant={'labelSmall'}>
           {user_detail?.nm_user}
         </Text>
         <Gap h={8} />
+        <Text style={styles.textTime} variant={'labelSmall'}>
+          {cabang_detail ? cabang_detail?.nm_induk : custom_location}
+        </Text>
+        <Gap h={4} />
         <Text style={styles.textTime} variant={'labelSmall'}>
           est. {tanggal_mulai} sd. {tanggal_selesai}
         </Text>

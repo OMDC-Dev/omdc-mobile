@@ -38,7 +38,11 @@ const ListPlaceholder = type => {
 
   const STATUS_PARAM =
     PARAM_TYPE == 'WAITING'
-      ? [WORKPLAN_STATUS.ON_PROGRESS, WORKPLAN_STATUS.REVISON]
+      ? [
+          WORKPLAN_STATUS.ON_PROGRESS,
+          WORKPLAN_STATUS.REVISON,
+          WORKPLAN_STATUS.PENDING,
+        ]
       : WORKPLAN_STATUS.FINISH;
 
   const FILTER_PARAM = route.params?.filter;

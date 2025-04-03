@@ -4,7 +4,7 @@ import {
   useRoute,
 } from '@react-navigation/native';
 import moment from 'moment';
-import React from 'react';
+import React, {useRef} from 'react';
 import {
   FlatList,
   Keyboard,
@@ -54,6 +54,8 @@ const CommentModal = () => {
 
   const navigation = useNavigation();
   const route = useRoute();
+
+  const scrollRef = useRef();
 
   const WP_ID = route.params?.id;
   const WP_COMMENT = route.params?.comment;
@@ -140,6 +142,10 @@ const CommentModal = () => {
     }, []),
   );
 
+  React.useEffect(() => {
+    scrollRef.current?.scrollToEnd({animated: true});
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -159,6 +165,12 @@ const CommentModal = () => {
         </Row>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView
+            ref={scrollRef}
+            onContentSizeChange={() => {
+              if (scrollRef) {
+                scrollRef.current?.scrollToEnd({animated: true});
+              }
+            }}
             showsVerticalScrollIndicator={false}
             style={styles.scrollContainer}
             contentContainerStyle={{

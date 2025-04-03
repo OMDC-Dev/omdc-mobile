@@ -35,6 +35,7 @@ const ProgressModal = () => {
   const route = useRoute();
 
   const WP_ID = route.params?.id;
+  const WP_SELECTED = route.params?.selected;
   const WP_IS_DONE = route?.params.isDone;
 
   async function getList(id) {
@@ -56,6 +57,7 @@ const ProgressModal = () => {
   }
 
   async function saveProgress() {
+    setContext('SAVE');
     setLoading(true);
 
     const {state, data, error} = await fetchApi({
@@ -81,10 +83,11 @@ const ProgressModal = () => {
   }
 
   async function updateProgress() {
+    setContext('UPDATE');
     setLoading(true);
 
     const {state, data, error} = await fetchApi({
-      url: WORKPLAN_PROGRESS(list[selectedId].id),
+      url: WORKPLAN_PROGRESS(selectedId),
       data: {
         progress: progress,
         wp_id: WP_ID,
@@ -132,11 +135,18 @@ const ProgressModal = () => {
     }
   }
 
+  // React.useEffect(() => {
+  //   if (WP_ID) {
+  //     getList(WP_ID);
+  //   }
+  // }, []);
+
   React.useEffect(() => {
-    if (WP_ID) {
-      getList(WP_ID);
+    if (WP_SELECTED) {
+      setProgress(WP_SELECTED.progress);
+      setSelectedId(WP_SELECTED.id);
     }
-  }, []);
+  }, [WP_SELECTED]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -155,14 +165,13 @@ const ProgressModal = () => {
             onPress={() => (loading ? null : navigation.goBack())}
           />
         </Row>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView
             contentContainerStyle={{
               flexGrow: 1,
             }}
             style={styles.scrollContainer}>
             <View style={styles.mainContainer}>
-              {/** List Container */}
               {list?.length > 0 ? (
                 list.map((item, index) => {
                   return (
@@ -215,12 +224,12 @@ const ProgressModal = () => {
               )}
             </View>
           </ScrollView>
-        </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback> */}
 
         {/* Bottom Container */}
         {WP_IS_DONE ? null : (
           <View style={styles.bottomContainer}>
-            {selectedId != null && context !== 'delete' ? (
+            {/* {selectedId != null && context !== 'delete' ? (
               <Card style={{marginBottom: Size.SIZE_14}}>
                 <Card.Content style={{paddingVertical: 0, paddingRight: 0}}>
                   <Row justify={'space-between'}>
@@ -240,9 +249,9 @@ const ProgressModal = () => {
                   </Row>
                 </Card.Content>
               </Card>
-            ) : null}
+            ) : null} */}
 
-            <Row>
+            <View>
               <TextInput
                 style={styles.input}
                 mode={'outlined'}
@@ -253,17 +262,17 @@ const ProgressModal = () => {
                 value={progress}
                 onChangeText={tx => setProgress(tx)}
               />
-              <Gap w={8} />
+              <Gap h={24} />
               <Button
                 loading={loading}
                 onPress={() => {
-                  selectedId != null ? updateProgress() : saveProgress();
+                  WP_SELECTED != null ? updateProgress() : saveProgress();
                 }}
                 disabled={loading || !progress}
                 mode={'contained'}>
-                {selectedId != null ? 'Update' : 'Tambah'}
+                {WP_SELECTED != null ? 'Update' : 'Tambah'}
               </Button>
-            </Row>
+            </View>
           </View>
         )}
       </KeyboardAvoidingView>
@@ -271,9 +280,10 @@ const ProgressModal = () => {
         visible={visible}
         type={type}
         toggle={() => setVisible(false)}
-        onPress={() => {
-          if (context == 'delete') {
-            deleteProgress(list[selectedId].id);
+        onPress={() => setVisible(false)}
+        onModalHide={() => {
+          if (type == 'success') {
+            navigation.goBack();
           }
         }}
       />
@@ -312,7 +322,6 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    flex: 1,
     maxHeight: Scaler.scaleSize(120),
   },
 

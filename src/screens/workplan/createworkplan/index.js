@@ -208,7 +208,7 @@ const WorkplanScreen = () => {
           />
 
           <Gap h={14} />
-          <InputLabel>Gambar Awal ( Opsional maks 10 MB )</InputLabel>
+          <InputLabel>Before ( Opsional maks 10 MB )</InputLabel>
           <FilePlaceholder
             file={file}
             fileInfo={fileInfo}

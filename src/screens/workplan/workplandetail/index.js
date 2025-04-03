@@ -17,7 +17,11 @@ import {
 } from '../../../components';
 import {Colors, Scaler, Size} from '../../../styles';
 import {Button, Card, Chip, Icon, Text} from 'react-native-paper';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import ModalView from '../../../components/modal';
 import {getDateFormat} from '../../../utils/utils';
 import {ModalContext, SnackBarContext} from '../../../context';
@@ -33,6 +37,7 @@ import {
 import {API_STATES, WORKPLAN_STATUS} from '../../../utils/constant';
 import {Image} from 'react-native';
 import moment from 'moment';
+import {WorkplanProgressCard} from '../../../components/card';
 
 const WorkplanDetailScreen = () => {
   // file
@@ -207,8 +212,13 @@ const WorkplanDetailScreen = () => {
 
   React.useEffect(() => {
     getWorkplanDetail();
-    getProgressList();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getProgressList();
+    }, []),
+  );
 
   async function getProgressList() {
     setIsLoading(true);
@@ -316,6 +326,25 @@ const WorkplanDetailScreen = () => {
     }
   };
 
+  async function deleteProgress(id) {
+    showLoading();
+
+    const {state, data, error} = await fetchApi({
+      url: WORKPLAN_PROGRESS(id),
+      method: 'DELETE',
+      data: {
+        wp_id: WP_ID,
+      },
+    });
+
+    if (state == API_STATES.OK) {
+      showSuccess();
+      getProgressList();
+    } else {
+      showFailed();
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <Header
@@ -342,7 +371,7 @@ const WorkplanDetailScreen = () => {
         style={styles.mainContainer}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 92}}>
-        <Text style={styles.subtitle} variant={'titleSmall'}>
+        {/* <Text style={styles.subtitle} variant={'titleSmall'}>
           Status
         </Text>
         <Gap h={8} />
@@ -353,40 +382,7 @@ const WorkplanDetailScreen = () => {
               {moment(workplanDetail?.approved_date).format('ll')}
             </Text>
           ) : null}
-        </Row>
-
-        <Gap h={24} />
-        <Text style={styles.subtitle} variant={'titleSmall'}>
-          Data Work Plan
-        </Text>
-        <Gap h={8} />
-        <Text style={styles.textCaption} variant={'labelMedium'}>
-          Perihal
-        </Text>
-        <Gap h={14} />
-        <Card>
-          <Card.Content>
-            <Text style={styles.textValue} variant={'labelMedium'}>
-              {workplanDetail?.perihal}
-            </Text>
-          </Card.Content>
-        </Card>
-        <Gap h={8} />
-        {DETAIL_DATA.map((item, index) => {
-          return (
-            <Row
-              style={styles.rowContainer}
-              justify={'space-between'}
-              key={index}>
-              <Text style={styles.textCaption} variant={'labelMedium'}>
-                {item.title}
-              </Text>
-              <Text style={styles.textValue} variant={'labelMedium'}>
-                {workplanDetail ? item.alias(workplanDetail[item.key]) : '-'}
-              </Text>
-            </Row>
-          );
-        })}
+        </Row> */}
         {workplanDetail?.attachment_after ||
         workplanDetail?.attachment_before ? (
           <>
@@ -428,7 +424,7 @@ const WorkplanDetailScreen = () => {
                         }}>
                         <Chip>
                           <Text variant={'labelSmall'}>
-                            {index == 0 ? 'Gambar Awal' : 'Gambar Akhir'}
+                            {index == 0 ? 'Before' : 'After'}
                           </Text>
                         </Chip>
                       </View>
@@ -473,8 +469,51 @@ const WorkplanDetailScreen = () => {
               }}
               containerStyle={{marginTop: 10}}
             />
+            <Gap h={14} />
           </>
         ) : null}
+        <Gap h={8} />
+        <Text style={styles.textCaption} variant={'labelMedium'}>
+          Perihal
+        </Text>
+        <Gap h={14} />
+        <Card>
+          <Card.Content>
+            <Text style={styles.textValue} variant={'labelMedium'}>
+              {workplanDetail?.perihal}
+            </Text>
+          </Card.Content>
+        </Card>
+        <Gap h={8} />
+        {DETAIL_DATA.map((item, index) => {
+          return (
+            <Row
+              style={styles.rowContainer}
+              justify={'space-between'}
+              key={index}>
+              <Text style={styles.textCaption} variant={'labelMedium'}>
+                {item.title}
+              </Text>
+              <Text style={styles.textValue} variant={'labelMedium'}>
+                {workplanDetail ? item.alias(workplanDetail[item.key]) : '-'}
+              </Text>
+            </Row>
+          );
+        })}
+        <Gap h={8} />
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() =>
+            navigation.navigate('WPHistoryModal', {
+              data: workplanDetail?.workplant_date_history,
+            })
+          }>
+          <Text style={styles.textHistoryChange} variant={'labelMedium'}>
+            Lihat riwayat perubahan tanggal
+          </Text>
+        </TouchableOpacity>
+
+        <Gap h={8} />
 
         {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? (
           <>
@@ -519,7 +558,7 @@ const WorkplanDetailScreen = () => {
                 </Row>
               </Card.Content>
             </Card>
-            <Gap h={14} />
+            {/* <Gap h={14} />
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() =>
@@ -530,12 +569,12 @@ const WorkplanDetailScreen = () => {
               <Text style={styles.textHistoryChange} variant={'labelMedium'}>
                 Lihat riwayat perubahan
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             {workplanDetail?.attachment_before ? null : (
               <>
                 <Gap h={14} />
-                <InputLabel>Gambar Awal ( Opsional maks 10 MB )</InputLabel>
+                <InputLabel>Before ( Opsional maks 10 MB )</InputLabel>
                 <FilePlaceholder
                   file={fileBefore}
                   fileInfo={fileBeforeInfo}
@@ -554,7 +593,7 @@ const WorkplanDetailScreen = () => {
 
             <>
               <Gap h={14} />
-              <InputLabel>Gambar Akhir ( Opsional maks 10 MB )</InputLabel>
+              <InputLabel>After ( Opsional maks 10 MB )</InputLabel>
               <FilePlaceholder
                 file={fileAfter}
                 fileInfo={fileAfterInfo}
@@ -582,7 +621,7 @@ const WorkplanDetailScreen = () => {
           </>
         )}
 
-        <Gap h={24} />
+        {/* <Gap h={24} />
         <Text style={styles.subtitle} variant={'titleSmall'}>
           Riwayat Perubahan Tanggal Selesai
         </Text>
@@ -595,23 +634,21 @@ const WorkplanDetailScreen = () => {
           }
           mode={'outlined'}>
           Lihat Riwayat Perubahan
-        </Button>
+        </Button> */}
 
         <Gap h={24} />
         <Text style={styles.subtitle} variant={'titleSmall'}>
-          Progress
+          Status
         </Text>
-        <Gap h={14} />
-        <Button
-          onPress={() =>
-            navigation.navigate('WPProgressModal', {
-              id: WP_ID,
-              isDone: IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC,
-            })
-          }
-          mode={'outlined'}>
-          Lihat Semua Progress
-        </Button>
+        <Gap h={8} />
+        <Row justify={'space-between'}>
+          {renderStatus(workplanDetail?.status)}
+          {workplanDetail?.approved_date ? (
+            <Text variant={'labelMedium'} style={styles.textValue}>
+              {moment(workplanDetail?.approved_date).format('ll')}
+            </Text>
+          ) : null}
+        </Row>
 
         <Gap h={24} />
         <Text style={styles.subtitle} variant={'titleSmall'}>
@@ -629,6 +666,63 @@ const WorkplanDetailScreen = () => {
           }>
           Lihat Semua Komentar
         </Button>
+
+        <Gap h={24} />
+        <Row justify={'space-between'}>
+          <Text style={styles.subtitle} variant={'titleSmall'}>
+            Progress
+          </Text>
+          {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? null : (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() =>
+                navigation.navigate('WPProgressModal', {
+                  id: WP_ID,
+                })
+              }>
+              <Text style={styles.subtitle} variant={'titleSmall'}>
+                + Tambah Progress
+              </Text>
+            </TouchableOpacity>
+          )}
+        </Row>
+
+        <Gap h={14} />
+        {/* <Button
+          onPress={() =>
+            navigation.navigate('WPProgressModal', {
+              id: WP_ID,
+              isDone: IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC,
+            })
+          }
+          mode={'outlined'}>
+          Lihat Semua Progress
+        </Button> */}
+        {progressList?.length > 0 ? (
+          progressList.map((item, index) => {
+            return (
+              <WorkplanProgressCard
+                key={index}
+                data={item}
+                isDone={IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC}
+                onEdit={() => {
+                  navigation.navigate('WPProgressModal', {
+                    id: WP_ID,
+                    selected: item,
+                  });
+                }}
+                onDelete={() => showConfirmation(() => deleteProgress(item.id))}
+              />
+            );
+          })
+        ) : (
+          <Card>
+            <Card.Content
+              style={{justifyContent: 'center', alignItems: 'center'}}>
+              <Text variant={'labelMedium'}>Belum ada progress</Text>
+            </Card.Content>
+          </Card>
+        )}
       </ScrollView>
       {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? null : (
         <View style={styles.bottomContainer}>

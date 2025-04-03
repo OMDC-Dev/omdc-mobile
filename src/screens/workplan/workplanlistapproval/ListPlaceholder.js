@@ -57,13 +57,14 @@ const ListPlaceholder = type => {
     setPage(1); // Reset halaman ke 1 saat refresh
 
     let FILTER = FILTER_PARAM ? `&${FILTER_PARAM}` : '';
+    let ORDER = PARAM_TYPE == 'WAITING' ? '' : '&sort=CREATEDDESC';
 
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=4&page=1&search=${
+        `?limit=10&page=1&search=${
           clear ? '' : search
-        }&status=${STATUS_PARAM}&admin=true${FILTER}`, // Selalu mulai dari page 1
+        }&status=${STATUS_PARAM}&admin=true${FILTER}${ORDER}`, // Selalu mulai dari page 1
       method: 'GET',
     });
 
@@ -83,12 +84,13 @@ const ListPlaceholder = type => {
     setLoadingMore(true);
 
     let FILTER = FILTER_PARAM ? `&${FILTER_PARAM}` : '';
+    let ORDER = PARAM_TYPE == 'WAITING' ? '' : '&sort=CREATEDDESC';
 
     const nextPage = page + 1;
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&admin=true${FILTER}`,
+        `?limit=10&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&admin=true${FILTER}${ORDER}`,
       method: 'GET',
     });
 

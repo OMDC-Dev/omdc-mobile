@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React from 'react';
 import {Card, Chip, Text} from 'react-native-paper';
 import Row from '../Row';
@@ -16,6 +16,8 @@ const WorkplanCard = ({data, onPress}) => {
     status,
     jenis_workplan,
     kategori,
+    tanggal_mulai,
+    tanggal_selesai,
   } = data;
 
   const renderStatus = () => {
@@ -65,9 +67,10 @@ const WorkplanCard = ({data, onPress}) => {
     <Card style={styles.container} onPress={onPress}>
       <Card.Content>
         <Row justify={'space-between'}>
-          <Text style={styles.textTitle} variant={'labelSmall'}>
+          {/* <Text style={styles.textTitle} variant={'labelSmall'}>
             {user_detail?.nm_user}
-          </Text>
+          </Text> */}
+          <View />
           {renderStatus()}
         </Row>
         <Gap h={8} />
@@ -77,6 +80,14 @@ const WorkplanCard = ({data, onPress}) => {
           {workplan_id}
         </Text>
         <Gap h={8} />
+        <Text style={styles.textTitle} variant={'labelSmall'}>
+          {user_detail?.nm_user}
+        </Text>
+        <Gap h={8} />
+        <Text style={styles.textTime} variant={'labelSmall'}>
+          est. {tanggal_mulai} sd. {tanggal_selesai}
+        </Text>
+        <Gap h={14} />
         <Row justify={'space-between'}>
           <Row>
             <Chip

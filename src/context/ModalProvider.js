@@ -98,11 +98,11 @@ const ModalProvider = ({children}) => {
         message={state.message}
         onPress={() => {
           dispatch({type: 'HIDE_MODAL', visible: false});
-          state.action();
+          state.action ? state.action() : null;
         }}
         toggle={() => {
           dispatch({type: 'HIDE_MODAL', visible: false});
-          state.action();
+          //state.action();
         }}
       />
     </ModalContext.Provider>

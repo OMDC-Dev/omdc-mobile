@@ -62,10 +62,10 @@ const ModalView = ({
         return <ModalConfirmation onConfirm={onPress} toggle={toggle} />;
         break;
       case 'success':
-        return <ModalSuccess onButtonPress={toggle} />;
+        return <ModalSuccess onButtonPress={onPress} />;
         break;
       case 'failed':
-        return <ModalFailed onButtonPress={toggle} />;
+        return <ModalFailed onButtonPress={onPress} />;
         break;
       case 'message':
         return <ModalPopUpMessage message={message} onPress={onPress} />;

@@ -34,7 +34,7 @@ const WorkplanListApprovalScreen = () => {
             user: 'ADMIN',
           }}
           options={{
-            title: 'Perlu Persetujuan',
+            title: 'Dalam Proses',
           }}
         />
         <Tab.Screen
@@ -58,7 +58,7 @@ const WorkplanListApprovalScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <Header title={'Work Plan Approval'} />
+      <Header title={'List Work Plan'} />
       {renderTab()}
     </Container>
   );

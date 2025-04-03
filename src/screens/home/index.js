@@ -67,7 +67,7 @@ const HomeScreen = () => {
       type: 'ROP',
     },
     {
-      title: 'Approval R.O.P',
+      title: 'Acc R.O.P',
       icon: 'account-check',
       color: Colors.COLOR_PRIMARY,
       type: 'ROP_ACC',
@@ -85,7 +85,7 @@ const HomeScreen = () => {
       type: 'PB',
     },
     {
-      title: 'Approval Permintaan Barang',
+      title: 'Acc Permintaan Barang',
       icon: 'archive-check',
       color: Colors.COLOR_ACCENT,
       type: 'PB_ACC',
@@ -97,19 +97,19 @@ const HomeScreen = () => {
       type: 'PB_MASTER',
     },
     {
-      title: 'Work Plan Saya',
+      title: 'Work Plan',
       icon: 'briefcase',
       color: Colors.COLOR_ACCENT_2,
       type: 'WP',
     },
     {
-      title: 'Work Plan CC',
+      title: 'Share Work Plan',
       icon: 'briefcase-account',
       color: Colors.COLOR_ACCENT_2,
       type: 'WP_CC',
     },
     {
-      title: 'Approval Work Plan',
+      title: 'List Work Plan',
       icon: 'briefcase-check',
       color: Colors.COLOR_ACCENT_2,
       type: 'WP_ACC',
@@ -247,6 +247,8 @@ const HomeScreen = () => {
     }
   }
 
+  console.log('BANNER', bannerList);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
@@ -290,50 +292,20 @@ const HomeScreen = () => {
           </Row>
         </View>
         <View style={styles.mainContent}>
-          <Gap h={8} />
-          <View style={styles.menuContainer}>
-            {MENU_LIST.map((item, index) => {
-              return (
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  key={index}
-                  style={styles.menuButton}
-                  onPress={() => checkAndGo(item.type)}>
-                  <View
-                    style={[
-                      styles.iconContainer,
-                      {backgroundColor: item.color},
-                    ]}>
-                    <Icon
-                      size={20}
-                      color={Colors.COLOR_WHITE}
-                      source={item.icon}
-                    />
-                  </View>
-                  <Gap h={6} />
-                  <Text
-                    numberOfLines={2}
-                    style={styles.textMenu}
-                    variant={'labelSmall'}>
-                    {item.title}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          <Gap h={8} />
           <View style={styles.bannerContainer}>
             {bannerList.length > 0 ? (
               <>
                 <Carousel
-                  width={width - Scaler.scaleSize(28)}
-                  height={width / 1.5}
+                  width={width - Scaler.scaleSize(20)}
+                  height={width / 2 - Scaler.scaleSize(10)}
                   data={bannerList}
                   onProgressChange={progress}
+                  autoPlay
+                  autoPlayInterval={5000}
+                  mode={'parallax'}
                   style={{
                     width: width - Scaler.scaleSize(20),
-                    height: width / 2 - Scaler.scaleSize(32),
+                    height: width / 2 - Scaler.scaleSize(10),
                     borderRadius: 8,
                   }}
                   renderItem={({index}) => (
@@ -349,6 +321,7 @@ const HomeScreen = () => {
                           width: '100%',
                           height: '100%',
                           backgroundColor: Colors.COLOR_LIGHT_GRAY,
+                          borderRadius: 8,
                         }}
                         resizeMode={'cover'}
                       />
@@ -387,6 +360,38 @@ const HomeScreen = () => {
                 <Text variant={'labelSmall'}>Belum ada banner</Text>
               </View>
             )}
+          </View>
+          <Gap h={8} />
+
+          <View style={styles.menuContainer}>
+            {MENU_LIST.map((item, index) => {
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  key={index}
+                  style={styles.menuButton}
+                  onPress={() => checkAndGo(item.type)}>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      {backgroundColor: item.color},
+                    ]}>
+                    <Icon
+                      size={20}
+                      color={Colors.COLOR_WHITE}
+                      source={item.icon}
+                    />
+                  </View>
+                  <Gap h={6} />
+                  <Text
+                    numberOfLines={2}
+                    style={styles.textMenu}
+                    variant={'labelSmall'}>
+                    {item.title}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       </View>

@@ -357,7 +357,7 @@ const WorkplanDetailScreen = () => {
 
         <Gap h={24} />
         <Text style={styles.subtitle} variant={'titleSmall'}>
-          Data Workplan
+          Data Work Plan
         </Text>
         <Gap h={8} />
         <Text style={styles.textCaption} variant={'labelMedium'}>

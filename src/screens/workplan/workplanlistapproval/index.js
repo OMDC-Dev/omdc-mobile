@@ -58,7 +58,7 @@ const WorkplanListApprovalScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <Header title={'Workplan Approval'} />
+      <Header title={'Work Plan Approval'} />
       {renderTab()}
     </Container>
   );

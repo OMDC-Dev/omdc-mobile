@@ -22,7 +22,7 @@ const WorkplanDoneScreen = () => {
       <StatusBar barStyle={'dark-content'} />
       <View style={styles.mainContainer}>
         <Text style={styles.textTitle} variant={'headlineSmall'}>
-          Pembuatan Workplan Berhasil!
+          Pembuatan Work Plan Berhasil!
         </Text>
         {/* <Text style={styles.textSubtitle} variant={'titleMedium'}>
           Nomor Pengajuan:{' '}

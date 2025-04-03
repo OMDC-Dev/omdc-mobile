@@ -107,7 +107,7 @@ const WorkplanScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title={'Buat Workplan'} />
+      <Header title={'Buat Work Plan'} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{flex: 1}}>
@@ -120,11 +120,11 @@ const WorkplanScreen = () => {
             paddingBottom: Scaler.scaleSize(60),
           }}>
           <Text style={styles.subtitle} variant="titleSmall">
-            Data Workplan
+            Data Work Plan
           </Text>
 
           <Gap h={14} />
-          <InputLabel>Jenis Workplan</InputLabel>
+          <InputLabel>Jenis Work Plan</InputLabel>
           <WorkplanTypeDropdown value={type} onChange={val => setType(val)} />
 
           <Gap h={6} />
@@ -227,7 +227,7 @@ const WorkplanScreen = () => {
             onPress={() => showConfirmation(() => createWorkplan())}
             disabled={BUTTON_DISABLED}
             mode={'contained'}>
-            Buat Workplan
+            Buat Work Plan
           </Button>
         </ScrollView>
       </KeyboardAvoidingView>

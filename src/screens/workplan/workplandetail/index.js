@@ -93,10 +93,28 @@ const WorkplanDetailScreen = () => {
       alias: val => val,
       type: 'default',
     },
+    // {
+    //   title: 'Jenis Workplan',
+    //   key: 'jenis_workplan',
+    //   alias: val => (val == 'APPROVAL' ? 'Approval' : 'Non Approval'),
+    //   type: 'default',
+    // },
     {
-      title: 'Jenis Workplan',
-      key: 'jenis_workplan',
-      alias: val => (val == 'APPROVAL' ? 'Approval' : 'Non Approval'),
+      title: 'PIC',
+      key: 'user_detail',
+      alias: val => val?.nm_user,
+      type: 'default',
+    },
+    {
+      title: 'Cabang',
+      key: 'cabang_detail',
+      alias: val => val?.nm_induk,
+      type: 'default',
+    },
+    {
+      title: 'Kategori',
+      key: 'kategori',
+      alias: val => val,
       type: 'default',
     },
     {
@@ -108,18 +126,6 @@ const WorkplanDetailScreen = () => {
     {
       title: 'Tanggal Selesai',
       key: 'tanggal_selesai',
-      alias: val => val,
-      type: 'default',
-    },
-    {
-      title: 'Cabang',
-      key: 'cabang_detail',
-      alias: val => val.nm_induk,
-      type: 'default',
-    },
-    {
-      title: 'Kategori',
-      key: 'kategori',
       alias: val => val,
       type: 'default',
     },
@@ -354,6 +360,18 @@ const WorkplanDetailScreen = () => {
           Data Workplan
         </Text>
         <Gap h={8} />
+        <Text style={styles.textCaption} variant={'labelMedium'}>
+          Perihal
+        </Text>
+        <Gap h={14} />
+        <Card>
+          <Card.Content>
+            <Text style={styles.textValue} variant={'labelMedium'}>
+              {workplanDetail?.perihal}
+            </Text>
+          </Card.Content>
+        </Card>
+        <Gap h={8} />
         {DETAIL_DATA.map((item, index) => {
           return (
             <Row
@@ -369,101 +387,94 @@ const WorkplanDetailScreen = () => {
             </Row>
           );
         })}
-        <Gap h={8} />
-        <Text style={styles.textCaption} variant={'labelMedium'}>
-          Perihal
-        </Text>
-        <Gap h={14} />
-        <Card>
-          <Card.Content>
-            <Text style={styles.textValue} variant={'labelMedium'}>
-              {workplanDetail?.perihal}
+        {workplanDetail?.attachment_after ||
+        workplanDetail?.attachment_before ? (
+          <>
+            <Gap h={16} />
+            <Text style={styles.textCaption} variant={'labelMedium'}>
+              Gambar
             </Text>
-          </Card.Content>
-        </Card>
-        <Gap h={16} />
-        <Text style={styles.textCaption} variant={'labelMedium'}>
-          Gambar
-        </Text>
-        <Gap h={16} />
-        <Carousel
-          width={width - Scaler.scaleSize(28)}
-          height={width / 1.5}
-          data={WP_IMG}
-          onProgressChange={progress}
-          style={{
-            width: width - Scaler.scaleSize(28),
-            borderRadius: 8,
-          }}
-          renderItem={({index}) => (
-            <TouchableOpacity
-              activeOpacity={0.8}
+            <Gap h={16} />
+            <Carousel
+              width={width - Scaler.scaleSize(28)}
+              height={width / 1.5}
+              data={WP_IMG}
+              onProgressChange={progress}
               style={{
-                flex: 1,
+                width: width - Scaler.scaleSize(28),
                 borderRadius: 8,
-                justifyContent: 'center',
               }}
-              onPress={() =>
-                navigation.navigate('Preview', {
-                  file: WP_IMG[index],
-                })
-              }>
-              {WP_IMG[index] ? (
-                <>
-                  <View
-                    style={{
-                      position: 'absolute',
-                      zIndex: 999,
-                      top: 10,
-                      left: 10,
-                    }}>
-                    <Chip>
-                      <Text variant={'labelSmall'}>
-                        {index == 0 ? 'Gambar Awal' : 'Gambar Akhir'}
-                      </Text>
-                    </Chip>
-                  </View>
-                  <Image
-                    source={{uri: WP_IMG[index]}}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      backgroundColor: Colors.COLOR_LIGHT_GRAY,
-                    }}
-                    resizeMode={'cover'}
-                  />
-                </>
-              ) : (
-                <View
+              renderItem={({index}) => (
+                <TouchableOpacity
+                  activeOpacity={0.8}
                   style={{
                     flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderWidth: 0.5,
-                    margin: 4,
                     borderRadius: 8,
-                  }}>
-                  <Icon source={'image-outline'} size={24} />
-                  <Gap h={8} />
-                  <Text variant={'labelSmall'}>Tidak ada gambar</Text>
-                </View>
+                    justifyContent: 'center',
+                  }}
+                  onPress={() =>
+                    navigation.navigate('Preview', {
+                      file: WP_IMG[index],
+                    })
+                  }>
+                  {WP_IMG[index] ? (
+                    <>
+                      <View
+                        style={{
+                          position: 'absolute',
+                          zIndex: 999,
+                          top: 10,
+                          left: 10,
+                        }}>
+                        <Chip>
+                          <Text variant={'labelSmall'}>
+                            {index == 0 ? 'Gambar Awal' : 'Gambar Akhir'}
+                          </Text>
+                        </Chip>
+                      </View>
+                      <Image
+                        source={{uri: WP_IMG[index]}}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          backgroundColor: Colors.COLOR_LIGHT_GRAY,
+                        }}
+                        resizeMode={'cover'}
+                      />
+                    </>
+                  ) : (
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderWidth: 0.5,
+                        margin: 4,
+                        borderRadius: 8,
+                      }}>
+                      <Icon source={'image-outline'} size={24} />
+                      <Gap h={8} />
+                      <Text variant={'labelSmall'}>Tidak ada gambar</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
               )}
-            </TouchableOpacity>
-          )}
-        />
-        <Pagination.Basic
-          progress={progress}
-          data={WP_IMG}
-          activeDotStyle={{
-            backgroundColor: Colors.COLOR_PRIMARY,
-          }}
-          dotStyle={{
-            backgroundColor: Colors.COLOR_GRAY,
-            borderRadius: 50,
-            margin: 4,
-          }}
-          containerStyle={{marginTop: 10}}
-        />
+            />
+            <Pagination.Basic
+              progress={progress}
+              data={WP_IMG}
+              activeDotStyle={{
+                backgroundColor: Colors.COLOR_PRIMARY,
+              }}
+              dotStyle={{
+                backgroundColor: Colors.COLOR_GRAY,
+                borderRadius: 50,
+                margin: 4,
+              }}
+              containerStyle={{marginTop: 10}}
+            />
+          </>
+        ) : null}
 
         {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? (
           <>

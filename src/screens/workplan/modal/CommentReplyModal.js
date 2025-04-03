@@ -1,8 +1,4 @@
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import moment from 'moment';
 import React from 'react';
 import {
@@ -37,7 +33,28 @@ import {API_STATES} from '../../../utils/constant';
 import {AuthContext} from '../../../context';
 import {Image} from 'react-native';
 
-const CommentModal = () => {
+const StyledMessage = ({message}) => {
+  // Cek apakah pesan diawali dengan "Membalas @UserID:"
+  const match = message.match(/^Membalas (@[\w\s]+)\s*:\s*(.*)/);
+
+  if (match) {
+    const userId = match[1]; // "@UserID"
+    const content = match[2]; // Isi pesan setelah ":"
+
+    return (
+      <Text variant={'labelMedium'}>
+        <Text>Membalas </Text>
+        <Text style={{fontWeight: 'bold', color: 'red'}}>{userId}</Text>
+        <Text>: {content}</Text>
+      </Text>
+    );
+  }
+
+  // Jika tidak ada format membalas, tampilkan teks biasa
+  return <Text>{message}</Text>;
+};
+
+const CommentReplyModal = () => {
   const [list, setList] = React.useState([]);
   const [comment, setComment] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -56,26 +73,8 @@ const CommentModal = () => {
   const route = useRoute();
 
   const WP_ID = route.params?.id;
-  const WP_COMMENT = route.params?.comment;
   const WP_IS_DONE = route?.params.isDone;
-
-  async function getList(id) {
-    setLoading(true);
-
-    const {state, data, error} = await fetchApi({
-      url: WORKPLAN_COMMENT(id),
-      method: 'GET',
-    });
-
-    if (state == API_STATES.OK) {
-      setList(data.rows);
-      setLoading(false);
-    } else {
-      setLoading(false);
-      setType('failed');
-      setVisible(true);
-    }
-  }
+  const SELECTED_COMMENT = route?.params?.data;
 
   async function sendComment() {
     setLoading(true);
@@ -88,10 +87,10 @@ const CommentModal = () => {
       url: WORKPLAN_COMMENT(WP_ID),
       method: 'POST',
       data: {
-        message: quoted
-          ? `Membalas @${quoted.create_by} : ${COMMENT_VALUE}`
-          : COMMENT_VALUE,
-        comment_id: quoted ? quoted?.id : null,
+        message: `Membalas @${
+          quoted ? quoted?.create_by : SELECTED_COMMENT?.create_by
+        } : ${COMMENT_VALUE}`,
+        comment_id: SELECTED_COMMENT.id,
         attachment: selectedFile,
       },
     });
@@ -100,14 +99,18 @@ const CommentModal = () => {
       setLoading(false);
       setComment('');
       setSelectedFile(null);
-      getList(WP_ID);
       setQuoted(null);
+      setList(prev => [...prev, data.data]);
     } else {
       setLoading(false);
       setComment('');
       setSelectedFile(null);
     }
   }
+
+  React.useEffect(() => {
+    setList(SELECTED_COMMENT.replies);
+  }, [SELECTED_COMMENT]);
 
   // handle on pick from camera / gallery
   function onPickFromRes(data) {
@@ -116,29 +119,9 @@ const CommentModal = () => {
       setVisible(true);
       return;
     }
-
-    const fileInfo = {
-      name: data.fileName,
-      size: data.fileSize,
-      type: data.fileType,
-    };
-
     setSelectedFile(data.base64);
     // setFileBeforeInfo(fileInfo);
   }
-
-  React.useEffect(() => {
-    if (WP_ID) {
-      setList(WP_COMMENT);
-      //getList(WP_ID);
-    }
-  }, []);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      getList(WP_ID);
-    }, []),
-  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -149,7 +132,7 @@ const CommentModal = () => {
         <Row justify={'space-between'}>
           <View style={styles.titleContainer}>
             <Text variant={'titleMedium'} style={styles.textProgress}>
-              Komentar
+              Balasan Komentar
             </Text>
           </View>
           <IconButton
@@ -167,109 +150,150 @@ const CommentModal = () => {
             nestedScrollEnabled>
             <View style={styles.mainContainer}>
               {/** List Container */}
-              {list?.length > 0 ? (
-                list.map((item, index) => {
-                  return (
-                    <Card
-                      key={index}
-                      style={{
-                        marginHorizontal: 4,
-                        marginTop: 4,
-                        marginBottom: 8,
-                        backgroundColor:
-                          item.iduser == user.iduser
-                            ? MD3LightTheme.colors.background
-                            : Colors.COLOR_MCYAN,
-                      }}>
-                      <Card.Content>
-                        <Text
-                          style={[
-                            styles.textName,
-                            {
-                              color:
-                                user.iduser == item.iduser
-                                  ? Colors.COLOR_PRIMARY
-                                  : Colors.COLOR_BLACK,
-                            },
-                          ]}
-                          variant={'labelMedium'}>
-                          {item.create_by}
-                        </Text>
+              <Card
+                style={{
+                  marginHorizontal: 4,
+                  marginTop: 4,
+                  marginBottom: 8,
+                  backgroundColor:
+                    SELECTED_COMMENT.iduser == user.iduser
+                      ? MD3LightTheme.colors.background
+                      : Colors.COLOR_MCYAN,
+                }}>
+                <Card.Content>
+                  <Text
+                    style={[
+                      styles.textName,
+                      {
+                        color:
+                          user.iduser == SELECTED_COMMENT.iduser
+                            ? Colors.COLOR_PRIMARY
+                            : Colors.COLOR_BLACK,
+                      },
+                    ]}
+                    variant={'labelMedium'}>
+                    {SELECTED_COMMENT.create_by}
+                  </Text>
+                  <Gap h={8} />
+                  <View>
+                    <Text variant={'labelMedium'}>
+                      {SELECTED_COMMENT.message}
+                    </Text>
+                    {SELECTED_COMMENT.attachment ? (
+                      <>
                         <Gap h={8} />
-                        <View>
-                          <Text variant={'labelMedium'}>{item.message}</Text>
-                          {item.attachment ? (
-                            <>
-                              <Gap h={8} />
-                              <TouchableOpacity
-                                activeOpacity={0.8}
-                                onPress={() => {
-                                  navigation.navigate('PreviewModal', {
-                                    file: item.attachment,
-                                  });
-                                }}>
-                                <Image
-                                  source={{
-                                    uri: item.attachment,
-                                  }}
-                                  style={{
-                                    height: Scaler.scaleSize(252),
-                                    width: '100%',
-                                    borderRadius: 8,
-                                    margin: 8,
-                                    alignSelf: 'center',
-                                  }}
-                                  resizeMode={'cover'}
-                                />
-                              </TouchableOpacity>
-                            </>
-                          ) : null}
-                          <Row
-                            style={{marginTop: 20}}
-                            justify={'space-between'}>
-                            <Row>
-                              <TouchableOpacity
-                                activeOpacity={0.8}
-                                onPress={() => setQuoted(item)}>
-                                <Text
-                                  style={{color: Colors.COLOR_SECONDARY}}
-                                  variant={'labelSmall'}>
-                                  Balas
-                                </Text>
-                              </TouchableOpacity>
-                              <Gap w={8} />
-                              {item.replies?.length > 0 ? (
-                                <TouchableOpacity
-                                  activeOpacity={0.8}
-                                  onPress={() =>
-                                    navigation.navigate('WPCommentReplyModal', {
-                                      ...route.params,
-                                      data: item,
-                                    })
-                                  }>
-                                  <Text
-                                    style={{color: Colors.COLOR_SECONDARY}}
-                                    variant={'labelSmall'}>
-                                    {item.replies?.length} Balasan
-                                  </Text>
-                                </TouchableOpacity>
-                              ) : null}
-                            </Row>
-
+                        <TouchableOpacity
+                          activeOpacity={0.8}
+                          onPress={() => {
+                            navigation.navigate('PreviewModal', {
+                              file: SELECTED_COMMENT.attachment,
+                            });
+                          }}>
+                          <Image
+                            source={{
+                              uri: SELECTED_COMMENT.attachment,
+                            }}
+                            style={{
+                              height: Scaler.scaleSize(252),
+                              width: '100%',
+                              borderRadius: 8,
+                              margin: 8,
+                              alignSelf: 'center',
+                            }}
+                            resizeMode={'cover'}
+                          />
+                        </TouchableOpacity>
+                      </>
+                    ) : null}
+                    <Row style={{marginTop: 20}} justify={'space-between'}>
+                      {/* <TouchableOpacity onPress={() => setQuoted(item)}>
+                        <Text
+                          style={{color: Colors.COLOR_DARK_BACKGROUND}}
+                          variant={'labelSmall'}>
+                          Balas
+                        </Text>
+                      </TouchableOpacity> */}
+                      <Text variant={'labelSmall'} style={styles.textTime}>
+                        {moment(SELECTED_COMMENT.createdAt).fromNow()}
+                      </Text>
+                    </Row>
+                  </View>
+                </Card.Content>
+              </Card>
+              {list.map((item, index) => {
+                return (
+                  <Card
+                    key={index}
+                    style={{
+                      marginRight: 4,
+                      marginLeft: 24,
+                      marginTop: 4,
+                      marginBottom: 8,
+                      backgroundColor:
+                        item.iduser == user.iduser
+                          ? MD3LightTheme.colors.background
+                          : Colors.COLOR_MCYAN,
+                    }}>
+                    <Card.Content>
+                      <Text
+                        style={[
+                          {
+                            fontWeight: 'bold',
+                            color:
+                              user.iduser == item.iduser
+                                ? Colors.COLOR_PRIMARY
+                                : Colors.COLOR_BLACK,
+                          },
+                        ]}
+                        variant={'labelSmall'}>
+                        {item.create_by}
+                      </Text>
+                      <Gap h={4} />
+                      <View>
+                        <StyledMessage message={item?.message} />
+                        {item.attachment ? (
+                          <>
+                            <Gap h={4} />
+                            <TouchableOpacity
+                              activeOpacity={0.8}
+                              onPress={() => {
+                                navigation.navigate('PreviewModal', {
+                                  file: item.attachment,
+                                });
+                              }}>
+                              <Image
+                                source={{
+                                  uri: item.attachment,
+                                }}
+                                style={{
+                                  height: Scaler.scaleSize(252),
+                                  width: '100%',
+                                  borderRadius: 8,
+                                  margin: 8,
+                                  alignSelf: 'center',
+                                }}
+                                resizeMode={'cover'}
+                              />
+                            </TouchableOpacity>
+                          </>
+                        ) : null}
+                        <Row style={{marginTop: 8}} justify={'space-between'}>
+                          <TouchableOpacity onPress={() => setQuoted(item)}>
                             <Text
-                              variant={'labelSmall'}
-                              style={styles.textTime}>
-                              {moment(item.createdAt).fromNow()}
+                              style={{color: Colors.COLOR_DARK_BACKGROUND}}
+                              variant={'labelSmall'}>
+                              Balas
                             </Text>
-                          </Row>
-                        </View>
-                      </Card.Content>
-                    </Card>
-                  );
-                })
-              ) : (
-                <BlankScreen loading={loading}>Belum ada komentar</BlankScreen>
-              )}
+                          </TouchableOpacity>
+                          <Text variant={'labelSmall'} style={styles.textTime}>
+                            {moment(item.createdAt).fromNow()}
+                          </Text>
+                        </Row>
+                      </View>
+                    </Card.Content>
+                  </Card>
+                );
+              })}
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
@@ -379,7 +403,7 @@ const CommentModal = () => {
   );
 };
 
-export default CommentModal;
+export default CommentReplyModal;
 
 const styles = StyleSheet.create({
   container: {

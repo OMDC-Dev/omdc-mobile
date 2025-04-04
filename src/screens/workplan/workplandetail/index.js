@@ -30,6 +30,7 @@ import Carousel, {Pagination} from 'react-native-reanimated-carousel';
 import {fetchApi} from '../../../api/api';
 import {
   WORKPLAN,
+  WORKPLAN_COMMENT,
   WORKPLAN_PROGRESS,
   WORKPLAN_UPDATE,
   WORKPLAN_UPDATE_STATUS,
@@ -66,6 +67,7 @@ const WorkplanDetailScreen = () => {
   const [isHasUpdate, setIsHasUpdate] = React.useState(false);
 
   const [workplanDetail, setWorkplanDetail] = React.useState();
+  const [commentCount, setCommentCount] = React.useState(0);
 
   // carousel
   const WP_IMG = [
@@ -90,6 +92,10 @@ const WorkplanDetailScreen = () => {
     workplanDetail?.status == WORKPLAN_STATUS.FINISH ||
     workplanDetail?.status == WORKPLAN_STATUS.REJECTED ||
     IS_WP_REVISION;
+
+  const IS_WP_STATUS_DONE =
+    workplanDetail?.status == WORKPLAN_STATUS.FINISH ||
+    workplanDetail?.status == WORKPLAN_STATUS.REJECTED;
 
   let DETAIL_DATA = [
     {
@@ -217,6 +223,7 @@ const WorkplanDetailScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       getProgressList();
+      getCommentCount();
     }, []),
   );
 
@@ -229,6 +236,21 @@ const WorkplanDetailScreen = () => {
 
     if (state == API_STATES.OK) {
       setProgressList(data);
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+    }
+  }
+
+  async function getCommentCount() {
+    setIsLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: WORKPLAN_COMMENT(WP_ID) + '/count',
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setCommentCount(data.count);
       setIsLoading(false);
     } else {
       setIsLoading(false);
@@ -518,20 +540,22 @@ const WorkplanDetailScreen = () => {
         <Gap h={8} />
 
         {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? (
-          <>
-            <InputLabel>CC</InputLabel>
-            <View style={styles.cardCC}>
-              <Row style={{flexWrap: 'wrap'}}>
-                {workplanDetail?.cc_users.map((item, index) => {
-                  return (
-                    <Chip key={index} style={{margin: 4}}>
-                      <Text variant={'labelSmall'}>{item.nm_user}</Text>
-                    </Chip>
-                  );
-                })}
-              </Row>
-            </View>
-          </>
+          workplanDetail?.cc_users.length > 0 ? (
+            <>
+              <InputLabel>CC</InputLabel>
+              <View style={styles.cardCC}>
+                <Row style={{flexWrap: 'wrap'}}>
+                  {workplanDetail?.cc_users.map((item, index) => {
+                    return (
+                      <Chip key={index} style={{margin: 4}}>
+                        <Text variant={'labelSmall'}>{item.nm_user}</Text>
+                      </Chip>
+                    );
+                  })}
+                </Row>
+              </View>
+            </>
+          ) : null
         ) : (
           <>
             <Gap h={24} />
@@ -663,10 +687,10 @@ const WorkplanDetailScreen = () => {
             navigation.navigate('WPCommentModal', {
               id: WP_ID,
               comment: workplanDetail?.workplant_comment,
-              isDone: IS_WP_DONE,
+              isDone: IS_WP_STATUS_DONE,
             })
           }>
-          Lihat Semua Komentar
+          Lihat Semua Komentar ( {commentCount} )
         </Button>
 
         <Gap h={24} />

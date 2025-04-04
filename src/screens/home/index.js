@@ -296,36 +296,36 @@ const HomeScreen = () => {
             {bannerList.length > 0 ? (
               <>
                 <Carousel
-                  width={width - Scaler.scaleSize(20)}
-                  height={width / 2 - Scaler.scaleSize(10)}
+                  width={width - 24}
+                  height={width / 2}
                   data={bannerList}
                   onProgressChange={progress}
                   autoPlay
                   autoPlayInterval={5000}
-                  mode={'parallax'}
                   style={{
-                    width: width - Scaler.scaleSize(20),
-                    height: width / 2 - Scaler.scaleSize(10),
+                    width: width - 24,
+                    height: width / 2,
                     borderRadius: 8,
                   }}
                   renderItem={({index}) => (
-                    <View
+                    // <View
+                    //   style={{
+                    //     flex: 1,
+                    //     borderRadius: 8,
+                    //     justifyContent: 'center',
+                    //   }}>
+
+                    // </View>
+                    <Image
+                      source={{uri: bannerList[index].banner}}
                       style={{
-                        flex: 1,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: Colors.COLOR_LIGHT_GRAY,
                         borderRadius: 8,
-                        justifyContent: 'center',
-                      }}>
-                      <Image
-                        source={{uri: bannerList[index].banner}}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          backgroundColor: Colors.COLOR_LIGHT_GRAY,
-                          borderRadius: 8,
-                        }}
-                        resizeMode={'cover'}
-                      />
-                    </View>
+                      }}
+                      resizeMode={'cover'}
+                    />
                   )}
                 />
 

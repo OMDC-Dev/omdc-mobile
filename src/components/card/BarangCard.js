@@ -22,8 +22,6 @@ const BarangCard = ({
 }) => {
   const {nm_barang, grup_brg, kategory_brg} = data;
 
-  console.log('BRG', data);
-
   const navigation = useNavigation();
 
   const [extended, setExtended] = React.useState(fromDownload ? true : false);
@@ -49,14 +47,7 @@ const BarangCard = ({
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
                     Jumlah Stock : {data?.qty_stock} {data.nm_kemasan}
                   </Text>
-                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
-                    Keterangan :
-                  </Text>
                   <Gap h={4} />
-                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
-                    {data?.keterangan || '-'}
-                  </Text>
-                  <Gap h={10} />
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
                     Status :{' '}
                     <Text
@@ -64,6 +55,14 @@ const BarangCard = ({
                       style={{...styles.textDescInfo}}>
                       {data?.status_pb}
                     </Text>
+                  </Text>
+                  <Gap h={10} />
+                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
+                    Keterangan :
+                  </Text>
+                  <Gap h={8} />
+                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
+                    {data?.keterangan || '-'}
                   </Text>
                   {data?.attachment ? (
                     <>

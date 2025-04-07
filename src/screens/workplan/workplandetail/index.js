@@ -700,8 +700,7 @@ const WorkplanDetailScreen = () => {
             navigation.navigate('WPCommentModal', {
               id: WP_ID,
               comment: workplanDetail?.workplant_comment,
-              isDone:
-                IS_WP_STATUS_DONE || (!isEditMode && !IS_WP_CC && !IS_WP_ADMIN),
+              isDone: IS_WP_STATUS_DONE,
             })
           }>
           Lihat Semua Komentar ( {commentCount} )

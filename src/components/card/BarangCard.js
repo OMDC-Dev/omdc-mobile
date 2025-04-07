@@ -50,7 +50,11 @@ const BarangCard = ({
                     Jumlah Stock : {data?.qty_stock} {data.nm_kemasan}
                   </Text>
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>
-                    Keterangan : {data?.keterangan || '-'}
+                    Keterangan :
+                  </Text>
+                  <Gap h={4} />
+                  <Text style={styles.textDescInfo} variant={'labelSmall'}>
+                    {data?.keterangan || '-'}
                   </Text>
                   <Gap h={10} />
                   <Text style={styles.textDescInfo} variant={'labelSmall'}>

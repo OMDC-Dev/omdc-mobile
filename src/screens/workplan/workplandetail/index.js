@@ -50,6 +50,7 @@ const WorkplanDetailScreen = () => {
   const [fileAfterInfo, setFileAfterInfo] = React.useState();
   const [fileType, setFileType] = React.useState('');
   const [isEditAfter, setIsEditAfter] = React.useState(false);
+  const [isEditMode, setIsEditMode] = React.useState(false);
 
   const [showCalendar, setShowCalendar] = React.useState(false);
   const [endDate, setEndDate] = React.useState();
@@ -91,7 +92,8 @@ const WorkplanDetailScreen = () => {
   const IS_WP_DONE =
     workplanDetail?.status == WORKPLAN_STATUS.FINISH ||
     workplanDetail?.status == WORKPLAN_STATUS.REJECTED ||
-    IS_WP_REVISION;
+    IS_WP_REVISION ||
+    !isEditMode;
 
   const IS_WP_STATUS_DONE =
     workplanDetail?.status == WORKPLAN_STATUS.FINISH ||
@@ -367,28 +369,39 @@ const WorkplanDetailScreen = () => {
     }
   }
 
+  function renderHeaderButton() {
+    if (IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC) {
+      if (!isEditMode && !IS_WP_ADMIN && !IS_WP_CC && !IS_WP_STATUS_DONE) {
+        return (
+          <Button mode={'contained'} onPress={() => setIsEditMode(true)}>
+            Edit
+          </Button>
+        );
+      } else {
+        return;
+      }
+    }
+
+    return (
+      <Button
+        style={
+          isHasUpdate
+            ? undefined
+            : {
+                backgroundColor: Colors.COLOR_GRAY,
+              }
+        }
+        disabled={!isHasUpdate}
+        mode={'contained'}
+        onPress={() => saveWorkplan()}>
+        Simpan
+      </Button>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <Header
-        title={'Detail'}
-        right={
-          IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? null : (
-            <Button
-              style={
-                isHasUpdate
-                  ? undefined
-                  : {
-                      backgroundColor: Colors.COLOR_GRAY,
-                    }
-              }
-              disabled={!isHasUpdate}
-              mode={'contained'}
-              onPress={() => saveWorkplan()}>
-              Simpan
-            </Button>
-          )
-        }
-      />
+      <Header title={'Detail'} right={renderHeaderButton()} />
       <ScrollView
         style={styles.mainContainer}
         showsVerticalScrollIndicator={false}
@@ -687,7 +700,8 @@ const WorkplanDetailScreen = () => {
             navigation.navigate('WPCommentModal', {
               id: WP_ID,
               comment: workplanDetail?.workplant_comment,
-              isDone: IS_WP_STATUS_DONE,
+              isDone:
+                IS_WP_STATUS_DONE || (!isEditMode && !IS_WP_CC && !IS_WP_ADMIN),
             })
           }>
           Lihat Semua Komentar ( {commentCount} )
@@ -810,6 +824,15 @@ const WorkplanDetailScreen = () => {
               }}>
               Hapus Workplan
             </Button>
+
+            {isEditMode ? (
+              <Button
+                style={[styles.actionButton]}
+                mode={'outlined'}
+                onPress={() => setIsEditMode(false)}>
+                Batalkan Edit
+              </Button>
+            ) : null}
           </ScrollView>
         </View>
       )}

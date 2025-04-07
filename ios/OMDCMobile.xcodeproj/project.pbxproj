@@ -577,7 +577,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8;
+				MARKETING_VERSION = 10;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -617,7 +617,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8;
+				MARKETING_VERSION = 10;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -626,7 +626,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ardclient.omdc;
 				PRODUCT_NAME = OMDCMobile;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = OMDCProduction;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = OMDC2025;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;

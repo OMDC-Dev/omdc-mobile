@@ -97,19 +97,19 @@ const HomeScreen = () => {
       type: 'PB_MASTER',
     },
     {
-      title: 'Work Plan',
+      title: 'Work in Progress',
       icon: 'briefcase',
       color: Colors.COLOR_ACCENT_2,
       type: 'WP',
     },
     {
-      title: 'Share Work Plan',
+      title: 'Share Work in Progress',
       icon: 'briefcase-account',
       color: Colors.COLOR_ACCENT_2,
       type: 'WP_CC',
     },
     {
-      title: 'List Work Plan',
+      title: 'List Work in Progress',
       icon: 'briefcase-check',
       color: Colors.COLOR_ACCENT_2,
       type: 'WP_ACC',

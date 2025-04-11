@@ -58,7 +58,7 @@ const WorkplanListCCScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <Header title={'Work Plan'} />
+      <Header title={'Work in Progress'} />
       {renderTab()}
     </Container>
   );

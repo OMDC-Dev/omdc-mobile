@@ -117,7 +117,7 @@ const ListPlaceholder = type => {
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <Searchbar
           style={{flex: 1}}
-          placeholder="Cari no. work plan, perihal ..."
+          placeholder="Cari no. work in progress, perihal ..."
           value={search}
           onChangeText={text => setSearch(text)}
           onBlur={() => getList()}

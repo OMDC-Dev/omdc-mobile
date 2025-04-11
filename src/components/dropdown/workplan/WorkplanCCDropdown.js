@@ -6,7 +6,7 @@ import {fetchApi} from '../../../api/api';
 import {WORKPLAN_CC_USER} from '../../../api/apiRoutes';
 import {API_STATES} from '../../../utils/constant';
 
-const WorkplanCCDropdown = ({onChange, value}) => {
+const WorkplanCCDropdown = ({onChange, value, ownerId}) => {
   const [open, setOpen] = React.useState(false);
   const [list, setList] = React.useState([]);
 
@@ -16,7 +16,7 @@ const WorkplanCCDropdown = ({onChange, value}) => {
 
   async function getList() {
     const {state, data, error} = await fetchApi({
-      url: WORKPLAN_CC_USER + '?limit=1000',
+      url: WORKPLAN_CC_USER + `?limit=1000&ownerId=${ownerId}`,
       method: 'POST',
       data: {
         selectedList: [],

@@ -142,6 +142,18 @@ const WorkplanDetailScreen = () => {
       alias: val => val,
       type: 'default',
     },
+    {
+      title: 'Terakhir di update oleh',
+      key: 'last_update_by',
+      alias: val => val,
+      type: 'default',
+    },
+    {
+      title: 'Terakhir di update pada',
+      key: 'last_update',
+      alias: val => moment(val).format('LLL'),
+      type: 'default',
+    },
   ];
 
   const renderStatus = status => {
@@ -652,6 +664,7 @@ const WorkplanDetailScreen = () => {
             <InputLabel>CC ( Opsional )</InputLabel>
             <Dropdown.WorkplanCCDropdown
               value={cc}
+              ownerId={workplanDetail?.iduser}
               onChange={val => {
                 setCC(val);
                 setIsHasUpdate(true);

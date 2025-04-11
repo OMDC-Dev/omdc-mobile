@@ -141,7 +141,7 @@ const ListPlaceholder = type => {
                 key={index}
                 data={item}
                 onPress={() =>
-                  navigation.navigate('WorkplanDetail', {id: item.id, cc: true})
+                  navigation.navigate('WorkplanDetail', {id: item.id})
                 }
               />
             );

@@ -19,6 +19,9 @@ const WorkplanProgressCard = ({data, isDone, onEdit, onDelete}) => {
             <Text variant={'labelSmall'} style={styles.textTime}>
               {moment(data.createdAt).format('lll')}
             </Text>
+            <Text variant={'labelSmall'} style={styles.textId}>
+              oleh {data.created_by}
+            </Text>
             <Text variant={'labelMedium'}>{data.progress}</Text>
           </View>
           {isDone ? null : (
@@ -49,6 +52,10 @@ const styles = StyleSheet.create({
   },
 
   textTime: {
+    color: Colors.COLOR_GRAY,
+  },
+
+  textId: {
     marginBottom: Size.SIZE_8,
     color: Colors.COLOR_GRAY,
   },

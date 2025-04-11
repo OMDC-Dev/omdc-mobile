@@ -18,7 +18,7 @@ import {Avatar, Icon, Snackbar, Text} from 'react-native-paper';
 import {fetchApi} from '../../api/api';
 import {BANNER, GET_NOTIFICATION_COUNT} from '../../api/apiRoutes';
 import {Gap, Row} from '../../components';
-import {AuthContext} from '../../context';
+import {AuthContext, ModalContext, NotificationContext} from '../../context';
 import {Colors, Scaler, Size} from '../../styles';
 import {API_STATES} from '../../utils/constant';
 import {retrieveData} from '../../utils/store';
@@ -57,7 +57,9 @@ const HomeScreen = () => {
   const onToggleSnackBar = () => setVisible(!visible);
   const onDismissSnackBar = () => setVisible(false);
 
-  const WP_IMG = ['1', '2'];
+  const {remoteNotification, setRemoteNotif} =
+    React.useContext(NotificationContext);
+  const {showLoading, hideModal} = React.useContext(ModalContext);
 
   const MENU_LIST = [
     {
@@ -115,6 +117,28 @@ const HomeScreen = () => {
       type: 'WP_ACC',
     },
   ];
+
+  React.useEffect(() => {
+    showLoading();
+
+    if (remoteNotification) {
+      console.log('RN -->', remoteNotification);
+      setTimeout(() => {
+        navigation.navigate(remoteNotification.data.name, {
+          ...remoteNotification.data,
+          params: JSON.parse(remoteNotification.data?.params),
+        });
+
+        hideModal();
+        setRemoteNotif(null);
+      }, 1000);
+
+      //setRemoteNotif(null);
+    } else {
+      hideModal();
+      console.log('No remote notif');
+    }
+  }, [remoteNotification]);
 
   function checkAndGo(type) {
     let IS_ERROR;

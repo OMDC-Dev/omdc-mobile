@@ -35,6 +35,11 @@ const AuthProvider = ({children}) => {
             userToken: null,
             user: null,
           };
+        case 'SET_REMOTE_NOTIF':
+          return {
+            ...prevState,
+            remoteNotification: action.remoteNotification,
+          };
       }
     },
     {
@@ -42,6 +47,7 @@ const AuthProvider = ({children}) => {
       isSignout: false,
       userToken: null,
       user: null,
+      remoteNotification: null,
     },
   );
 
@@ -66,6 +72,13 @@ const AuthProvider = ({children}) => {
           user: data,
         });
       },
+      setRemoteNotif: data => {
+        dispatch({
+          type: 'SET_REMOTE_NOTIF',
+          remoteNotification: data,
+        });
+      },
+      remoteNotification: state.remoteNotification,
       user: state.user,
     }),
     [state],

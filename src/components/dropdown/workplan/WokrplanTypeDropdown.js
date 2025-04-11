@@ -38,7 +38,7 @@ const WorkplanTypeDropdown = ({onChange, value}) => {
       }}>
       <DropDownPicker
         listMode={Platform.OS == 'android' ? 'MODAL' : 'SCROLLVIEW'}
-        placeholder="Pilih jenis workplan"
+        placeholder="Pilih jenis work in progress"
         placeholderStyle={styles.placeholderStyle}
         open={open}
         value={value}

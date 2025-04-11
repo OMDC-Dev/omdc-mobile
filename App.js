@@ -9,6 +9,7 @@ import {Colors} from './src/styles';
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform, StyleSheet, View} from 'react-native';
 import SnackBarProvider from './src/context/SnackbarProvider';
+import NotificationProvider from './src/context/NotificationProvider';
 const theme = {
   ...DefaultTheme,
   colors: {
@@ -51,7 +52,9 @@ const App = () => {
         </View>
       )}
       <SnackBarProvider>
-        <Main />
+        <NotificationProvider>
+          <Main />
+        </NotificationProvider>
       </SnackBarProvider>
     </PaperProvider>
   );

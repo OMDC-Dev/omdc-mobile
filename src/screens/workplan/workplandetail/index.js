@@ -24,7 +24,7 @@ import {
 } from '@react-navigation/native';
 import ModalView from '../../../components/modal';
 import {getDateFormat} from '../../../utils/utils';
-import {ModalContext, SnackBarContext} from '../../../context';
+import {AuthContext, ModalContext, SnackBarContext} from '../../../context';
 import {useSharedValue} from 'react-native-reanimated';
 import Carousel, {Pagination} from 'react-native-reanimated-carousel';
 import {fetchApi} from '../../../api/api';
@@ -70,6 +70,8 @@ const WorkplanDetailScreen = () => {
   const [workplanDetail, setWorkplanDetail] = React.useState();
   const [commentCount, setCommentCount] = React.useState(0);
 
+  const {user} = React.useContext(AuthContext);
+
   // carousel
   const WP_IMG = [
     workplanDetail?.attachment_before,
@@ -85,6 +87,9 @@ const WorkplanDetailScreen = () => {
   const WP_ID = route.params?.id;
   const IS_WP_ADMIN = route.params?.admin;
   const IS_WP_CC = route.params?.cc;
+  const IS_WP_OWNER = workplanDetail?.iduser == user.iduser;
+
+  console.log('IS OWNER', IS_WP_OWNER);
 
   const IS_WP_REVISION =
     workplanDetail?.status == WORKPLAN_STATUS.REVISON && IS_WP_ADMIN;
@@ -101,7 +106,7 @@ const WorkplanDetailScreen = () => {
 
   let DETAIL_DATA = [
     {
-      title: 'No. Workplan',
+      title: 'No. Work in Progress',
       key: 'workplan_id',
       alias: val => val,
       type: 'default',
@@ -828,14 +833,16 @@ const WorkplanDetailScreen = () => {
               </>
             )}
 
-            <Button
-              style={[styles.actionButton, styles.actionDelete]}
-              mode={'contained'}
-              onPress={() => {
-                showConfirmation(() => deleteWorkplan());
-              }}>
-              Hapus Workplan
-            </Button>
+            {IS_WP_OWNER ? (
+              <Button
+                style={[styles.actionButton, styles.actionDelete]}
+                mode={'contained'}
+                onPress={() => {
+                  showConfirmation(() => deleteWorkplan());
+                }}>
+                Hapus Workplan
+              </Button>
+            ) : null}
 
             {isEditMode ? (
               <Button

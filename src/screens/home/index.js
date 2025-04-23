@@ -82,10 +82,10 @@ const HomeScreen = () => {
       type: 'ROP_REPORT',
     },
     {
-      title: 'List Permintaan Barang',
-      icon: 'archive-arrow-up',
+      title: 'Master Barang',
+      icon: 'archive-edit',
       color: Colors.COLOR_ACCENT,
-      type: 'PB_ALL',
+      type: 'PB_MASTER',
     },
     {
       title: 'Permintaan Barang',
@@ -99,12 +99,11 @@ const HomeScreen = () => {
       color: Colors.COLOR_ACCENT,
       type: 'PB_ACC',
     },
-
     {
-      title: 'Master Barang',
-      icon: 'archive-edit',
+      title: 'List Permintaan Barang',
+      icon: 'archive-arrow-up',
       color: Colors.COLOR_ACCENT,
-      type: 'PB_MASTER',
+      type: 'PB_ALL',
     },
     {
       title: 'Work in Progress',
@@ -195,7 +194,7 @@ const HomeScreen = () => {
         PATH = 'BarangStack';
         break;
       case 'PB_ALL':
-        IS_ERROR = !isHasTrxBarang && !hasRequestBarang && !isAdmin;
+        IS_ERROR = !isHasTrxBarang && !hasRequestBarang;
         PATH = 'BarangStack';
         PARAM = {
           screen: 'BarangRequestedAll',

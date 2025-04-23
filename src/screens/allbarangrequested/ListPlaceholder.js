@@ -55,11 +55,7 @@ const ListPlaceholder = () => {
     let USER = '';
 
     if (!hasAllTrxAkses) {
-      if (isAdminPB) {
-        USER = `&idapprove=${user.iduser}`;
-      } else {
-        USER = `&iduser=${user.iduser}`;
-      }
+      USER = `&iduser=${user.iduser}`;
     }
 
     const {state, data} = await fetchApi({
@@ -89,11 +85,7 @@ const ListPlaceholder = () => {
     let USER = '';
 
     if (!hasAllTrxAkses) {
-      if (isAdminPB) {
-        USER = `&idapprove=${user.iduser}`;
-      } else {
-        USER = `&iduser=${user.iduser}`;
-      }
+      USER = `&iduser=${user.iduser}`;
     }
 
     const nextPage = page + 1;

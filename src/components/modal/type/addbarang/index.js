@@ -300,9 +300,7 @@ const AddBarangModal = ({data, onAddPress}) => {
 
           <Gap h={32} />
           <Button
-            disabled={
-              !qtyRequest || !qtyStock || qtyRequest < 1 || isButtonDisabled
-            }
+            disabled={!qtyRequest || !qtyStock || qtyRequest < 1}
             onPress={() => onAddPress(CB_DATA)}>
             Tambahkan Barang
           </Button>

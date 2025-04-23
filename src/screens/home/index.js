@@ -93,6 +93,12 @@ const HomeScreen = () => {
       type: 'PB_ACC',
     },
     {
+      title: 'Trx Barang ( All )',
+      icon: 'archive-arrow-up',
+      color: Colors.COLOR_ACCENT,
+      type: 'PB_ALL',
+    },
+    {
       title: 'Master Barang',
       icon: 'archive-edit',
       color: Colors.COLOR_ACCENT,
@@ -185,6 +191,13 @@ const HomeScreen = () => {
       case 'PB':
         IS_ERROR = !hasRequestBarang;
         PATH = 'BarangStack';
+        break;
+      case 'PB_ALL':
+        IS_ERROR = !hasRequestBarang;
+        PATH = 'BarangStack';
+        PARAM = {
+          screen: 'BarangRequestedAll',
+        };
         break;
       case 'PB_ACC':
         IS_ERROR = !isAdminPB;

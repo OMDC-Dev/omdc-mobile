@@ -7,7 +7,7 @@ const LOCAL =
 
 const NGROK_DEV = 'https://1397-180-244-161-40.ngrok-free.app/';
 
-export const BASE_URL = PROD;
+export const BASE_URL = LOCAL;
 
 // AUTH
 export const LOGIN = 'user/login';
@@ -78,6 +78,7 @@ export const DETAIL_REQUEST_BARANG = id => {
 };
 export const UPDATE_REQUEST_BARANG = id => `barang/update-request?id=${id}`;
 export const REJECT_REQUEST_BARANG = id => `barang/reject-request?id=${id}`;
+export const BARANG_REQUESTED_ALL = 'barang/barang-requested';
 
 // DEPT
 export const DEPT = 'dept';

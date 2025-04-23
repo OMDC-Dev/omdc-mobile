@@ -4,6 +4,7 @@ import PermintaanCard from './PermintaanCard';
 import NotifCard from './NotifCard';
 import WorkplanCard from './WorkplanCard';
 import WorkplanProgressCard from './WorkplanProgressCard';
+import TrxPermintaanCard from './TrxPermintaanCard';
 
 export {
   PengajuanCard,
@@ -12,4 +13,5 @@ export {
   NotifCard,
   WorkplanCard,
   WorkplanProgressCard,
+  TrxPermintaanCard,
 };

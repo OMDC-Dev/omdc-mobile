@@ -44,6 +44,7 @@ const HomeScreen = () => {
   const hasRequestBarang = cekAkses('#2', user.kodeAkses);
   const hasRR = cekAkses('#1', user.kodeAkses);
   const isAdminPB = cekAkses('#8', user.kodeAkses);
+  const isHasTrxBarang = cekAkses('#13', user.kodeAkses);
   const hasSuperReimbursement = cekAkses('#5', user.kodeAkses);
   const hasPBMaster = cekAkses('#10', user.kodeAkses);
   const isAdmin =
@@ -193,7 +194,7 @@ const HomeScreen = () => {
         PATH = 'BarangStack';
         break;
       case 'PB_ALL':
-        IS_ERROR = !hasRequestBarang;
+        IS_ERROR = !isHasTrxBarang;
         PATH = 'BarangStack';
         PARAM = {
           screen: 'BarangRequestedAll',

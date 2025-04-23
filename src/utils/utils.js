@@ -161,6 +161,7 @@ export const cekAkses = (akses, userAkses = []) => {
    * Master Barang -> 1128 -> #10
    * Wokrplan -> 1199 -> #11
    * Wokrplan Admin -> 1200 -> #12
+   * Trx Permintaan Barang -> 1159 -> #13
    */
 
   if (akses == '#1') {
@@ -209,6 +210,10 @@ export const cekAkses = (akses, userAkses = []) => {
 
   if (akses == '#12') {
     return userAkses.findIndex(item => item == '1200') !== -1;
+  }
+
+  if (akses == '#13') {
+    return userAkses.findIndex(item => item == '1159') !== -1;
   }
 };
 

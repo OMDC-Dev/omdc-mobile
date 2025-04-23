@@ -38,6 +38,7 @@ const ListPlaceholder = () => {
 
   const {user} = React.useContext(AuthContext);
   const isAdminPB = cekAkses('#8', user.kodeAkses);
+  const hasAllTrxAkses = cekAkses('#13', user.kodeAkses);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -51,7 +52,15 @@ const ListPlaceholder = () => {
     setRefreshing(true);
     setPage(1); // Reset halaman ke 1 saat refresh
 
-    const USER = isAdminPB ? '' : `&iduser=${user.iduser}`;
+    let USER = '';
+
+    if (!hasAllTrxAkses) {
+      if (isAdminPB) {
+        USER = `&idapprove=${user.iduser}`;
+      } else {
+        USER = `&iduser=${user.iduser}`;
+      }
+    }
 
     const {state, data} = await fetchApi({
       url:
@@ -77,7 +86,15 @@ const ListPlaceholder = () => {
     if (loadingMore || page == maxPage) return; // Hindari duplikasi request
     setLoadingMore(true);
 
-    const USER = isAdminPB ? '' : `&iduser=${user.iduser}`;
+    let USER = '';
+
+    if (!hasAllTrxAkses) {
+      if (isAdminPB) {
+        USER = `&idapprove=${user.iduser}`;
+      } else {
+        USER = `&iduser=${user.iduser}`;
+      }
+    }
 
     const nextPage = page + 1;
     const {state, data} = await fetchApi({

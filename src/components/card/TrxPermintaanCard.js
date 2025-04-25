@@ -19,6 +19,10 @@ const TrxPermintaanCard = ({data = {}, onPress}) => {
     keterangan,
     status_pb,
     nm_barang,
+    qty_stock,
+    jml_kemasan,
+    nm_kemasan1,
+    nm_kemasanstock,
   } = data;
 
   function statusWording() {
@@ -48,20 +52,31 @@ const TrxPermintaanCard = ({data = {}, onPress}) => {
               <Text style={styles.textId} variant={'labelLarge'}>
                 {nm_barang}
               </Text>
-              <Text variant={'labelSmall'} style={styles.textIdSmall}>
+              {/* <Text variant={'labelSmall'} style={styles.textIdSmall}>
                 {id_trans} - - {id_pb}
-              </Text>
+              </Text> */}
               <Gap h={8} />
               <Text variant={'labelSmall'}>{nm_induk}</Text>
               <Text variant={'labelSmall'}>{nm_cabang}</Text>
+              <Gap h={8} />
+
+              <Text variant={'labelSmall'}>
+                Jml Stock: {qty_stock} {nm_kemasanstock}
+              </Text>
+              <Text variant={'labelSmall'}>
+                Jml Permintaan : {jml_kemasan} {nm_kemasan1}
+              </Text>
               <Gap h={4} />
 
+              <Gap h={8} />
               <Text variant={'labelSmall'}>Dibuat oleh: {nm_user}</Text>
               <Text variant={'labelSmall'}>
                 {getDateFormat(tgl_trans)} | {jam}
               </Text>
               <Gap h={14} />
-              <Text variant={'labelSmall'}>keterangan:</Text>
+              <Text style={{fontWeight: 'bold'}} variant={'labelSmall'}>
+                keterangan:
+              </Text>
               <Text variant={'labelSmall'}>{keterangan}</Text>
             </View>
             <Text

@@ -56,7 +56,7 @@ const AllBarangRequestedScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <Header title={'Trx Permintaan Barang'} />
+      <Header title={'List Permintaan Barang'} />
       {renderTab()}
     </Container>
   );

@@ -83,11 +83,11 @@ const WorkplanCard = ({data, onPress}) => {
           {perihal}
         </Text>
         <Gap h={24} />
-        <Text style={styles.textTitle} variant={'labelSmall'}>
+        <Text style={styles.textName} variant={'labelSmall'}>
           {user_detail?.nm_user}
         </Text>
         <Gap h={8} />
-        <Text style={styles.textTime} variant={'labelSmall'}>
+        <Text style={styles.textTitle} variant={'labelSmall'}>
           {cabang_detail ? cabang_detail?.nm_induk : custom_location}
         </Text>
         <Gap h={4} />
@@ -142,6 +142,11 @@ const styles = StyleSheet.create({
   // text
   textTitle: {
     color: Colors.COLOR_PRIMARY,
+    fontWeight: '600',
+  },
+
+  textName: {
+    color: Colors.COLOR_SECONDARY,
     fontWeight: '600',
   },
 

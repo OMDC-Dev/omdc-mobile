@@ -541,7 +541,7 @@ const WorkplanDetailScreen = () => {
         ) : null}
         <Gap h={8} />
 
-        {IS_WP_OWNER && !isEditMode ? (
+        {!isEditMode ? (
           <>
             <Text style={styles.textCaption} variant={'labelMedium'}>
               Perihal

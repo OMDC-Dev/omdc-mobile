@@ -52,9 +52,9 @@ const TrxPermintaanCard = ({data = {}, onPress}) => {
               <Text style={styles.textId} variant={'labelLarge'}>
                 {nm_barang}
               </Text>
-              {/* <Text variant={'labelSmall'} style={styles.textIdSmall}>
-                {id_trans} - - {id_pb}
-              </Text> */}
+              <Text variant={'labelSmall'} style={styles.textIdSmall}>
+                {id_pb}
+              </Text>
               <Gap h={8} />
               <Text variant={'labelSmall'}>{nm_induk}</Text>
               <Text variant={'labelSmall'}>{nm_cabang}</Text>

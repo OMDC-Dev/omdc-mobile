@@ -51,10 +51,10 @@ const FilterModal = () => {
         <IconButton icon={'close'} onPress={() => navigation.goBack()} />
       </Row>
       <View style={styles.mainContainer}>
-        <InputLabel>Jenis Workplan</InputLabel>
+        {/* <InputLabel>Jenis Workplan</InputLabel>
         <WorkplanTypeDropdown value={type} onChange={val => setType(val)} />
 
-        <Gap h={6} />
+        <Gap h={6} /> */}
         <InputLabel>Cabang</InputLabel>
         <Dropdown.CabangWorkplanDropdown
           onChange={val => setCabang(val)}

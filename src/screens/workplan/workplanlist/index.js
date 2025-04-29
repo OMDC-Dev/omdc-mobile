@@ -38,6 +38,17 @@ const WorkplanListScreen = () => {
           }}
         />
         <Tab.Screen
+          name="Pending"
+          component={ListPlaceholder}
+          initialParams={{
+            type: 'PENDING',
+            user: 'USER',
+          }}
+          options={{
+            title: 'Pending',
+          }}
+        />
+        <Tab.Screen
           name="Disetujui"
           component={ListPlaceholder}
           initialParams={{

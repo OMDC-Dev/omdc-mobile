@@ -16,7 +16,7 @@ import {
   Row,
 } from '../../../components';
 import {Colors, Scaler, Size} from '../../../styles';
-import {Button, Card, Chip, Icon, Text} from 'react-native-paper';
+import {Button, Card, Chip, Icon, Text, TextInput} from 'react-native-paper';
 import {
   useFocusEffect,
   useNavigation,
@@ -69,6 +69,9 @@ const WorkplanDetailScreen = () => {
 
   const [workplanDetail, setWorkplanDetail] = React.useState();
   const [commentCount, setCommentCount] = React.useState(0);
+
+  const [perihal, setPerihal] = React.useState();
+  const [oldPerihal, setOldPerihal] = React.useState();
 
   const {user} = React.useContext(AuthContext);
 
@@ -246,6 +249,14 @@ const WorkplanDetailScreen = () => {
     }, []),
   );
 
+  React.useEffect(() => {
+    if (perihal?.length > 0 && perihal != oldPerihal) {
+      setIsHasUpdate(true);
+    } else {
+      setIsHasUpdate(false);
+    }
+  }, [perihal, oldPerihal]);
+
   async function getProgressList() {
     setIsLoading(true);
     const {state, data, error} = await fetchApi({
@@ -292,6 +303,9 @@ const WorkplanDetailScreen = () => {
       setFileAfter(data.attachment_after);
 
       setEndDate(data.tanggal_selesai);
+
+      setPerihal(data.perihal);
+      setOldPerihal(data.perihal);
     } else {
       setIsLoading(false);
       setSnakMessage('Gagal mengambil data, mohon coba lagi!');
@@ -302,6 +316,7 @@ const WorkplanDetailScreen = () => {
   const saveWorkplan = async () => {
     setIsLoading(true);
     const body = {
+      perihal: perihal,
       tanggal_selesai: endDate,
       user_cc: cc,
       attachment_after: fileAfter,
@@ -402,13 +417,13 @@ const WorkplanDetailScreen = () => {
     return (
       <Button
         style={
-          isHasUpdate
+          isHasUpdate && perihal?.length > 0
             ? undefined
             : {
                 backgroundColor: Colors.COLOR_GRAY,
               }
         }
-        disabled={!isHasUpdate}
+        disabled={!isHasUpdate && perihal?.length < 1}
         mode={'contained'}
         onPress={() => saveWorkplan()}>
         Simpan
@@ -525,17 +540,39 @@ const WorkplanDetailScreen = () => {
           </>
         ) : null}
         <Gap h={8} />
-        <Text style={styles.textCaption} variant={'labelMedium'}>
-          Perihal
-        </Text>
-        <Gap h={14} />
-        <Card style={{margin: 4}}>
-          <Card.Content>
-            <Text style={styles.textValue} variant={'labelMedium'}>
-              {workplanDetail?.perihal}
+
+        {IS_WP_OWNER && !isEditMode ? (
+          <>
+            <Text style={styles.textCaption} variant={'labelMedium'}>
+              Perihal
             </Text>
-          </Card.Content>
-        </Card>
+            <Gap h={14} />
+            <Card style={{margin: 4}}>
+              <Card.Content>
+                <Text style={styles.textValue} variant={'labelMedium'}>
+                  {workplanDetail?.perihal}
+                </Text>
+              </Card.Content>
+            </Card>
+          </>
+        ) : (
+          <>
+            <InputLabel>Perihal</InputLabel>
+            <TextInput
+              style={{
+                paddingVertical: Size.SIZE_12,
+                maxHeight: Scaler.scaleSize(90),
+              }}
+              mode={'outlined'}
+              placeholder={'Perihal'}
+              multiline={true}
+              placeholderTextColor={Colors.COLOR_DARK_GRAY}
+              onChangeText={text => setPerihal(text)}
+              value={perihal}
+            />
+          </>
+        )}
+
         <Gap h={8} />
         {DETAIL_DATA.map((item, index) => {
           return (

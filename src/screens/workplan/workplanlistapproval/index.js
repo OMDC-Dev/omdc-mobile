@@ -38,6 +38,17 @@ const WorkplanListApprovalScreen = () => {
           }}
         />
         <Tab.Screen
+          name="Pending"
+          component={ListPlaceholder}
+          initialParams={{
+            type: 'PENDING',
+            user: 'ADMIN',
+          }}
+          options={{
+            title: 'Pending',
+          }}
+        />
+        <Tab.Screen
           name="Disetujui"
           component={ListPlaceholder}
           initialParams={{
@@ -58,7 +69,7 @@ const WorkplanListApprovalScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <Header title={'List Work in Peogress'} />
+      <Header title={'List Work in Progress'} />
       {renderTab()}
     </Container>
   );

@@ -36,14 +36,7 @@ const ListPlaceholder = type => {
   const PARAM_TYPE = route.params.type;
   const PARAM_USER = route.params.user;
 
-  const STATUS_PARAM =
-    PARAM_TYPE == 'WAITING'
-      ? [
-          WORKPLAN_STATUS.ON_PROGRESS,
-          WORKPLAN_STATUS.PENDING,
-          WORKPLAN_STATUS.REVISON,
-        ]
-      : WORKPLAN_STATUS.FINISH;
+  const STATUS_PARAM = getFilterStatusByRoute();
 
   const FILTER_PARAM = route.params?.filter;
   let FILTER = FILTER_PARAM ? `&${FILTER_PARAM}` : '';
@@ -54,6 +47,16 @@ const ListPlaceholder = type => {
       getList();
     }, [FILTER_PARAM]),
   );
+
+  function getFilterStatusByRoute() {
+    if (PARAM_TYPE == 'WAITING') {
+      return [WORKPLAN_STATUS.ON_PROGRESS, WORKPLAN_STATUS.REVISON];
+    } else if (PARAM_TYPE == 'PENDING') {
+      return WORKPLAN_STATUS.PENDING;
+    } else {
+      return WORKPLAN_STATUS.FINISH;
+    }
+  }
 
   async function getList(clear) {
     setLoading(true);

@@ -97,7 +97,7 @@ const WorkplanCard = ({data, onPress}) => {
         <Gap h={14} />
         <Row justify={'space-between'}>
           <Row>
-            <Chip
+            {/* <Chip
               style={{
                 backgroundColor:
                   jenis_workplan == 'APPROVAL'
@@ -108,7 +108,7 @@ const WorkplanCard = ({data, onPress}) => {
                 {jenis_workplan == 'APPROVAL' ? 'Approval' : 'Non Approval'}
               </Text>
             </Chip>
-            <Gap w={4} />
+            <Gap w={4} /> */}
             <Chip
               style={{
                 backgroundColor:

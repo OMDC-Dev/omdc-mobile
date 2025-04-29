@@ -77,12 +77,7 @@ const WorkplanScreen = () => {
 
   // const
   const BUTTON_DISABLED =
-    !type ||
-    disablebyLocation() ||
-    !startDate ||
-    !endDate ||
-    !perihal ||
-    !kategori;
+    disablebyLocation() || !startDate || !endDate || !perihal || !kategori;
 
   // handle on pick from camera / gallery
   function onPickFromRes(data) {
@@ -157,9 +152,9 @@ const WorkplanScreen = () => {
             Data Work in Progress
           </Text>
 
-          <Gap h={14} />
+          {/* <Gap h={14} />
           <InputLabel>Jenis Work in Progress</InputLabel>
-          <WorkplanTypeDropdown value={type} onChange={val => setType(val)} />
+          <WorkplanTypeDropdown value={type} onChange={val => setType(val)} /> */}
 
           <Gap h={6} />
           <InputLabel>Tanggal Mulai</InputLabel>
@@ -260,8 +255,15 @@ const WorkplanScreen = () => {
           <Gap h={6} />
           <InputLabel>Perihal</InputLabel>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                paddingVertical: Size.SIZE_12,
+                maxHeight: Scaler.scaleSize(90),
+              },
+            ]}
             mode={'outlined'}
+            multiline={true}
             placeholder={'Perihal'}
             placeholderTextColor={Colors.COLOR_DARK_GRAY}
             onChangeText={text => setPerihal(text)}

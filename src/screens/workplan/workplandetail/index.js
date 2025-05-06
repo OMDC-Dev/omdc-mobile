@@ -51,6 +51,10 @@ const WorkplanDetailScreen = () => {
   const [fileType, setFileType] = React.useState('');
   const [isEditAfter, setIsEditAfter] = React.useState(false);
   const [isEditMode, setIsEditMode] = React.useState(false);
+  const [location, setLocation] = React.useState();
+  const [cabang, setCabang] = React.useState();
+
+  const [useListLocation, setUseListLocation] = React.useState(false);
 
   const [showCalendar, setShowCalendar] = React.useState(false);
   const [endDate, setEndDate] = React.useState();
@@ -91,6 +95,9 @@ const WorkplanDetailScreen = () => {
   const IS_WP_ADMIN = route.params?.admin;
   const IS_WP_CC = route.params?.cc;
   const IS_WP_OWNER = workplanDetail?.iduser == user.iduser;
+
+  const IS_DISABLED_BY_CABANG = useListLocation && !cabang?.length;
+  const IS_DISABLED_BY_LOCATION = !useListLocation && !location?.length;
 
   console.log('IS OWNER', IS_WP_OWNER);
 
@@ -306,6 +313,16 @@ const WorkplanDetailScreen = () => {
 
       setPerihal(data.perihal);
       setOldPerihal(data.perihal);
+
+      if (data.custom_location?.length > 0) {
+        setUseListLocation(false);
+        setLocation(data.custom_location);
+        setCabang(null);
+      } else {
+        setUseListLocation(true);
+        setCabang(data.kd_induk);
+        setLocation(null);
+      }
     } else {
       setIsLoading(false);
       setSnakMessage('Gagal mengambil data, mohon coba lagi!');
@@ -322,6 +339,8 @@ const WorkplanDetailScreen = () => {
       attachment_after: fileAfter,
       attachment_before: fileBefore,
       isUpdateAfter: isEditAfter,
+      kd_induk: useListLocation ? cabang : null,
+      location: useListLocation ? null : location,
     };
 
     console.log('BR', body);
@@ -417,13 +436,21 @@ const WorkplanDetailScreen = () => {
     return (
       <Button
         style={
-          isHasUpdate && perihal?.length > 0
+          isHasUpdate &&
+          perihal?.length > 0 &&
+          !IS_DISABLED_BY_CABANG &&
+          !IS_DISABLED_BY_LOCATION
             ? undefined
             : {
                 backgroundColor: Colors.COLOR_GRAY,
               }
         }
-        disabled={!isHasUpdate && perihal?.length < 1}
+        disabled={
+          !isHasUpdate ||
+          perihal?.length < 1 ||
+          IS_DISABLED_BY_CABANG ||
+          IS_DISABLED_BY_LOCATION
+        }
         mode={'contained'}
         onPress={() => saveWorkplan()}>
         Simpan
@@ -603,6 +630,70 @@ const WorkplanDetailScreen = () => {
             Lihat riwayat perubahan tanggal
           </Text>
         </TouchableOpacity>
+
+        {isEditMode && (
+          <>
+            <Gap h={24} />
+            <Text style={styles.subtitle} variant={'titleSmall'}>
+              Ubah Data Cabang / Lokasi
+            </Text>
+            <Gap h={8} />
+            <Row>
+              <Text variant={'labelMedium'}>Pilih lokasi dari list cabang</Text>
+              <Gap w={8} />
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setUseListLocation(!useListLocation)}
+                style={{
+                  width: 18,
+                  height: 18,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: Colors.COLOR_LIGHT_GRAY,
+                  borderRadius: 12,
+                }}>
+                {useListLocation ? (
+                  <Icon
+                    source={'check-circle'}
+                    size={18}
+                    color={Colors.COLOR_PRIMARY}
+                  />
+                ) : null}
+              </TouchableOpacity>
+            </Row>
+
+            <Gap h={8} />
+            {useListLocation ? (
+              <>
+                <InputLabel>Cabang</InputLabel>
+                <Dropdown.CabangWorkplanDropdown
+                  onChange={val => {
+                    setCabang(val);
+                    setIsHasUpdate(true);
+                  }}
+                  value={cabang}
+                />
+              </>
+            ) : (
+              <>
+                <InputLabel>Lokasi</InputLabel>
+                <TextInput
+                  style={styles.input}
+                  mode={'outlined'}
+                  placeholder={'Lokasi'}
+                  placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                  onChangeText={text => setLocation(text)}
+                  value={location}
+                  onChange={() => {
+                    if (!isHasUpdate) {
+                      setIsHasUpdate(true);
+                    }
+                  }}
+                />
+              </>
+            )}
+          </>
+        )}
 
         <Gap h={8} />
 
@@ -1020,6 +1111,11 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 8,
     borderColor: Colors.COLOR_LIGHT_GRAY,
+  },
+
+  input: {
+    backgroundColor: Colors.COLOR_WHITE,
+    fontSize: Scaler.scaleFont(14),
   },
 
   // text

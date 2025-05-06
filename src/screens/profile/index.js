@@ -66,9 +66,9 @@ const ProfileScreen = () => {
     },
   ];
 
-  if (!hasMasterBarang) {
-    PROFILE_MENU.shift();
-  }
+  // if (!hasMasterBarang) {
+  //   PROFILE_MENU.shift();
+  // }
 
   async function onLogout() {
     setIsLoading(true);

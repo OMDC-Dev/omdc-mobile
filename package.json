@@ -12,6 +12,7 @@
     "postinstall": "patch-package",
     "bundle:android": "npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle",
     "build:android": "cd android && ./gradlew assembleRelease && cd ..",
+    "build:aab": "cd android && ./gradlew bundleProdRelease && cd ..",
     "build:dev": "cd android && ./gradlew assembleDevRelease && cd ..",
     "deploycp:android": "appcenter codepush release-react -a omdcteam-gmail.com/OMDC-Mobile-1 -d Production",
     "deploycp:ios": "appcenter codepush release-react -a omdcteam-gmail.com/OMDC-Mobile -d Production",

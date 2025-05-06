@@ -37,6 +37,16 @@ const AllBarangRequestedScreen = () => {
           }}
         />
         <Tab.Screen
+          name="Ditunda"
+          component={ListPlaceholder}
+          initialParams={{
+            type: 'PENDING',
+          }}
+          options={{
+            title: 'Ditunda',
+          }}
+        />
+        <Tab.Screen
           name="Disetujui"
           component={ListPlaceholder}
           initialParams={{

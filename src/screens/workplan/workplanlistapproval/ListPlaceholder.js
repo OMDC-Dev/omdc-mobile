@@ -99,7 +99,7 @@ const ListPlaceholder = type => {
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=10&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&admin=true${FILTER}${ORDER}`,
+        `?limit=10&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&admin=true${FILTER}${ORDER}&group=${GROUP_PARAM}`,
       method: 'GET',
     });
 

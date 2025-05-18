@@ -39,6 +39,7 @@ import {API_STATES, WORKPLAN_STATUS} from '../../../utils/constant';
 import {Image} from 'react-native';
 import moment from 'moment';
 import {WorkplanProgressCard} from '../../../components/card';
+import {WorkplanGroupDropdown} from '../../../components/dropdown';
 
 const WorkplanDetailScreen = () => {
   // file
@@ -53,6 +54,7 @@ const WorkplanDetailScreen = () => {
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [location, setLocation] = React.useState();
   const [cabang, setCabang] = React.useState();
+  const [group, setGroup] = React.useState();
 
   const [useListLocation, setUseListLocation] = React.useState(false);
 
@@ -119,6 +121,13 @@ const WorkplanDetailScreen = () => {
       title: 'No. Work in Progress',
       key: 'workplan_id',
       alias: val => val,
+      type: 'default',
+    },
+    {
+      title: 'Grup',
+      key: 'group_type',
+      alias: val =>
+        val == null ? '-' : val == 'MEDIC' ? 'Medis' : 'Non Medis',
       type: 'default',
     },
     // {
@@ -314,6 +323,10 @@ const WorkplanDetailScreen = () => {
       setPerihal(data.perihal);
       setOldPerihal(data.perihal);
 
+      if (data?.group_type != null) {
+        setGroup(data.group_type);
+      }
+
       if (data.custom_location?.length > 0) {
         setUseListLocation(false);
         setLocation(data.custom_location);
@@ -341,6 +354,7 @@ const WorkplanDetailScreen = () => {
       isUpdateAfter: isEditAfter,
       kd_induk: useListLocation ? cabang : null,
       location: useListLocation ? null : location,
+      group: group,
     };
 
     console.log('BR', body);
@@ -357,6 +371,7 @@ const WorkplanDetailScreen = () => {
       showSnak();
       setIsHasUpdate(false);
       getWorkplanDetail();
+      setIsEditMode(false);
       //setIsChangeFile(false);
     } else {
       setIsLoading(false);
@@ -438,6 +453,7 @@ const WorkplanDetailScreen = () => {
         style={
           isHasUpdate &&
           perihal?.length > 0 &&
+          group &&
           !IS_DISABLED_BY_CABANG &&
           !IS_DISABLED_BY_LOCATION
             ? undefined
@@ -449,7 +465,8 @@ const WorkplanDetailScreen = () => {
           !isHasUpdate ||
           perihal?.length < 1 ||
           IS_DISABLED_BY_CABANG ||
-          IS_DISABLED_BY_LOCATION
+          IS_DISABLED_BY_LOCATION ||
+          !group
         }
         mode={'contained'}
         onPress={() => saveWorkplan()}>
@@ -599,6 +616,21 @@ const WorkplanDetailScreen = () => {
             />
           </>
         )}
+
+        {isEditMode ? (
+          <>
+            <Gap h={8} />
+            <InputLabel>Grup</InputLabel>
+            <WorkplanGroupDropdown
+              value={group}
+              onChange={val => {
+                setGroup(val);
+                setIsHasUpdate(true);
+              }}
+            />
+            <Gap h={14} />
+          </>
+        ) : null}
 
         <Gap h={8} />
         {DETAIL_DATA.map((item, index) => {

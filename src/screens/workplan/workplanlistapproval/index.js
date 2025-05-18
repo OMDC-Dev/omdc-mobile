@@ -4,10 +4,16 @@ import {StatusBar, StyleSheet} from 'react-native';
 import {Container, Header} from '../../../components';
 import {Colors, Size} from '../../../styles';
 import ListPlaceholder from './ListPlaceholder';
+import {useRoute} from '@react-navigation/native';
 
 const WorkplanListApprovalScreen = () => {
   // define tab
   const Tab = createMaterialTopTabNavigator();
+  const route = useRoute();
+
+  const params = route.params;
+
+  console.log('PARAMS', params);
 
   function renderTab() {
     return (
@@ -32,6 +38,7 @@ const WorkplanListApprovalScreen = () => {
           initialParams={{
             type: 'WAITING',
             user: 'ADMIN',
+            group: params?.group,
           }}
           options={{
             title: 'Dalam Proses',
@@ -43,6 +50,7 @@ const WorkplanListApprovalScreen = () => {
           initialParams={{
             type: 'PENDING',
             user: 'ADMIN',
+            group: params?.group,
           }}
           options={{
             title: 'Pending',
@@ -54,6 +62,7 @@ const WorkplanListApprovalScreen = () => {
           initialParams={{
             type: 'DONE',
             user: 'ADMIN',
+            group: params?.group,
           }}
           options={{
             title: 'Selesai',

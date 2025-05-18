@@ -33,6 +33,7 @@ import {fetchApi} from '../../../api/api';
 import {WORKPLAN} from '../../../api/apiRoutes';
 import {API_STATES} from '../../../utils/constant';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import {WorkplanGroupDropdown} from '../../../components/dropdown';
 
 const WorkplanScreen = () => {
   // date section
@@ -43,6 +44,7 @@ const WorkplanScreen = () => {
 
   // other
   const [type, setType] = React.useState();
+  const [group, setGroup] = React.useState();
   const [cabang, setCabang] = React.useState();
   const [perihal, setPerihal] = React.useState();
   const [kategori, setKategori] = React.useState();
@@ -77,7 +79,12 @@ const WorkplanScreen = () => {
 
   // const
   const BUTTON_DISABLED =
-    disablebyLocation() || !startDate || !endDate || !perihal || !kategori;
+    disablebyLocation() ||
+    !startDate ||
+    !endDate ||
+    !perihal ||
+    !kategori ||
+    !group;
 
   // handle on pick from camera / gallery
   function onPickFromRes(data) {
@@ -118,6 +125,7 @@ const WorkplanScreen = () => {
       kategori: kategori,
       user_cc: cc,
       attachment_before: file,
+      group: group,
     };
 
     const {state, data, error} = await fetchApi({
@@ -155,6 +163,13 @@ const WorkplanScreen = () => {
           {/* <Gap h={14} />
           <InputLabel>Jenis Work in Progress</InputLabel>
           <WorkplanTypeDropdown value={type} onChange={val => setType(val)} /> */}
+
+          <Gap h={14} />
+          <InputLabel>Grup</InputLabel>
+          <WorkplanGroupDropdown
+            value={group}
+            onChange={val => setGroup(val)}
+          />
 
           <Gap h={6} />
           <InputLabel>Tanggal Mulai</InputLabel>

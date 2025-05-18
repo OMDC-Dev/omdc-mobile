@@ -40,6 +40,8 @@ const ListPlaceholder = type => {
 
   const FILTER_PARAM = route.params?.filter;
 
+  const GROUP_PARAM = route?.params?.group;
+
   useFocusEffect(
     React.useCallback(() => {
       setSearch('');
@@ -71,7 +73,7 @@ const ListPlaceholder = type => {
         WORKPLAN +
         `?limit=10&page=1&search=${
           clear ? '' : search
-        }&status=${STATUS_PARAM}&admin=true${FILTER}${ORDER}`, // Selalu mulai dari page 1
+        }&status=${STATUS_PARAM}&admin=true${FILTER}${ORDER}&group=${GROUP_PARAM}`, // Selalu mulai dari page 1
       method: 'GET',
     });
 

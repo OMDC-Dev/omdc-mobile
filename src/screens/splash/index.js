@@ -6,7 +6,12 @@ import {wait} from '../../utils/utils';
 import styles from './styles';
 import ASSETS from '../../utils/assetLoader';
 import {fetchApi} from '../../api/api';
-import {GET_ICON, USER_KODE_AKSES, USER_STATUS} from '../../api/apiRoutes';
+import {
+  APP_CODE_VERSION,
+  GET_ICON,
+  USER_KODE_AKSES,
+  USER_STATUS,
+} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import ModalView from '../../components/modal';
 
@@ -15,7 +20,7 @@ const SplashScreen = () => {
   const {restoreToken, signOut} = React.useContext(AuthContext);
   const [errorType, setErrorType] = React.useState();
   const [showAlert, setShowAlert] = React.useState(false);
-  const CODE_VERSION = '9.7.3';
+  const CODE_VERSION = APP_CODE_VERSION;
 
   async function checkIcon() {
     try {

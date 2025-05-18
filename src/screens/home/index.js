@@ -118,10 +118,16 @@ const HomeScreen = () => {
       type: 'WP_CC',
     },
     {
-      title: 'List Work in Progress',
+      title: 'List Work in Progress Medis',
       icon: 'briefcase-check',
       color: Colors.COLOR_ACCENT_2,
-      type: 'WP_ACC',
+      type: 'WP_ACC_MEDIC',
+    },
+    {
+      title: 'List Work in Progress Non Medis',
+      icon: 'briefcase-check',
+      color: Colors.COLOR_ACCENT_2,
+      type: 'WP_ACC_NON_MEDIC',
     },
   ];
 
@@ -218,11 +224,24 @@ const HomeScreen = () => {
         IS_ERROR = !hasWorkplan;
         PATH = 'WorkplanStack';
         break;
-      case 'WP_ACC':
+      case 'WP_ACC_MEDIC':
         IS_ERROR = !hasWorkplanApproval;
         PATH = 'WorkplanStack';
         PARAM = {
           screen: 'WorkplanListApproval',
+          params: {
+            group: 'MEDIC',
+          },
+        };
+        break;
+      case 'WP_ACC_NON_MEDIC':
+        IS_ERROR = !hasWorkplanApproval;
+        PATH = 'WorkplanStack';
+        PARAM = {
+          screen: 'WorkplanListApproval',
+          params: {
+            group: 'NON_MEDIC',
+          },
         };
         break;
       case 'WP_CC':
@@ -422,7 +441,7 @@ const HomeScreen = () => {
                   </View>
                   <Gap h={6} />
                   <Text
-                    numberOfLines={2}
+                    numberOfLines={3}
                     style={styles.textMenu}
                     variant={'labelSmall'}>
                     {item.title}

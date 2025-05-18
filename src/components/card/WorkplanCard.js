@@ -20,6 +20,7 @@ const WorkplanCard = ({data, onPress}) => {
     tanggal_selesai,
     cabang_detail,
     custom_location,
+    group_type,
   } = data;
 
   const renderStatus = () => {
@@ -109,6 +110,22 @@ const WorkplanCard = ({data, onPress}) => {
               </Text>
             </Chip>
             <Gap w={4} /> */}
+            <Chip
+              style={{
+                backgroundColor:
+                  group_type == 'MEDIC'
+                    ? Colors.COLOR_ACCENT_2
+                    : Colors.COLOR_DARK_GRAY,
+              }}>
+              <Text style={styles.textId} variant={'labelSmall'}>
+                {group_type == null
+                  ? 'Belum Dipilih'
+                  : group_type == 'MEDIC'
+                  ? 'Medis'
+                  : 'Non Medis'}
+              </Text>
+            </Chip>
+            <Gap w={8} />
             <Chip
               style={{
                 backgroundColor:

@@ -40,6 +40,7 @@ const ListPlaceholder = type => {
 
   const FILTER_PARAM = route.params?.filter;
   let FILTER = FILTER_PARAM ? `&${FILTER_PARAM}` : '';
+  const PARAM_DUEDATE = route.params?.duedate ? `&onDueDate=true` : '';
 
   useFocusEffect(
     React.useCallback(() => {
@@ -68,7 +69,7 @@ const ListPlaceholder = type => {
         WORKPLAN +
         `?limit=4&page=1&search=${
           clear ? '' : search
-        }&status=${STATUS_PARAM}&cc=true${FILTER}`, // Selalu mulai dari page 1
+        }&status=${STATUS_PARAM}&cc=true${FILTER}${PARAM_DUEDATE}`, // Selalu mulai dari page 1
       method: 'GET',
     });
 
@@ -91,7 +92,7 @@ const ListPlaceholder = type => {
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&cc=true${FILTER}`,
+        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&cc=true${FILTER}${PARAM_DUEDATE}`,
       method: 'GET',
     });
 
@@ -143,6 +144,7 @@ const ListPlaceholder = type => {
               <Card.WorkplanCard
                 key={index}
                 data={item}
+                onDueDate={PARAM_DUEDATE}
                 onPress={() =>
                   navigation.navigate('WorkplanDetail', {id: item.id})
                 }

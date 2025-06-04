@@ -7,7 +7,7 @@ import {AuthContext} from '../../context';
 import {useNavigation} from '@react-navigation/native';
 import packageInfo from '../../../package.json';
 import {fetchApi} from '../../api/api';
-import {LOGOUT} from '../../api/apiRoutes';
+import {APP_CODE_VERSION, LOGOUT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {cekAkses} from '../../utils/utils';
 import RNRestart from 'react-native-restart';
@@ -136,7 +136,7 @@ const ProfileScreen = () => {
         })}
 
         <Text style={styles.textVersion} variant="labelSmall">
-          Version v.{packageInfo.version}
+          Version v.{APP_CODE_VERSION}
         </Text>
       </View>
       <Snackbar visible={showSnack} onDismiss={() => setShowSnack(false)}>

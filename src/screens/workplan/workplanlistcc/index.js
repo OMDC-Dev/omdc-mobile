@@ -59,6 +59,18 @@ const WorkplanListCCScreen = () => {
             title: 'Selesai',
           }}
         />
+        <Tab.Screen
+          name="Duedate"
+          component={ListPlaceholder}
+          initialParams={{
+            type: 'WAITING',
+            user: 'CC',
+            duedate: true,
+          }}
+          options={{
+            title: 'Due Date',
+          }}
+        />
       </Tab.Navigator>
     );
   }

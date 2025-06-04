@@ -7,7 +7,7 @@ import Gap from '../Gap';
 import moment from 'moment';
 import {WORKPLAN_STATUS} from '../../utils/constant';
 
-const WorkplanCard = ({data, onPress}) => {
+const WorkplanCard = ({data, onPress, onDueDate}) => {
   const {
     workplan_id,
     user_detail,
@@ -67,7 +67,12 @@ const WorkplanCard = ({data, onPress}) => {
   };
 
   return (
-    <Card style={styles.container} onPress={onPress}>
+    <Card
+      style={[
+        styles.container,
+        onDueDate ? {backgroundColor: Colors.COLOR_RED_100} : null,
+      ]}
+      onPress={onPress}>
       <Card.Content>
         <Row justify={'space-between'}>
           {/* <Text style={styles.textTitle} variant={'labelSmall'}>

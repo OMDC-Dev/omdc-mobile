@@ -32,6 +32,7 @@ const WorkplanListScreen = () => {
           initialParams={{
             type: 'WAITING',
             user: 'USER',
+            duedate: false,
           }}
           options={{
             title: 'Dalam Proses',
@@ -43,6 +44,7 @@ const WorkplanListScreen = () => {
           initialParams={{
             type: 'PENDING',
             user: 'USER',
+            duedate: false,
           }}
           options={{
             title: 'Pending',
@@ -54,9 +56,22 @@ const WorkplanListScreen = () => {
           initialParams={{
             type: 'DONE',
             user: 'USER',
+            duedate: false,
           }}
           options={{
             title: 'Selesai',
+          }}
+        />
+        <Tab.Screen
+          name="Duedate"
+          component={ListPlaceholder}
+          initialParams={{
+            type: 'WAITING',
+            user: 'USER',
+            duedate: true,
+          }}
+          options={{
+            title: 'Due Date',
           }}
         />
       </Tab.Navigator>

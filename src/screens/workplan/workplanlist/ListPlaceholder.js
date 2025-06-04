@@ -35,6 +35,7 @@ const ListPlaceholder = type => {
   const route = useRoute();
   const PARAM_TYPE = route.params.type;
   const PARAM_USER = route.params.user;
+  const PARAM_DUEDATE = route.params?.duedate ? `&onDueDate=true` : '';
 
   const STATUS_PARAM = getFilterStatusByRoute();
 
@@ -61,14 +62,14 @@ const ListPlaceholder = type => {
   async function getList(clear) {
     setLoading(true);
     setRefreshing(true);
-    setPage(1); // Reset halaman ke 1 saat refresh
+    setPage(1);
 
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
         `?limit=4&page=1&search=${
           clear ? '' : search
-        }&status=${STATUS_PARAM}${FILTER}`, // Selalu mulai dari page 1
+        }&status=${STATUS_PARAM}${FILTER}${PARAM_DUEDATE}`, // Selalu mulai dari page 1
       method: 'GET',
     });
 
@@ -91,7 +92,7 @@ const ListPlaceholder = type => {
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}${FILTER}`,
+        `?limit=4&page=${nextPage}&search=${search}&status=${STATUS_PARAM}${FILTER}${PARAM_DUEDATE}`,
       method: 'GET',
     });
 
@@ -142,6 +143,7 @@ const ListPlaceholder = type => {
               <Card.WorkplanCard
                 key={index}
                 data={item}
+                onDueDate={PARAM_DUEDATE}
                 onPress={() =>
                   navigation.navigate('WorkplanDetail', {id: item.id})
                 }
@@ -169,7 +171,7 @@ const ListPlaceholder = type => {
       ) : (
         <BlankScreen>Belum ada data!</BlankScreen>
       )}
-      {PARAM_USER == 'USER' && PARAM_TYPE == 'WAITING' ? (
+      {PARAM_USER == 'USER' && PARAM_TYPE == 'WAITING' && !PARAM_DUEDATE ? (
         <FAB
           icon="plus"
           style={styles.fab}

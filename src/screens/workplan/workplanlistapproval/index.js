@@ -68,6 +68,19 @@ const WorkplanListApprovalScreen = () => {
             title: 'Selesai',
           }}
         />
+        <Tab.Screen
+          name="Duedate"
+          component={ListPlaceholder}
+          initialParams={{
+            type: 'WAITING',
+            user: 'ADMIN',
+            duedate: true,
+            group: params?.group,
+          }}
+          options={{
+            title: 'Due Date',
+          }}
+        />
       </Tab.Navigator>
     );
   }

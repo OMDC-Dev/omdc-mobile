@@ -42,6 +42,8 @@ const ListPlaceholder = type => {
 
   const GROUP_PARAM = route?.params?.group;
 
+  const PARAM_DUEDATE = route.params?.duedate ? `&onDueDate=true` : '';
+
   useFocusEffect(
     React.useCallback(() => {
       setSearch('');
@@ -73,7 +75,7 @@ const ListPlaceholder = type => {
         WORKPLAN +
         `?limit=10&page=1&search=${
           clear ? '' : search
-        }&status=${STATUS_PARAM}&admin=true${FILTER}${ORDER}&group=${GROUP_PARAM}`, // Selalu mulai dari page 1
+        }&status=${STATUS_PARAM}&admin=true${FILTER}${ORDER}&group=${GROUP_PARAM}${PARAM_DUEDATE}`, // Selalu mulai dari page 1
       method: 'GET',
     });
 
@@ -93,13 +95,13 @@ const ListPlaceholder = type => {
     setLoadingMore(true);
 
     let FILTER = FILTER_PARAM ? `&${FILTER_PARAM}` : '';
-    let ORDER = PARAM_TYPE == 'WAITING' ? '' : '&sort=CREATEDDESC';
+    let ORDER = '&sort=ADMIN';
 
     const nextPage = page + 1;
     const {state, data} = await fetchApi({
       url:
         WORKPLAN +
-        `?limit=10&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&admin=true${FILTER}${ORDER}&group=${GROUP_PARAM}`,
+        `?limit=10&page=${nextPage}&search=${search}&status=${STATUS_PARAM}&admin=true${FILTER}${ORDER}&group=${GROUP_PARAM}${PARAM_DUEDATE}`,
       method: 'GET',
     });
 
@@ -153,6 +155,7 @@ const ListPlaceholder = type => {
               <Card.WorkplanCard
                 key={index}
                 data={item}
+                onDueDate={PARAM_DUEDATE}
                 onPress={() =>
                   navigation.navigate('WorkplanDetail', {
                     id: item.id,

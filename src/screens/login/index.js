@@ -14,7 +14,7 @@ import {Colors, Scaler, Size} from '../../styles';
 import {Icon, Snackbar, Text, TextInput} from 'react-native-paper';
 import ASSETS from '../../utils/assetLoader';
 import {fetchApi} from '../../api/api';
-import {LOGIN} from '../../api/apiRoutes';
+import {APP_CODE_VERSION, LOGIN} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {useNavigation} from '@react-navigation/native';
 import messaging from '@react-native-firebase/messaging';
@@ -146,7 +146,7 @@ const LoginScreen = () => {
           </Button>
           <Gap h={16} />
           <Text style={styles.textVersion} variant="labelSmall">
-            Version v.{packageInfo.version}
+            Version v.{APP_CODE_VERSION}
           </Text>
         </View>
         <Snackbar visible={showSnack} onDismiss={() => setShowSnack(false)}>

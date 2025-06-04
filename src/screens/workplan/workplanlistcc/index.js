@@ -49,17 +49,6 @@ const WorkplanListCCScreen = () => {
           }}
         />
         <Tab.Screen
-          name="Disetujui"
-          component={ListPlaceholder}
-          initialParams={{
-            type: 'DONE',
-            user: 'CC',
-          }}
-          options={{
-            title: 'Selesai',
-          }}
-        />
-        <Tab.Screen
           name="Duedate"
           component={ListPlaceholder}
           initialParams={{
@@ -69,6 +58,17 @@ const WorkplanListCCScreen = () => {
           }}
           options={{
             title: 'Due Date',
+          }}
+        />
+        <Tab.Screen
+          name="Disetujui"
+          component={ListPlaceholder}
+          initialParams={{
+            type: 'DONE',
+            user: 'CC',
+          }}
+          options={{
+            title: 'Selesai',
           }}
         />
       </Tab.Navigator>

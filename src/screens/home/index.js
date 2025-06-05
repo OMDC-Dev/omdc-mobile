@@ -75,12 +75,12 @@ const HomeScreen = () => {
       color: Colors.COLOR_PRIMARY,
       type: 'ROP_ACC',
     },
-    {
-      title: 'Report R.O.P',
-      icon: 'clipboard-flow',
-      color: Colors.COLOR_PRIMARY,
-      type: 'ROP_REPORT',
-    },
+    // {
+    //   title: 'Report R.O.P',
+    //   icon: 'clipboard-flow',
+    //   color: Colors.COLOR_PRIMARY,
+    //   type: 'ROP_REPORT',
+    // },
     {
       title: 'Master Barang',
       icon: 'archive-edit',

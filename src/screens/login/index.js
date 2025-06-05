@@ -51,9 +51,9 @@ const LoginScreen = () => {
   // API
   const login = async () => {
     const token = await messaging().getToken();
-    if (Platform.OS === 'ios') {
-      messaging().setAPNSToken(token);
-    }
+    // if (Platform.OS === 'ios') {
+    //   messaging().setAPNSToken(token);
+    // }
 
     console.log('TOKENS', token);
 

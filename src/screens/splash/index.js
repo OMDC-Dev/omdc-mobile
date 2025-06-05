@@ -8,12 +8,14 @@ import ASSETS from '../../utils/assetLoader';
 import {fetchApi} from '../../api/api';
 import {
   APP_CODE_VERSION,
+  BASE_URL,
   GET_ICON,
   USER_KODE_AKSES,
   USER_STATUS,
 } from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import ModalView from '../../components/modal';
+import {Colors} from '../../styles';
 
 const SplashScreen = () => {
   const [icon, setIcon] = React.useState();
@@ -21,6 +23,8 @@ const SplashScreen = () => {
   const [errorType, setErrorType] = React.useState();
   const [showAlert, setShowAlert] = React.useState(false);
   const CODE_VERSION = APP_CODE_VERSION;
+
+  const IS_PROD = BASE_URL.includes('server.omdc');
 
   async function checkIcon() {
     try {
@@ -113,7 +117,7 @@ const SplashScreen = () => {
     });
 
     if (state == API_STATES.OK) {
-      bootstrapAsync();
+      //bootstrapAsync();
     } else {
       setShowAlert(true);
       setErrorType(error);
@@ -128,6 +132,19 @@ const SplashScreen = () => {
         style={styles.logo}
         source={icon ? {uri: `data:image/png;base64,${icon}`} : ASSETS.logoDark}
       />
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 20,
+        }}>
+        <Text
+          style={{
+            color: Colors.COLOR_WHITE,
+            fontSize: 12,
+          }}>
+          {IS_PROD ? 'Prod' : 'Dev'} {APP_CODE_VERSION}
+        </Text>
+      </View>
       <ModalView data={errorType} visible={showAlert} type={'version'} />
     </View>
   );

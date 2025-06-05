@@ -117,7 +117,7 @@ const SplashScreen = () => {
     });
 
     if (state == API_STATES.OK) {
-      //bootstrapAsync();
+      bootstrapAsync();
     } else {
       setShowAlert(true);
       setErrorType(error);

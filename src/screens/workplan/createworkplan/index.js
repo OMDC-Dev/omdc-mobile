@@ -84,7 +84,8 @@ const WorkplanScreen = () => {
     !endDate ||
     !perihal ||
     !kategori ||
-    !group;
+    !group ||
+    !file;
 
   // handle on pick from camera / gallery
   function onPickFromRes(data) {
@@ -300,7 +301,7 @@ const WorkplanScreen = () => {
           />
 
           <Gap h={14} />
-          <InputLabel>Before ( Opsional maks 10 MB )</InputLabel>
+          <InputLabel>Before ( maks 10 MB )</InputLabel>
           <FilePlaceholder
             file={file}
             fileInfo={fileInfo}

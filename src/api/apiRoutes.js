@@ -8,9 +8,9 @@ const LOCAL =
 const NGROK_DEV = 'https://1397-180-244-161-40.ngrok-free.app/';
 
 // check app code version
-export const APP_CODE_VERSION = '9.7.6';
+export const APP_CODE_VERSION = '9.7.8';
 
-export const BASE_URL = PROD;
+export const BASE_URL = LOCAL;
 
 // AUTH
 export const LOGIN = 'user/login';
@@ -27,6 +27,7 @@ export const READ_NOTIFICATION = id => {
 export const DELETE_PENGUMUMAN = pid => {
   return `pengumuman/${pid}`;
 };
+export const UPDATE_USER_FCM = 'user/update-fcm';
 
 // REIMBURSEMENT
 export const GET_CABANG = 'cabang';

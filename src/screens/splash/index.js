@@ -10,12 +10,14 @@ import {
   APP_CODE_VERSION,
   BASE_URL,
   GET_ICON,
+  UPDATE_USER_FCM,
   USER_KODE_AKSES,
   USER_STATUS,
 } from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import ModalView from '../../components/modal';
 import {Colors} from '../../styles';
+import messaging from '@react-native-firebase/messaging';
 
 const SplashScreen = () => {
   const [icon, setIcon] = React.useState();
@@ -100,6 +102,9 @@ const SplashScreen = () => {
 
           console.log('Updated User', user);
         }
+
+        // on refresh token
+        messaging().onTokenRefresh(token => onUserFCMUpdate(token));
       }
     } catch (e) {
       // Restoring token failed
@@ -109,6 +114,20 @@ const SplashScreen = () => {
 
     wait(1500).then(() => restoreToken(statusUser == 'Aktif' ? user : null));
   };
+
+  async function onUserFCMUpdate(token) {
+    const {state, data, error} = await fetchApi({
+      url: UPDATE_USER_FCM,
+      method: 'POST',
+      body: {
+        newToken: token,
+      },
+    });
+
+    if (state == API_STATES.OK) {
+      console.log('User FCM Updated!');
+    }
+  }
 
   async function checkVersion() {
     const {state, data, error} = await fetchApi({

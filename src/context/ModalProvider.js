@@ -19,6 +19,14 @@ const ModalProvider = ({children}) => {
             type: action.modal,
             message: action.message,
           };
+        case 'SHOW_MODAL':
+          return {
+            ...prevState,
+            visible: action.visible,
+            type: action.modal,
+            message: action.message,
+            action: action.action,
+          };
         case 'HIDE_MODAL':
           return {
             ...prevState,
@@ -30,6 +38,7 @@ const ModalProvider = ({children}) => {
       visible: false,
       message: '',
       type: 'loading',
+      action: () => {},
     },
   );
 
@@ -46,6 +55,33 @@ const ModalProvider = ({children}) => {
           message: msg,
         });
       },
+      showConfirmation: onConfirm => {
+        dispatch({
+          type: 'SHOW_MODAL',
+          modal: 'confirmation',
+          visible: true,
+          message: '',
+          action: onConfirm,
+        });
+      },
+      showSuccess: onConfirm => {
+        dispatch({
+          type: 'SHOW_MODAL',
+          modal: 'success',
+          visible: true,
+          message: '',
+          action: onConfirm,
+        });
+      },
+      showFailed: onConfirm => {
+        dispatch({
+          type: 'SHOW_MODAL',
+          modal: 'failed',
+          visible: true,
+          message: '',
+          action: onConfirm,
+        });
+      },
       hideModal: () => {
         dispatch({type: 'HIDE_MODAL', visible: false});
       },
@@ -60,7 +96,14 @@ const ModalProvider = ({children}) => {
         type={state.type}
         visible={state.visible}
         message={state.message}
-        onPress={() => dispatch({type: 'HIDE_MODAL', visible: false})}
+        onPress={() => {
+          dispatch({type: 'HIDE_MODAL', visible: false});
+          state.action ? state.action() : null;
+        }}
+        toggle={() => {
+          dispatch({type: 'HIDE_MODAL', visible: false});
+          //state.action();
+        }}
       />
     </ModalContext.Provider>
   );

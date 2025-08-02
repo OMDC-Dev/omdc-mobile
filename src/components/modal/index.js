@@ -14,6 +14,10 @@ import TypeFilterModal from './type/typefilter';
 import ModalPopUpVersion from './type/newversion';
 import ModalPopUpMessage from './type/message';
 import EditBarangModal from './type/editbarang';
+import {Button, Dialog, Portal, Text} from 'react-native-paper';
+import ModalConfirmation from './type/confirmation';
+import ModalSuccess from './type/success';
+import ModalFailed from './type/failed';
 
 const ModalView = ({
   children,
@@ -42,6 +46,8 @@ const ModalView = ({
   onSave,
   isLoading,
   setIsLoading,
+  pdfOnly,
+  imageOnly,
 }) => {
   //render modal children
   const renderContent = () => {
@@ -51,6 +57,15 @@ const ModalView = ({
         break;
       case 'popup':
         return <ModalPopUp message={message} onButtonPress={onPress} />;
+        break;
+      case 'confirmation':
+        return <ModalConfirmation onConfirm={onPress} toggle={toggle} />;
+        break;
+      case 'success':
+        return <ModalSuccess onButtonPress={onPress} />;
+        break;
+      case 'failed':
+        return <ModalFailed onButtonPress={onPress} />;
         break;
       case 'message':
         return <ModalPopUpMessage message={message} onPress={onPress} />;
@@ -100,6 +115,8 @@ const ModalView = ({
             pickFromfile={pickFromFile}
             toggle={toggle}
             command={command}
+            pdfOnly={pdfOnly}
+            imageOnly={imageOnly}
           />
         );
         break;

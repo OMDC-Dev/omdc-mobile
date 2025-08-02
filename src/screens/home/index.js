@@ -1,96 +1,266 @@
-import * as React from 'react';
-import {
-  View,
-  StyleSheet,
-  SafeAreaView,
-  Image,
-  StatusBar,
-  FlatList,
-  TouchableOpacity,
-  RefreshControl,
-} from 'react-native';
-import {
-  Avatar,
-  Text,
-  Button as PaperButton,
-  Icon,
-  ActivityIndicator,
-  Searchbar,
-} from 'react-native-paper';
-import {Colors, Scaler, Size} from '../../styles';
-import {BlankScreen, Button, Card, Gap, Row} from '../../components';
-import ASSETS from '../../utils/assetLoader';
 import {
   useFocusEffect,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import {AuthContext} from '../../context';
-import {GET_NOTIFICATION_COUNT, REIMBURSEMENT} from '../../api/apiRoutes';
-import {API_STATES} from '../../utils/constant';
+import * as React from 'react';
+import {
+  Dimensions,
+  Image,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {Avatar, Icon, Snackbar, Text} from 'react-native-paper';
 import {fetchApi} from '../../api/api';
-import {cekAkses} from '../../utils/utils';
-import _ from 'lodash';
+import {BANNER, GET_NOTIFICATION_COUNT} from '../../api/apiRoutes';
+import {Gap, Row} from '../../components';
+import {AuthContext, ModalContext, NotificationContext} from '../../context';
+import {Colors, Scaler, Size} from '../../styles';
+import {API_STATES} from '../../utils/constant';
 import {retrieveData} from '../../utils/store';
+import {cekAkses} from '../../utils/utils';
+import Carousel, {Pagination} from 'react-native-reanimated-carousel';
+import {useSharedValue} from 'react-native-reanimated';
 
 const HomeScreen = () => {
-  const [recent, setRecent] = React.useState([]);
   const [unreadCount, setUnreadCount] = React.useState();
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [listInfo, setListInfo] = React.useState();
-  const [page, setPage] = React.useState(1);
-  const [moreLoading, setMoreLoading] = React.useState(false);
-  const [firstLoad, setFirstLoad] = React.useState(true);
-  const [search, setSearch] = React.useState('');
   const [icon, setIcon] = React.useState();
+  const [visible, setVisible] = React.useState(false);
+  const [bannerList, setBannerList] = React.useState([]);
 
   // navigation
   const navigation = useNavigation();
   const route = useRoute();
 
+  const width = Dimensions.get('window').width;
+  const progress = useSharedValue(0);
+
   // user context
   const {signOut, user} = React.useContext(AuthContext);
+  const hasRequestBarang = cekAkses('#2', user.kodeAkses);
+  const hasRR = cekAkses('#1', user.kodeAkses);
+  const isAdminPB = cekAkses('#8', user.kodeAkses);
+  const isHasTrxBarang = cekAkses('#13', user.kodeAkses);
+  const hasSuperReimbursement = cekAkses('#5', user.kodeAkses);
+  const hasPBMaster = cekAkses('#10', user.kodeAkses);
+  const isAdmin =
+    user.type == 'ADMIN' ||
+    user.type == 'FINANCE' ||
+    user.type == 'MAKER' ||
+    user.type == 'REVIEWER';
+  const hasWorkplan = cekAkses('#11', user.kodeAkses);
+  const hasWorkplanApproval = cekAkses('#12', user.kodeAkses);
 
-  const hasReimbursement = cekAkses('#1', user?.kodeAkses);
+  const onToggleSnackBar = () => setVisible(!visible);
+  const onDismissSnackBar = () => setVisible(false);
 
-  async function getRecentRequest(clear) {
-    console.log('Get Recent On Progress');
-    setMoreLoading(true);
-    const {state, data, error} = await fetchApi({
-      url:
-        REIMBURSEMENT +
-        `?page=${page}&limit=20&status=00&cari=${clear ? '' : search}`,
-      method: 'GET',
-    });
+  const {remoteNotification, setRemoteNotif} =
+    React.useContext(NotificationContext);
+  const {showLoading, hideModal} = React.useContext(ModalContext);
 
-    if (state == API_STATES.OK) {
-      setMoreLoading(false);
-      setRecent(data?.rows);
-      setListInfo(data?.pageInfo);
-      setRefreshing(false);
+  const MENU_LIST = [
+    {
+      title: 'R.O.P',
+      icon: 'account-cash',
+      color: Colors.COLOR_PRIMARY,
+      type: 'ROP',
+    },
+    {
+      title: 'Acc R.O.P',
+      icon: 'account-check',
+      color: Colors.COLOR_PRIMARY,
+      type: 'ROP_ACC',
+    },
+    // {
+    //   title: 'Report R.O.P',
+    //   icon: 'clipboard-flow',
+    //   color: Colors.COLOR_PRIMARY,
+    //   type: 'ROP_REPORT',
+    // },
+    {
+      title: 'Master Barang',
+      icon: 'archive-edit',
+      color: Colors.COLOR_ACCENT,
+      type: 'PB_MASTER',
+    },
+    {
+      title: 'Permintaan Barang',
+      icon: 'basket-unfill',
+      color: Colors.COLOR_ACCENT,
+      type: 'PB',
+    },
+    {
+      title: 'Acc Permintaan Barang',
+      icon: 'archive-check',
+      color: Colors.COLOR_ACCENT,
+      type: 'PB_ACC',
+    },
+    {
+      title: 'List Permintaan Barang',
+      icon: 'archive-arrow-up',
+      color: Colors.COLOR_ACCENT,
+      type: 'PB_ALL',
+    },
+    {
+      title: 'Work in Progress',
+      icon: 'briefcase',
+      color: Colors.COLOR_ACCENT_2,
+      type: 'WP',
+    },
+    {
+      title: 'Share Work in Progress',
+      icon: 'briefcase-account',
+      color: Colors.COLOR_ACCENT_2,
+      type: 'WP_CC',
+    },
+    {
+      title: 'List Work in Progress Medis',
+      icon: 'briefcase-check',
+      color: Colors.COLOR_ACCENT_2,
+      type: 'WP_ACC_MEDIC',
+    },
+    {
+      title: 'List Work in Progress Non Medis',
+      icon: 'briefcase-check',
+      color: Colors.COLOR_ACCENT_2,
+      type: 'WP_ACC_NON_MEDIC',
+    },
+  ];
+
+  React.useEffect(() => {
+    showLoading();
+
+    if (remoteNotification) {
+      console.log('RN -->', remoteNotification);
+      setTimeout(() => {
+        navigation.navigate(remoteNotification.data.name, {
+          ...remoteNotification.data,
+          params: JSON.parse(remoteNotification.data?.params),
+        });
+
+        hideModal();
+        setRemoteNotif(null);
+      }, 1000);
+
+      //setRemoteNotif(null);
     } else {
-      setMoreLoading(false);
-      setRefreshing(false);
-      console.log(error);
+      hideModal();
+      console.log('No remote notif');
     }
-  }
+  }, [remoteNotification]);
 
-  async function getNextRecentRequest() {
-    setMoreLoading(true);
-    const {state, data, error} = await fetchApi({
-      url: REIMBURSEMENT + `?page=${page}&limit=20&status=00&cari=${search}`,
-      method: 'GET',
-    });
+  function checkAndGo(type) {
+    let IS_ERROR;
+    let PATH;
+    let PARAM = {};
 
-    if (state == API_STATES.OK) {
-      setMoreLoading(false);
-      setRecent(prev => [...prev, ...data.rows]);
-      setListInfo(data?.pageInfo);
-      setRefreshing(false);
-    } else {
-      setMoreLoading(false);
-      setRefreshing(false);
-      console.log(error);
+    function _getAdminPath() {
+      let path = '';
+
+      switch (user.type) {
+        case 'ADMIN':
+          path = 'AdminStack';
+          break;
+        case 'REVIEWER':
+          path = 'ReviewerStack';
+          break;
+        case 'MAKER':
+          path = 'MakerStack';
+          break;
+        case 'FINANCE':
+          path = 'FinanceStack';
+          break;
+        default:
+          path = '';
+          break;
+      }
+
+      return path;
+    }
+
+    switch (type) {
+      case 'ROP':
+        IS_ERROR = !hasRR;
+        PATH = 'PengajuanStack';
+        break;
+      case 'ROP_ACC':
+        IS_ERROR = !isAdmin;
+        PATH = _getAdminPath();
+        break;
+      case 'ROP_REPORT':
+        IS_ERROR = !hasSuperReimbursement;
+        PATH = 'SuperROPStack';
+        break;
+      case 'PB':
+        IS_ERROR = !hasRequestBarang;
+        PATH = 'BarangStack';
+        break;
+      case 'PB_ALL':
+        IS_ERROR = !isHasTrxBarang && !hasRequestBarang;
+        PATH = 'BarangStack';
+        PARAM = {
+          screen: 'BarangRequestedAll',
+        };
+        break;
+      case 'PB_ACC':
+        IS_ERROR = !isAdminPB;
+        PATH = 'AdminBarangStack';
+        break;
+      case 'PB_MASTER':
+        IS_ERROR = !hasPBMaster;
+        PATH = 'BarangStack';
+        PARAM = {
+          screen: 'BarangCari',
+          params: {
+            fromMaster: true,
+          },
+        };
+        break;
+      case 'WP':
+        IS_ERROR = !hasWorkplan;
+        PATH = 'WorkplanStack';
+        break;
+      case 'WP_ACC_MEDIC':
+        IS_ERROR = !hasWorkplanApproval;
+        PATH = 'WorkplanStack';
+        PARAM = {
+          screen: 'WorkplanListApproval',
+          params: {
+            group: 'MEDIC',
+          },
+        };
+        break;
+      case 'WP_ACC_NON_MEDIC':
+        IS_ERROR = !hasWorkplanApproval;
+        PATH = 'WorkplanStack';
+        PARAM = {
+          screen: 'WorkplanListApproval',
+          params: {
+            group: 'NON_MEDIC',
+          },
+        };
+        break;
+      case 'WP_CC':
+        IS_ERROR = false;
+        PATH = 'WorkplanStack';
+        PARAM = {
+          screen: 'WorkplanListCC',
+        };
+        break;
+      default:
+        break;
+    }
+
+    if (IS_ERROR) {
+      return onToggleSnackBar();
+    }
+
+    if (PATH) {
+      navigation.navigate(PATH, PARAM);
     }
   }
 
@@ -109,61 +279,32 @@ const HomeScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      setRefreshing(true);
-      setRecent([]);
-      setPage(1);
       getNotificationCount();
-      getRecentRequest();
     }, []),
   );
 
-  // React.useEffect(() => {
-  //   if (firstLoad) {
-  //     console.log('IT WAS FIRST LOAD');
-  //     getRecentRequest();
-  //   }
-  // }, [firstLoad]);
-
-  React.useEffect(() => {
-    if (!refreshing && !firstLoad) {
-      // Hanya panggil getNextRecentRequest jika bukan refresh pertama kali
-      getNextRecentRequest();
-    } else {
-      setFirstLoad(false); // Setelah render pertama kali, atur flag firstLoad menjadi false
-    }
-  }, [page]);
-
-  // React.useEffect(() => {
-
-  // }, [page]);
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setRecent([]);
-    setPage(1);
-    getRecentRequest();
-  }, []);
-
-  function onLoadMore() {
-    if (parseInt(page) < parseInt(listInfo?.pageCount) && !moreLoading) {
-      console.log('CAN LOAD MORE');
-      setPage(page + 1);
-    } else {
-      console.log('LOAD LIMIT');
-      console.log('PAGE', parseInt(page));
-      console.log('PC', parseInt(listInfo?.pageCount));
-      console.log('ML', moreLoading);
-    }
-  }
-
   React.useEffect(() => {
     loadIcon();
+    getBanner();
   }, []);
 
   async function loadIcon() {
     const getIcon = await retrieveData('APP_ICON');
     setIcon(getIcon);
   }
+
+  async function getBanner() {
+    const {state, data, error} = await fetchApi({
+      url: BANNER,
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setBannerList(data);
+    }
+  }
+
+  console.log('BANNER', bannerList);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -206,84 +347,118 @@ const HomeScreen = () => {
               />
             </TouchableOpacity>
           </Row>
-
-          {hasReimbursement && (
-            <>
-              <Gap h={24} />
-              <Button
-                style={styles.buttonRequest}
-                onPress={() => navigation.navigate('PengajuanStack')}>
-                Ajukan Request of Payment
-              </Button>
-            </>
-          )}
         </View>
         <View style={styles.mainContent}>
-          <Row style={styles.rowSub}>
-            <Text style={styles.textSubtitleLeft} variant="labelMedium">
-              Pengajuan Dalam Proses
-            </Text>
-            <Text
-              onPress={() => navigation.navigate('HistoryReimbursementStack')}
-              style={styles.textSubtitle}
-              variant="labelMedium">
-              Riwayat Pengajuan
-            </Text>
-          </Row>
-          <Searchbar
-            placeholder="Cari no. dokumen, jenis, coa..."
-            value={search}
-            onChangeText={text => setSearch(text)}
-            onBlur={() => getRecentRequest()}
-            onClearIconPress={() => getRecentRequest(true)}
-          />
-          {recent?.length ? (
-            <>
-              <FlatList
-                data={recent}
-                contentContainerStyle={{paddingBottom: 120}}
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                  />
-                }
-                onEndReachedThreshold={0.5}
-                onEndReached={onLoadMore}
-                ListFooterComponent={
-                  moreLoading ? (
-                    <View style={styles.footerLoading}>
-                      <Gap h={24} />
-                      <ActivityIndicator />
-                      <Gap h={14} />
-                      <Text variant={'bodySmall'}>Memuat lebih banyak...</Text>
-                    </View>
-                  ) : null
-                }
-                renderItem={({item, index}) => {
-                  return (
-                    <Card.PengajuanCard
-                      data={item}
-                      onPress={() =>
-                        navigation.navigate('PengajuanStack', {
-                          screen: 'PengajuanDetail',
-                          params: {
-                            data: item,
-                            type: 'MINE',
-                          },
-                        })
-                      }
+          <View style={styles.bannerContainer}>
+            {bannerList.length > 0 ? (
+              <>
+                <Carousel
+                  width={width - 24}
+                  height={width / 2}
+                  data={bannerList}
+                  onProgressChange={progress}
+                  autoPlay
+                  autoPlayInterval={5000}
+                  style={{
+                    width: width - 24,
+                    height: width / 2,
+                    borderRadius: 8,
+                  }}
+                  renderItem={({index}) => (
+                    // <View
+                    //   style={{
+                    //     flex: 1,
+                    //     borderRadius: 8,
+                    //     justifyContent: 'center',
+                    //   }}>
+
+                    // </View>
+                    <Image
+                      source={{uri: bannerList[index].banner}}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: Colors.COLOR_LIGHT_GRAY,
+                        borderRadius: 8,
+                      }}
+                      resizeMode={'cover'}
                     />
-                  );
-                }}
-              />
-            </>
-          ) : (
-            <BlankScreen>Anda tidak memiliki pengajuan terbaru</BlankScreen>
-          )}
+                  )}
+                />
+
+                <Pagination.Basic
+                  progress={progress}
+                  data={bannerList}
+                  activeDotStyle={{
+                    backgroundColor: Colors.COLOR_PRIMARY,
+                  }}
+                  dotStyle={{
+                    backgroundColor: Colors.COLOR_GRAY,
+                    borderRadius: 50,
+                    margin: 4,
+                  }}
+                  containerStyle={{marginTop: 10}}
+                />
+              </>
+            ) : (
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  borderWidth: 0.5,
+                  margin: 4,
+                  width: width - Scaler.scaleSize(24),
+                  height: width / 2 - Scaler.scaleSize(32),
+                  borderRadius: 8,
+                }}>
+                <Icon source={'image-outline'} size={24} />
+                <Gap h={8} />
+                <Text variant={'labelSmall'}>Belum ada banner</Text>
+              </View>
+            )}
+          </View>
+          <Gap h={8} />
+
+          <View style={styles.menuContainer}>
+            {MENU_LIST.map((item, index) => {
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  key={index}
+                  style={styles.menuButton}
+                  onPress={() => checkAndGo(item.type)}>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      {backgroundColor: item.color},
+                    ]}>
+                    <Icon
+                      size={20}
+                      color={Colors.COLOR_WHITE}
+                      source={item.icon}
+                    />
+                  </View>
+                  <Gap h={6} />
+                  <Text
+                    numberOfLines={3}
+                    style={styles.textMenu}
+                    variant={'labelSmall'}>
+                    {item.title}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
       </View>
+      <Snackbar
+        style={{bottom: 54}}
+        visible={visible}
+        duration={3000}
+        onDismiss={onDismissSnackBar}>
+        Anda tidak memiliki akses ke menu ini.
+      </Snackbar>
     </SafeAreaView>
   );
 };
@@ -296,7 +471,7 @@ const styles = StyleSheet.create({
 
   main: {
     flex: 1,
-    backgroundColor: Colors.COLOR_WHITE,
+    backgroundColor: Colors.COLOR_LIGHT_GRAY,
   },
 
   topContent: {
@@ -306,7 +481,19 @@ const styles = StyleSheet.create({
 
   mainContent: {
     flex: 1,
-    padding: Size.SIZE_14,
+  },
+
+  menuContainer: {
+    backgroundColor: Colors.COLOR_WHITE,
+    paddingVertical: Size.SIZE_10,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+  },
+
+  bannerContainer: {
+    backgroundColor: Colors.COLOR_WHITE,
+    padding: Size.SIZE_10,
   },
 
   logo: {
@@ -314,16 +501,30 @@ const styles = StyleSheet.create({
     height: Scaler.scaleSize(24),
   },
 
-  buttonRequest: {
-    borderRadius: 8,
-  },
-
   topInfoLeft: {
     flex: 1,
   },
 
-  rowSub: {
-    marginBottom: Size.SIZE_14,
+  iconContainer: {
+    width: Scaler.scaleSize(36),
+    height: Scaler.scaleSize(36),
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  menuButton: {
+    width: '25%',
+    alignItems: 'center',
+    marginVertical: 4,
+    justifyContent: 'flex-start', // Pastikan semua elemen mulai dari atas
+    minHeight: 80, // Atur tinggi minimum agar rata
+  },
+
+  textMenu: {
+    textAlign: 'center',
+    flexShrink: 1, // Mencegah teks melar ke luar
+    maxWidth: '90%', // Batasi lebar teks
   },
 
   bellButton: {
@@ -341,30 +542,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
 
-  footerLoading: {
-    alignItems: 'center',
-  },
-
-  // text
   textName: {
     color: Colors.COLOR_WHITE,
   },
 
   textLvl: {
     color: Colors.COLOR_LIGHT_GRAY,
-  },
-
-  textSubtitle: {
-    color: Colors.COLOR_PRIMARY,
-  },
-
-  textSubtitleLeft: {
-    flex: 1,
-    color: Colors.COLOR_DARK_GRAY,
-  },
-
-  textLogout: {
-    fontWeight: 'bold',
   },
 });
 

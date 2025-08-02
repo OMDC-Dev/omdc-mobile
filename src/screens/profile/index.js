@@ -7,7 +7,7 @@ import {AuthContext} from '../../context';
 import {useNavigation} from '@react-navigation/native';
 import packageInfo from '../../../package.json';
 import {fetchApi} from '../../api/api';
-import {LOGOUT} from '../../api/apiRoutes';
+import {APP_CODE_VERSION, LOGOUT} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
 import {cekAkses} from '../../utils/utils';
 import RNRestart from 'react-native-restart';
@@ -23,19 +23,19 @@ const ProfileScreen = () => {
   const hasMasterBarang = cekAkses('#10', user.kodeAkses);
 
   let PROFILE_MENU = [
-    {
-      id: 'button',
-      icon: 'archive-plus-outline',
-      title: 'Master Barang',
-      navTo: () =>
-        navigation.navigate('MasterBarang', {
-          screen: 'BarangCari',
-          params: {
-            fromMaster: true,
-          },
-        }),
-      style: styles.textIconButton,
-    },
+    // {
+    //   id: 'button',
+    //   icon: 'archive-plus-outline',
+    //   title: 'Master Barang',
+    //   navTo: () =>
+    //     navigation.navigate('MasterBarang', {
+    //       screen: 'BarangCari',
+    //       params: {
+    //         fromMaster: true,
+    //       },
+    //     }),
+    //   style: styles.textIconButton,
+    // },
     {
       id: 'button',
       icon: 'account-lock-open-outline',
@@ -66,9 +66,9 @@ const ProfileScreen = () => {
     },
   ];
 
-  if (!hasMasterBarang) {
-    PROFILE_MENU.shift();
-  }
+  // if (!hasMasterBarang) {
+  //   PROFILE_MENU.shift();
+  // }
 
   async function onLogout() {
     setIsLoading(true);
@@ -136,7 +136,7 @@ const ProfileScreen = () => {
         })}
 
         <Text style={styles.textVersion} variant="labelSmall">
-          Version v.{packageInfo.version}
+          Version v.{APP_CODE_VERSION}
         </Text>
       </View>
       <Snackbar visible={showSnack} onDismiss={() => setShowSnack(false)}>

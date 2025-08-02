@@ -101,7 +101,14 @@ async function pickFromCameraIOS() {
   }
 }
 
-const SelectFileModal = ({toggle, pickFromfile, value, command}) => {
+const SelectFileModal = ({
+  toggle,
+  pickFromfile,
+  value,
+  command,
+  pdfOnly,
+  imageOnly,
+}) => {
   const [selected, setSelected] = React.useState();
 
   console.log(selected);
@@ -204,43 +211,50 @@ const SelectFileModal = ({toggle, pickFromfile, value, command}) => {
     <View style={styles.container}>
       <Card>
         <Card.Content>
-          <Button
-            onPress={() => {
-              toggle();
-              setTimeout(() => {
-                Platform.OS == 'ios'
-                  ? checkPermission('GALLERY')
-                  : onPickFileGallery();
-              }, 1000);
-            }}
-            style={styles.button}
-            mode={'contained-tonal'}>
-            Pilih dari galeri
-          </Button>
-          <Button
-            onPress={() => {
-              toggle();
-              setTimeout(() => {
-                Platform.OS == 'ios'
-                  ? checkPermission('CAMERA')
-                  : onPickFileCamera();
-              }, 1000);
-            }}
-            style={styles.button}
-            mode={'contained-tonal'}>
-            Ambil dari kamera
-          </Button>
-          <Button
-            onPress={() => {
-              toggle();
-              setTimeout(() => {
-                pickFromfile();
-              }, 1000);
-            }}
-            style={styles.button}
-            mode={'contained-tonal'}>
-            Pilih dari file
-          </Button>
+          {pdfOnly ? null : (
+            <>
+              <Button
+                onPress={() => {
+                  toggle();
+                  setTimeout(() => {
+                    Platform.OS == 'ios'
+                      ? checkPermission('GALLERY')
+                      : onPickFileGallery();
+                  }, 1000);
+                }}
+                style={styles.button}
+                mode={'contained-tonal'}>
+                Pilih dari galeri
+              </Button>
+              <Button
+                onPress={() => {
+                  toggle();
+                  setTimeout(() => {
+                    Platform.OS == 'ios'
+                      ? checkPermission('CAMERA')
+                      : onPickFileCamera();
+                  }, 1000);
+                }}
+                style={styles.button}
+                mode={'contained-tonal'}>
+                Ambil dari kamera
+              </Button>
+            </>
+          )}
+
+          {!imageOnly ? (
+            <Button
+              onPress={() => {
+                toggle();
+                setTimeout(() => {
+                  pickFromfile();
+                }, 1000);
+              }}
+              style={styles.button}
+              mode={'contained-tonal'}>
+              Pilih dari file
+            </Button>
+          ) : null}
           <Button onPress={toggle} style={styles.button} mode={'text'}>
             Batalkan
           </Button>

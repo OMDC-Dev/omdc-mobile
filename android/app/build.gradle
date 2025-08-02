@@ -161,8 +161,8 @@ android {
         applicationId "com.ardclient.omdc"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 22
-        versionName "0.9.5.2"
+        versionCode 38
+        versionName "0.9.7.7"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
         multiDexEnabled true
 
@@ -353,4 +353,4 @@ def isNewArchitectureEnabled() {
     return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
 }
 
-apply from:"../../node_modules/react-native-code-push/android/codepush.gradle"
+//apply from:"../../node_modules/react-native-code-push/android/codepush.gradle"

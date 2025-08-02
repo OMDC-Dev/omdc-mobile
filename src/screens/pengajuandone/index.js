@@ -42,7 +42,7 @@ const PengajuanDoneScreen = () => {
       <View style={styles.bottomContainer}>
         <Button
           onPress={() =>
-            navigation.navigate('Home', {
+            navigation.navigate('PengajuanList', {
               refresh: generateRandomInteger(10, 9999),
             })
           }>

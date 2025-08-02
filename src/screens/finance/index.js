@@ -23,6 +23,7 @@ import {
   Row,
   Card as CustomCard,
   Gap,
+  Header,
 } from '../../components';
 import ModalView from '../../components/modal';
 import {getMonthYear, getMonthYearNumber} from '../../utils/utils';
@@ -398,11 +399,12 @@ const FinanceScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text variant={'titleMedium'} style={styles.textTitle}>
           Pengajuan User
         </Text>
-      </View>
+      </View> */}
+      <Header title={'Pengajuan User'} />
       {renderTab()}
     </SafeAreaView>
   );

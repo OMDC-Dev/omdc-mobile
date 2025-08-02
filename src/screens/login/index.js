@@ -1,3 +1,5 @@
+import messaging from '@react-native-firebase/messaging';
+import {useNavigation} from '@react-navigation/native';
 import * as React from 'react';
 import {
   Image,
@@ -8,17 +10,13 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import {Snackbar, Text, TextInput} from 'react-native-paper';
+import {fetchApi} from '../../api/api';
+import {APP_CODE_VERSION, LOGIN} from '../../api/apiRoutes';
 import {Button, Gap} from '../../components';
 import {AuthContext} from '../../context';
 import {Colors, Scaler, Size} from '../../styles';
-import {Icon, Snackbar, Text, TextInput} from 'react-native-paper';
-import ASSETS from '../../utils/assetLoader';
-import {fetchApi} from '../../api/api';
-import {LOGIN} from '../../api/apiRoutes';
 import {API_STATES} from '../../utils/constant';
-import {useNavigation} from '@react-navigation/native';
-import messaging from '@react-native-firebase/messaging';
-import packageInfo from '../../../package.json';
 import {retrieveData} from '../../utils/store';
 
 const LoginScreen = () => {
@@ -51,8 +49,9 @@ const LoginScreen = () => {
   // API
   const login = async () => {
     const token = await messaging().getToken();
-
-    console.log('TOKENS', token);
+    // if (Platform.OS === 'ios') {
+    //   messaging().setAPNSToken(token);
+    // }
 
     setIsLoading(true);
     // request body
@@ -143,7 +142,7 @@ const LoginScreen = () => {
           </Button>
           <Gap h={16} />
           <Text style={styles.textVersion} variant="labelSmall">
-            Version v.{packageInfo.version} - DEV
+            Version v.{APP_CODE_VERSION}
           </Text>
         </View>
         <Snackbar visible={showSnack} onDismiss={() => setShowSnack(false)}>

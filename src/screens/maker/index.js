@@ -17,7 +17,13 @@ import {
 } from 'react-native-paper';
 import {Colors, Scaler, Size} from '../../styles';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import {BlankScreen, Row, Card as CustomCard, Gap} from '../../components';
+import {
+  BlankScreen,
+  Row,
+  Card as CustomCard,
+  Gap,
+  Header,
+} from '../../components';
 import ModalView from '../../components/modal';
 import {getMonthYear, getMonthYearNumber} from '../../utils/utils';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -396,11 +402,12 @@ const MakerScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text variant={'titleMedium'} style={styles.textTitle}>
           Pengajuan User
         </Text>
-      </View>
+      </View> */}
+      <Header title={'Pengajuan User'} />
       {renderTab()}
     </SafeAreaView>
   );

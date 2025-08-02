@@ -8,8 +8,8 @@ import {
 import {Colors} from './src/styles';
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform, StyleSheet, View} from 'react-native';
-import codePush from 'react-native-code-push';
-
+import SnackBarProvider from './src/context/SnackbarProvider';
+import NotificationProvider from './src/context/NotificationProvider';
 const theme = {
   ...DefaultTheme,
   colors: {
@@ -17,12 +17,6 @@ const theme = {
     primary: Colors.COLOR_PRIMARY,
     secondary: Colors.COLOR_SECONDARY,
   },
-};
-
-const options = {
-  updateDialog: true,
-  installMode: codePush.InstallMode.IMMEDIATE,
-  checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
 };
 
 const App = () => {
@@ -48,28 +42,6 @@ const App = () => {
   // request permission
   React.useEffect(() => {
     requestUserPermission();
-
-    const codePushStatusDidChange = status => {
-      switch (status) {
-        case codePush.SyncStatus.DOWNLOADING_PACKAGE:
-          setIsLoading(true);
-          break;
-        case codePush.SyncStatus.INSTALLING_UPDATE:
-          setIsLoading(false);
-          break;
-        case codePush.SyncStatus.UPDATE_INSTALLED:
-          setIsLoading(false);
-          break;
-        default:
-          break;
-      }
-    };
-
-    const syncWithCodePush = () => {
-      codePush.sync({}, codePushStatusDidChange);
-    };
-
-    syncWithCodePush();
   }, []);
 
   return (
@@ -79,7 +51,11 @@ const App = () => {
           <ActivityIndicator size="large" color={Colors.COLOR_PRIMARY} />
         </View>
       )}
-      <Main />
+      <SnackBarProvider>
+        <NotificationProvider>
+          <Main />
+        </NotificationProvider>
+      </SnackBarProvider>
     </PaperProvider>
   );
 };
@@ -93,4 +69,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default codePush(options)(App);
+export default App;

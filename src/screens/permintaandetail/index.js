@@ -474,18 +474,18 @@ const PermintaanDetailScreen = () => {
             </Button>
           )}
         </View>
-      ) : adminResult.approval_admin_status == 'WAITING' ? (
-        <View style={styles.bottomBar}>
-          <Button
-            mode={'contained'}
-            onPress={() => {
-              setMode('ACC');
-              setShowCancel(!showCancel);
-            }}>
-            Batalkan Pengajuan
-          </Button>
-        </View>
-      ) : null}
+      ) : adminResult.approval_admin_status ==
+        'WAITING' ? null : // <View style={styles.bottomBar}>
+      //   <Button
+      //     mode={'contained'}
+      //     onPress={() => {
+      //       setMode('ACC');
+      //       setShowCancel(!showCancel);
+      //     }}>
+      //     Batalkan Pengajuan
+      //   </Button>
+      // </View>
+      null}
 
       {!isAdminPB && IS_CAN_DOWNLOAD ? (
         <View style={styles.bottomBar}>

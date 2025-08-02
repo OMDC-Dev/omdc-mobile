@@ -14,6 +14,7 @@ import {SuperReimbursementStack} from './ReportReimbursement';
 import {ReviewerStack} from './ReviewerStack';
 import {MakerStack} from './MakerStack';
 import {AdminBarangStack} from './AdminBarangNavigator';
+import ProgressModal from '../screens/workplan/modal/ProgressModal';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,6 +23,8 @@ const MainStackNavigator = () => {
   const hasRequestBarang = cekAkses('#2', user.kodeAkses);
   const isAdminPB = cekAkses('#8', user.kodeAkses);
   const hasSuperReimbursement = cekAkses('#5', user.kodeAkses);
+
+  console.log('NAV USER TYPE', user);
 
   // select admin type
   function renderAdminPengajuan() {
@@ -34,7 +37,7 @@ const MainStackNavigator = () => {
             name="DiajukanStack"
             component={DiajukanStack}
             options={{
-              title: 'Pengajuan',
+              title: 'Acc ROP',
               headerShown: false,
               tabBarIcon: ({color, size}) => (
                 <Icon source={'clipboard-flow'} color={color} size={size} />
@@ -128,16 +131,16 @@ const MainStackNavigator = () => {
         name="HomeStack"
         component={HomeStack}
         options={{
-          title: 'R.O.P',
+          title: 'Home',
           headerShown: false,
           tabBarIcon: ({color, size}) => (
             <Icon source={'home-variant'} color={color} size={size} />
           ),
         }}
       />
-      {renderAdminPengajuan()}
+      {/* {renderAdminPengajuan()} */}
       {/* Permintaan Barang Stack */}
-      {hasRequestBarang && (
+      {/* {hasRequestBarang && (
         <Tab.Screen
           name="BarangStack"
           component={BarangStack}
@@ -155,7 +158,7 @@ const MainStackNavigator = () => {
           name="AdminBarangStack"
           component={AdminBarangStack}
           options={{
-            title: 'PB Approval',
+            title: 'Acc PB',
             headerShown: false,
             tabBarIcon: ({color, size}) => (
               <Icon source={'basket-unfill'} color={color} size={size} />
@@ -175,7 +178,7 @@ const MainStackNavigator = () => {
             ),
           }}
         />
-      )}
+      )} */}
       <Tab.Screen
         name="ProfileStack"
         component={ProfileStack}

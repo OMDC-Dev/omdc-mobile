@@ -51,7 +51,7 @@ const AdminBarangScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <Header hideBack={true} title={'Permintaan Barang Approval'} />
+      <Header title={'Permintaan Barang Approval'} />
       <View style={styles.container}>{renderTab()}</View>
     </Container>
   );

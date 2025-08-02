@@ -51,7 +51,7 @@ const BarangScreen = () => {
         backgroundColor={Colors.COLOR_SECONDARY}
         barStyle={'light-content'}
       />
-      <Header hideBack={true} title={'Permintaan Barang'} />
+      <Header title={'Permintaan Barang'} />
       <View style={styles.container}>{renderTab()}</View>
     </Container>
   );

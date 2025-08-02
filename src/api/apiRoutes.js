@@ -7,6 +7,9 @@ const LOCAL =
 
 const NGROK_DEV = 'https://1397-180-244-161-40.ngrok-free.app/';
 
+// check app code version
+export const APP_CODE_VERSION = '9.7.8';
+
 export const BASE_URL = PROD;
 
 // AUTH
@@ -24,6 +27,7 @@ export const READ_NOTIFICATION = id => {
 export const DELETE_PENGUMUMAN = pid => {
   return `pengumuman/${pid}`;
 };
+export const UPDATE_USER_FCM = 'user/update-fcm';
 
 // REIMBURSEMENT
 export const GET_CABANG = 'cabang';
@@ -78,6 +82,7 @@ export const DETAIL_REQUEST_BARANG = id => {
 };
 export const UPDATE_REQUEST_BARANG = id => `barang/update-request?id=${id}`;
 export const REJECT_REQUEST_BARANG = id => `barang/reject-request?id=${id}`;
+export const BARANG_REQUESTED_ALL = 'barang/barang-requested';
 
 // DEPT
 export const DEPT = 'dept';
@@ -117,3 +122,14 @@ export const UPDATE_BARANG = kode => `barang/update/${kode}`;
 
 // Invoice
 export const CEK_INVOICE = inv => `invoice?inv=${inv}`;
+
+// WORK PLAN API
+export const WORKPLAN = 'workplan';
+export const WORKPLAN_UPDATE = id => `workplan/update/${id}`;
+export const WORKPLAN_UPDATE_STATUS = id => `workplan/status/${id}`;
+export const WORKPLAN_CC_USER = 'workplan/cc';
+export const WORKPLAN_PROGRESS = id => `workplan/progress/${id}`;
+export const WORKPLAN_COMMENT = id => `workplan/comment/${id}`;
+
+// BANNER
+export const BANNER = 'banner';

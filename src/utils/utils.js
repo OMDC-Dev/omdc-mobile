@@ -159,6 +159,9 @@ export const cekAkses = (akses, userAkses = []) => {
    * ADMIN PB -> 999123 -> #8
    * nO NEED PB APPROVAL -> 1177 -> #9
    * Master Barang -> 1128 -> #10
+   * Wokrplan -> 1199 -> #11
+   * Wokrplan Admin -> 1200 -> #12
+   * Trx Permintaan Barang -> 1159 -> #13
    */
 
   if (akses == '#1') {
@@ -199,6 +202,18 @@ export const cekAkses = (akses, userAkses = []) => {
 
   if (akses == '#10') {
     return userAkses.findIndex(item => item == '1128') !== -1;
+  }
+
+  if (akses == '#11') {
+    return userAkses.findIndex(item => item == '1199') !== -1;
+  }
+
+  if (akses == '#12') {
+    return userAkses.findIndex(item => item == '1200') !== -1;
+  }
+
+  if (akses == '#13') {
+    return userAkses.findIndex(item => item == '1159') !== -1;
   }
 };
 

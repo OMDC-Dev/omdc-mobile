@@ -8,6 +8,8 @@ const ASSETS = {
   animation: {
     done: require(anim_path + 'done.json'),
     done2: require(anim_path + 'done2.json'),
+    failed: require(anim_path + 'failed.json'),
+    failed2: require(anim_path + 'failed2.json'),
   },
 };
 

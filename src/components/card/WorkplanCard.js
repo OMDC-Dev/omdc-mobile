@@ -48,6 +48,10 @@ const WorkplanCard = ({data, onPress, onDueDate}) => {
         title = 'Selesai';
         color = Colors.COLOR_MGREEN;
         break;
+      case WORKPLAN_STATUS.NEED_APPROVAL:
+        title = 'Menunggu Persetujuan';
+        color = Colors.COLOR_MAMBER;
+        break;
       default:
         title = '';
         color = '';

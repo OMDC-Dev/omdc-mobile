@@ -30,6 +30,7 @@ import Carousel, {Pagination} from 'react-native-reanimated-carousel';
 import {fetchApi} from '../../../api/api';
 import {
   WORKPLAN,
+  WORKPLAN_ATTACHMENT,
   WORKPLAN_COMMENT,
   WORKPLAN_PROGRESS,
   WORKPLAN_UPDATE,
@@ -40,6 +41,7 @@ import {Image} from 'react-native';
 import moment from 'moment';
 import {WorkplanProgressCard} from '../../../components/card';
 import {WorkplanGroupDropdown} from '../../../components/dropdown';
+import MultiImageSelector from '../../../components/MultiImageSelector';
 
 const WorkplanDetailScreen = () => {
   // file
@@ -79,6 +81,8 @@ const WorkplanDetailScreen = () => {
   const [perihal, setPerihal] = React.useState();
   const [oldPerihal, setOldPerihal] = React.useState();
 
+  const [files, setFiles] = React.useState([]);
+
   const {user} = React.useContext(AuthContext);
 
   // carousel
@@ -101,20 +105,28 @@ const WorkplanDetailScreen = () => {
   const IS_DISABLED_BY_CABANG = useListLocation && !cabang?.length;
   const IS_DISABLED_BY_LOCATION = !useListLocation && !location?.length;
 
-  console.log('IS OWNER', IS_WP_OWNER);
-
   const IS_WP_REVISION =
     workplanDetail?.status == WORKPLAN_STATUS.REVISON && IS_WP_ADMIN;
 
   const IS_WP_DONE =
     workplanDetail?.status == WORKPLAN_STATUS.FINISH ||
     workplanDetail?.status == WORKPLAN_STATUS.REJECTED ||
-    IS_WP_REVISION ||
-    !isEditMode;
+    IS_WP_REVISION;
 
   const IS_WP_STATUS_DONE =
     workplanDetail?.status == WORKPLAN_STATUS.FINISH ||
     workplanDetail?.status == WORKPLAN_STATUS.REJECTED;
+
+  const IS_WP_WAITING_APPROVAL =
+    workplanDetail?.status == WORKPLAN_STATUS.NEED_APPROVAL;
+
+  const FILE_SELECTED = route.params?.captionedFile;
+
+  React.useEffect(() => {
+    if (FILE_SELECTED) {
+      setFiles(prev => [...prev, FILE_SELECTED]);
+    }
+  }, [FILE_SELECTED]);
 
   let DETAIL_DATA = [
     {
@@ -130,12 +142,12 @@ const WorkplanDetailScreen = () => {
         val == null ? '-' : val == 'MEDIC' ? 'Medis' : 'Non Medis',
       type: 'default',
     },
-    // {
-    //   title: 'Jenis Workplan',
-    //   key: 'jenis_workplan',
-    //   alias: val => (val == 'APPROVAL' ? 'Approval' : 'Non Approval'),
-    //   type: 'default',
-    // },
+    {
+      title: 'Jenis Workplan',
+      key: 'jenis_workplan',
+      alias: val => (val == 'APPROVAL' ? 'Approval' : 'Non Approval'),
+      type: 'default',
+    },
     {
       title: 'PIC',
       key: 'user_detail',
@@ -205,6 +217,10 @@ const WorkplanDetailScreen = () => {
         title = 'Selesai';
         color = Colors.COLOR_MGREEN;
         break;
+      case WORKPLAN_STATUS.NEED_APPROVAL:
+        title = 'Menunggu Persetujuan';
+        color = Colors.COLOR_MAMBER;
+        break;
       default:
         title = '';
         color = '';
@@ -237,26 +253,35 @@ const WorkplanDetailScreen = () => {
       type: data.fileType,
     };
 
-    if (fileType == 'BEFORE') {
-      setFileBefore(data.base64);
-      setFileBeforeInfo(fileInfo);
-    } else {
-      if (workplanDetail?.attachment_after) {
-        setIsEditAfter(true);
-      } else {
-        setIsEditAfter(false);
-      }
+    // if (fileType == 'BEFORE') {
+    //   setFileBefore(data.base64);
+    //   setFileBeforeInfo(fileInfo);
+    // } else {
+    //   if (workplanDetail?.attachment_after) {
+    //     setIsEditAfter(true);
+    //   } else {
+    //     setIsEditAfter(false);
+    //   }
 
-      setFileAfter(data.base64);
-      setFileAfterInfo(fileInfo);
-    }
+    //   setFileAfter(data.base64);
+    //   setFileAfterInfo(fileInfo);
+    // }
+
+    navigation.navigate('Preview', {
+      file: data.base64,
+      type: data.fileType,
+      needCallback: true,
+      callbackRoute: route.name,
+      existingParams: route.params,
+    });
 
     setIsHasUpdate(true);
   }
 
   React.useEffect(() => {
     getWorkplanDetail();
-  }, []);
+    getImageList();
+  }, [isEditMode]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -282,8 +307,26 @@ const WorkplanDetailScreen = () => {
 
     if (state == API_STATES.OK) {
       setProgressList(data);
+
       setIsLoading(false);
     } else {
+      setIsLoading(false);
+    }
+  }
+
+  async function getImageList() {
+    setIsLoading(true);
+    const {state, data, error} = await fetchApi({
+      url: WORKPLAN_ATTACHMENT(WP_ID),
+      method: 'GET',
+    });
+
+    if (state == API_STATES.OK) {
+      setFiles(data);
+      console.log('DATA', data);
+      setIsLoading(false);
+    } else {
+      console.log('err', error);
       setIsLoading(false);
     }
   }
@@ -343,6 +386,8 @@ const WorkplanDetailScreen = () => {
     }
   }
 
+  console.log('FILES', files);
+
   const saveWorkplan = async () => {
     setIsLoading(true);
     const body = {
@@ -355,6 +400,7 @@ const WorkplanDetailScreen = () => {
       kd_induk: useListLocation ? cabang : null,
       location: useListLocation ? null : location,
       group: group,
+      files: files,
     };
 
     console.log('BR', body);
@@ -409,7 +455,10 @@ const WorkplanDetailScreen = () => {
     });
 
     if (state == API_STATES.OK) {
-      showSuccess(() => getWorkplanDetail());
+      showSuccess(() => {
+        getWorkplanDetail();
+        setIsEditMode(false);
+      });
       setIsHasUpdate(false);
     } else {
       showFailed();
@@ -436,7 +485,12 @@ const WorkplanDetailScreen = () => {
   }
 
   function renderHeaderButton() {
-    if (IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC) {
+    if (
+      IS_WP_DONE ||
+      IS_WP_ADMIN ||
+      IS_WP_CC ||
+      (!IS_WP_ADMIN && !isEditMode)
+    ) {
       if (!isEditMode && !IS_WP_ADMIN && !IS_WP_CC && !IS_WP_STATUS_DONE) {
         return (
           <Button mode={'contained'} onPress={() => setIsEditMode(true)}>
@@ -475,6 +529,13 @@ const WorkplanDetailScreen = () => {
     );
   }
 
+  const handleDeleteFile = index => {
+    const updatedFiles = [...files];
+    updatedFiles.splice(index, 1);
+    setFiles(updatedFiles);
+    setIsHasUpdate(true);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Header title={'Detail'} right={renderHeaderButton()} />
@@ -494,8 +555,7 @@ const WorkplanDetailScreen = () => {
             </Text>
           ) : null}
         </Row> */}
-        {workplanDetail?.attachment_after ||
-        workplanDetail?.attachment_before ? (
+        {files.length > 0 ? (
           <>
             <Gap h={16} />
             <Text style={styles.textCaption} variant={'labelMedium'}>
@@ -505,7 +565,7 @@ const WorkplanDetailScreen = () => {
             <Carousel
               width={width - Scaler.scaleSize(28)}
               height={width / 1.5}
-              data={WP_IMG}
+              data={files}
               onProgressChange={progress}
               style={{
                 width: width - Scaler.scaleSize(28),
@@ -521,10 +581,11 @@ const WorkplanDetailScreen = () => {
                   }}
                   onPress={() =>
                     navigation.navigate('Preview', {
-                      file: WP_IMG[index],
+                      file: files[index]['image_url'],
+                      caption: files[index]['caption'] ?? '-',
                     })
                   }>
-                  {WP_IMG[index] ? (
+                  {files[index] ? (
                     <>
                       <View
                         style={{
@@ -535,12 +596,12 @@ const WorkplanDetailScreen = () => {
                         }}>
                         <Chip>
                           <Text variant={'labelSmall'}>
-                            {index == 0 ? 'Before' : 'After'}
+                            {files[index]['caption'] ?? '-'}
                           </Text>
                         </Chip>
                       </View>
                       <Image
-                        source={{uri: WP_IMG[index]}}
+                        source={{uri: files[index]['image_url']}}
                         style={{
                           width: '100%',
                           height: '100%',
@@ -569,7 +630,7 @@ const WorkplanDetailScreen = () => {
             />
             <Pagination.Basic
               progress={progress}
-              data={WP_IMG}
+              data={files}
               activeDotStyle={{
                 backgroundColor: Colors.COLOR_PRIMARY,
               }}
@@ -585,7 +646,7 @@ const WorkplanDetailScreen = () => {
         ) : null}
         <Gap h={8} />
 
-        {!isEditMode ? (
+        {!isEditMode || IS_WP_WAITING_APPROVAL ? (
           <>
             <Text style={styles.textCaption} variant={'labelMedium'}>
               Perihal
@@ -617,7 +678,7 @@ const WorkplanDetailScreen = () => {
           </>
         )}
 
-        {isEditMode ? (
+        {isEditMode && !IS_WP_WAITING_APPROVAL ? (
           <>
             <Gap h={8} />
             <InputLabel>Grup</InputLabel>
@@ -663,7 +724,7 @@ const WorkplanDetailScreen = () => {
           </Text>
         </TouchableOpacity>
 
-        {isEditMode && (
+        {isEditMode && !IS_WP_WAITING_APPROVAL && (
           <>
             <Gap h={24} />
             <Text style={styles.subtitle} variant={'titleSmall'}>
@@ -729,7 +790,7 @@ const WorkplanDetailScreen = () => {
 
         <Gap h={8} />
 
-        {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? (
+        {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC || IS_WP_WAITING_APPROVAL ? (
           workplanDetail?.cc_users.length > 0 ? (
             <>
               <InputLabel>CC</InputLabel>
@@ -787,7 +848,7 @@ const WorkplanDetailScreen = () => {
               </Text>
             </TouchableOpacity> */}
 
-            {workplanDetail?.attachment_before ? null : (
+            {/* {workplanDetail?.attachment_before ? null : (
               <>
                 <Gap h={14} />
                 <InputLabel>Before ( Opsional maks 10 MB )</InputLabel>
@@ -805,12 +866,12 @@ const WorkplanDetailScreen = () => {
                   navigation={navigation}
                 />
               </>
-            )}
+            )} */}
 
             <>
               <Gap h={14} />
-              <InputLabel>After ( Opsional maks 10 MB )</InputLabel>
-              <FilePlaceholder
+              <InputLabel>Lampiran ( Opsional maks 10 MB )</InputLabel>
+              {/* <FilePlaceholder
                 file={fileAfter}
                 fileInfo={fileAfterInfo}
                 onSelectPress={() => {
@@ -822,6 +883,18 @@ const WorkplanDetailScreen = () => {
                   setFileAfter(null);
                 }}
                 navigation={navigation}
+              /> */}
+              <MultiImageSelector
+                files={files}
+                onSelectFile={() => setShowSelectFile(true)}
+                onDeleteFile={handleDeleteFile}
+                onImagePress={file => {
+                  navigation.navigate('Preview', {
+                    file: file.base64,
+                    type: file.type,
+                    caption: file.caption,
+                  });
+                }}
               />
             </>
 
@@ -889,7 +962,10 @@ const WorkplanDetailScreen = () => {
           <Text style={styles.subtitle} variant={'titleSmall'}>
             Progress
           </Text>
-          {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? null : (
+          {IS_WP_DONE ||
+          IS_WP_ADMIN ||
+          IS_WP_CC ||
+          IS_WP_WAITING_APPROVAL ? null : (
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() =>
@@ -921,7 +997,12 @@ const WorkplanDetailScreen = () => {
               <WorkplanProgressCard
                 key={index}
                 data={item}
-                isDone={IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC}
+                isDone={
+                  IS_WP_DONE ||
+                  IS_WP_ADMIN ||
+                  IS_WP_CC ||
+                  IS_WP_WAITING_APPROVAL
+                }
                 onEdit={() => {
                   navigation.navigate('WPProgressModal', {
                     id: WP_ID,
@@ -941,7 +1022,10 @@ const WorkplanDetailScreen = () => {
           </Card>
         )}
       </ScrollView>
-      {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC ? null : (
+      {IS_WP_DONE ||
+      IS_WP_ADMIN ||
+      IS_WP_CC ||
+      (!IS_WP_ADMIN && !isEditMode) ? null : (
         <View style={styles.bottomContainer}>
           <ScrollView
             contentContainerStyle={{
@@ -949,7 +1033,24 @@ const WorkplanDetailScreen = () => {
             }}
             horizontal
             showsHorizontalScrollIndicator={false}>
-            {IS_APPROVAL ? null : (
+            {IS_APPROVAL ? (
+              <Button
+                style={[styles.actionButton, styles.actionDone]}
+                mode={'contained'}
+                onPress={() => {
+                  showConfirmation(() =>
+                    updateStatusWorkplan(
+                      workplanDetail?.status == WORKPLAN_STATUS.NEED_APPROVAL
+                        ? WORKPLAN_STATUS.ON_PROGRESS
+                        : WORKPLAN_STATUS.NEED_APPROVAL,
+                    ),
+                  );
+                }}>
+                {workplanDetail?.status == WORKPLAN_STATUS.NEED_APPROVAL
+                  ? 'Batalkan Pengajuan'
+                  : 'Request Approval Selesai'}
+              </Button>
+            ) : (
               <>
                 {workplanDetail?.status == WORKPLAN_STATUS.ON_PROGRESS ? (
                   <Button
@@ -1016,7 +1117,10 @@ const WorkplanDetailScreen = () => {
         </View>
       )}
 
-      {IS_WP_ADMIN && !IS_WP_DONE && IS_APPROVAL ? (
+      {IS_WP_ADMIN &&
+      !IS_WP_DONE &&
+      IS_APPROVAL &&
+      workplanDetail?.status == WORKPLAN_STATUS.NEED_APPROVAL ? (
         <View style={styles.bottomContainer}>
           <ScrollView
             contentContainerStyle={{

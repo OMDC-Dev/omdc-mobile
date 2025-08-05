@@ -10,7 +10,7 @@ const NGROK_DEV = 'https://1397-180-244-161-40.ngrok-free.app/';
 // check app code version
 export const APP_CODE_VERSION = '9.7.8';
 
-export const BASE_URL = PROD;
+export const BASE_URL = LOCAL;
 
 // AUTH
 export const LOGIN = 'user/login';
@@ -130,6 +130,7 @@ export const WORKPLAN_UPDATE_STATUS = id => `workplan/status/${id}`;
 export const WORKPLAN_CC_USER = 'workplan/cc';
 export const WORKPLAN_PROGRESS = id => `workplan/progress/${id}`;
 export const WORKPLAN_COMMENT = id => `workplan/comment/${id}`;
+export const WORKPLAN_ATTACHMENT = wp_id => `workplan/attachment/${wp_id}`;
 
 // BANNER
 export const BANNER = 'banner';

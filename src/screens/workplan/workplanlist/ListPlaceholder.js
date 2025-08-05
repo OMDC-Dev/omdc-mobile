@@ -51,7 +51,11 @@ const ListPlaceholder = type => {
 
   function getFilterStatusByRoute() {
     if (PARAM_TYPE == 'WAITING') {
-      return [WORKPLAN_STATUS.ON_PROGRESS, WORKPLAN_STATUS.REVISON];
+      return [
+        WORKPLAN_STATUS.ON_PROGRESS,
+        WORKPLAN_STATUS.REVISON,
+        WORKPLAN_STATUS.NEED_APPROVAL,
+      ];
     } else if (PARAM_TYPE == 'PENDING') {
       return WORKPLAN_STATUS.PENDING;
     } else {

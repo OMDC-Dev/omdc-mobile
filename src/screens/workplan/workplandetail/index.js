@@ -1,30 +1,20 @@
 import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
+import moment from 'moment';
+import React from 'react';
+import {
   Dimensions,
+  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
-import {
-  Dropdown,
-  FilePlaceholder,
-  Gap,
-  Header,
-  InputLabel,
-  Row,
-} from '../../../components';
-import {Colors, Scaler, Size} from '../../../styles';
 import {Button, Card, Chip, Icon, Text, TextInput} from 'react-native-paper';
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
-import ModalView from '../../../components/modal';
-import {getDateFormat} from '../../../utils/utils';
-import {AuthContext, ModalContext, SnackBarContext} from '../../../context';
 import {useSharedValue} from 'react-native-reanimated';
 import Carousel, {Pagination} from 'react-native-reanimated-carousel';
 import {fetchApi} from '../../../api/api';
@@ -36,12 +26,15 @@ import {
   WORKPLAN_UPDATE,
   WORKPLAN_UPDATE_STATUS,
 } from '../../../api/apiRoutes';
-import {API_STATES, WORKPLAN_STATUS} from '../../../utils/constant';
-import {Image} from 'react-native';
-import moment from 'moment';
+import {Dropdown, Gap, Header, InputLabel, Row} from '../../../components';
+import MultiImageSelector from '../../../components/MultiImageSelector';
 import {WorkplanProgressCard} from '../../../components/card';
 import {WorkplanGroupDropdown} from '../../../components/dropdown';
-import MultiImageSelector from '../../../components/MultiImageSelector';
+import ModalView from '../../../components/modal';
+import {AuthContext, ModalContext, SnackBarContext} from '../../../context';
+import {Colors, Scaler, Size} from '../../../styles';
+import {API_STATES, WORKPLAN_STATUS} from '../../../utils/constant';
+import {cekAkses, getDateFormat} from '../../../utils/utils';
 
 const WorkplanDetailScreen = () => {
   // file
@@ -118,9 +111,12 @@ const WorkplanDetailScreen = () => {
     workplanDetail?.status == WORKPLAN_STATUS.REJECTED;
 
   const IS_WP_WAITING_APPROVAL =
-    workplanDetail?.status == WORKPLAN_STATUS.NEED_APPROVAL;
+    workplanDetail?.status == WORKPLAN_STATUS.NEED_APPROVAL ||
+    workplanDetail?.status == WORKPLAN_STATUS.APPROVED;
 
   const FILE_SELECTED = route.params?.captionedFile;
+
+  const hasApprovalAkses = cekAkses('#14', user?.kodeAkses);
 
   React.useEffect(() => {
     if (FILE_SELECTED) {
@@ -220,6 +216,10 @@ const WorkplanDetailScreen = () => {
       case WORKPLAN_STATUS.NEED_APPROVAL:
         title = 'Menunggu Persetujuan';
         color = Colors.COLOR_MAMBER;
+        break;
+      case WORKPLAN_STATUS.APPROVED:
+        title = 'Disetujui';
+        color = Colors.COLOR_GREEN;
         break;
       default:
         title = '';
@@ -536,6 +536,42 @@ const WorkplanDetailScreen = () => {
     setIsHasUpdate(true);
   };
 
+  function renderApprovalUserButton() {
+    let status;
+    let title;
+    let isDisabled = false;
+
+    if (workplanDetail?.status == WORKPLAN_STATUS.ON_PROGRESS) {
+      status = WORKPLAN_STATUS.NEED_APPROVAL;
+      title = 'Request Approval Selesai';
+      isDisabled = progressList.length < 1;
+    } else if (workplanDetail?.status == WORKPLAN_STATUS.NEED_APPROVAL) {
+      status = WORKPLAN_STATUS.ON_PROGRESS;
+      title = 'Batalkan Pengajuan';
+      isDisabled = false;
+    } else if (workplanDetail?.status == WORKPLAN_STATUS.PENDING) {
+      status = WORKPLAN_STATUS.ON_PROGRESS;
+      title = 'Set ke Dalam Proses';
+      isDisabled = false;
+    } else {
+      status = WORKPLAN_STATUS.FINISH;
+      title = 'Set ke Selesai';
+      isDisabled = false;
+    }
+
+    return (
+      <Button
+        style={[styles.actionButton, styles.actionDone]}
+        mode={'contained'}
+        disabled={isDisabled}
+        onPress={() => {
+          showConfirmation(() => updateStatusWorkplan(status));
+        }}>
+        {title}
+      </Button>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <Header title={'Detail'} right={renderHeaderButton()} />
@@ -790,7 +826,11 @@ const WorkplanDetailScreen = () => {
 
         <Gap h={8} />
 
-        {IS_WP_DONE || IS_WP_ADMIN || IS_WP_CC || IS_WP_WAITING_APPROVAL ? (
+        {IS_WP_DONE ||
+        IS_WP_ADMIN ||
+        IS_WP_CC ||
+        IS_WP_WAITING_APPROVAL ||
+        !isEditMode ? (
           workplanDetail?.cc_users.length > 0 ? (
             <>
               <InputLabel>CC</InputLabel>
@@ -965,7 +1005,8 @@ const WorkplanDetailScreen = () => {
           {IS_WP_DONE ||
           IS_WP_ADMIN ||
           IS_WP_CC ||
-          IS_WP_WAITING_APPROVAL ? null : (
+          IS_WP_WAITING_APPROVAL ||
+          !isEditMode ? null : (
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() =>
@@ -1034,22 +1075,21 @@ const WorkplanDetailScreen = () => {
             horizontal
             showsHorizontalScrollIndicator={false}>
             {IS_APPROVAL ? (
-              <Button
-                style={[styles.actionButton, styles.actionDone]}
-                mode={'contained'}
-                onPress={() => {
-                  showConfirmation(() =>
-                    updateStatusWorkplan(
-                      workplanDetail?.status == WORKPLAN_STATUS.NEED_APPROVAL
-                        ? WORKPLAN_STATUS.ON_PROGRESS
-                        : WORKPLAN_STATUS.NEED_APPROVAL,
-                    ),
-                  );
-                }}>
-                {workplanDetail?.status == WORKPLAN_STATUS.NEED_APPROVAL
-                  ? 'Batalkan Pengajuan'
-                  : 'Request Approval Selesai'}
-              </Button>
+              <>
+                {renderApprovalUserButton()}
+                {workplanDetail?.status == WORKPLAN_STATUS.ON_PROGRESS ? (
+                  <Button
+                    style={[styles.actionButton, styles.actionPending]}
+                    mode={'contained'}
+                    onPress={() => {
+                      showConfirmation(() =>
+                        updateStatusWorkplan(WORKPLAN_STATUS.PENDING),
+                      );
+                    }}>
+                    Set ke Pending
+                  </Button>
+                ) : null}
+              </>
             ) : (
               <>
                 {workplanDetail?.status == WORKPLAN_STATUS.ON_PROGRESS ? (
@@ -1120,6 +1160,7 @@ const WorkplanDetailScreen = () => {
       {IS_WP_ADMIN &&
       !IS_WP_DONE &&
       IS_APPROVAL &&
+      hasApprovalAkses &&
       workplanDetail?.status == WORKPLAN_STATUS.NEED_APPROVAL ? (
         <View style={styles.bottomContainer}>
           <ScrollView
@@ -1134,7 +1175,7 @@ const WorkplanDetailScreen = () => {
               mode={'contained'}
               onPress={() => {
                 showConfirmation(() =>
-                  updateStatusWorkplan(WORKPLAN_STATUS.FINISH),
+                  updateStatusWorkplan(WORKPLAN_STATUS.APPROVED),
                 );
               }}>
               Setujui

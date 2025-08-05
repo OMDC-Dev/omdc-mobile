@@ -55,6 +55,7 @@ const ListPlaceholder = type => {
         WORKPLAN_STATUS.ON_PROGRESS,
         WORKPLAN_STATUS.REVISON,
         WORKPLAN_STATUS.NEED_APPROVAL,
+        WORKPLAN_STATUS.APPROVED,
       ];
     } else if (PARAM_TYPE == 'PENDING') {
       return WORKPLAN_STATUS.PENDING;

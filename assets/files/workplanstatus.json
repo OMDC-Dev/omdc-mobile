@@ -1,0 +1,18 @@
+[
+  {
+    "label": "Dalam Proses",
+    "value": 1
+  },
+  {
+    "label": "Revisi",
+    "value": 4
+  },
+  {
+    "label": "Menunggu Persetujuan",
+    "value": 6
+  },
+  {
+    "label": "Disetujui",
+    "value": 7
+  }
+]

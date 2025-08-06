@@ -111,18 +111,6 @@ const WorkplanCard = ({data, onPress, onDueDate}) => {
         <Gap h={14} />
         <Row justify={'space-between'}>
           <Row>
-            {/* <Chip
-              style={{
-                backgroundColor:
-                  jenis_workplan == 'APPROVAL'
-                    ? Colors.COLOR_ACCENT
-                    : Colors.COLOR_ACCENT_2,
-              }}>
-              <Text style={styles.textId} variant={'labelSmall'}>
-                {jenis_workplan == 'APPROVAL' ? 'Approval' : 'Non Approval'}
-              </Text>
-            </Chip>
-            <Gap w={4} /> */}
             <Chip
               style={{
                 backgroundColor:
@@ -155,6 +143,20 @@ const WorkplanCard = ({data, onPress, onDueDate}) => {
           <Text style={styles.textTime} variant={'labelSmall'}>
             {moment(createdAt).format('ll')}
           </Text>
+        </Row>
+        <Gap h={8} />
+        <Row>
+          <Chip
+            style={{
+              backgroundColor:
+                jenis_workplan == 'APPROVAL'
+                  ? Colors.COLOR_ACCENT
+                  : Colors.COLOR_ACCENT_2,
+            }}>
+            <Text style={styles.textId} variant={'labelSmall'}>
+              {jenis_workplan == 'APPROVAL' ? 'Approval' : 'Non Approval'}
+            </Text>
+          </Chip>
         </Row>
       </Card.Content>
     </Card>

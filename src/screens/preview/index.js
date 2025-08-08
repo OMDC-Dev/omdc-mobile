@@ -1,25 +1,29 @@
 import {
   Dimensions,
-  Image,
   Platform,
   StyleSheet,
-  Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import React from 'react';
 import {Colors, Scaler, Size} from '../../styles';
 import {Header} from '../../components';
 import Pdf from 'react-native-pdf';
-import {useRoute} from '@react-navigation/native';
-import ImageViewer from 'react-native-image-zoom-viewer';
-import {ActivityIndicator} from 'react-native-paper';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {ActivityIndicator, Text, TextInput} from 'react-native-paper';
 import {ImageZoom} from '@likashefqet/react-native-image-zoom';
 import {isValidUrl} from '../../utils/utils';
 
 const PreviewScreen = () => {
   const route = useRoute();
+  const navigation = useNavigation();
+  const [caption, setCaption] = React.useState();
 
   const {file, type} = route.params;
+  const SELECTED_CAPTION = route.params?.caption;
+  const EXISTING_PARAMS = route.params?.existingParams;
+  const CALLBACK_ROUTE = route.params?.callbackRoute;
+  const IS_NEED_CALLBACK = route.params?.needCallback;
 
   function isImageUrl(str) {
     const urlPattern = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif))/i;
@@ -36,12 +40,29 @@ const PreviewScreen = () => {
     return isUrl ? file : `data:application/pdf;base64,${file}`;
   }
 
-  console.log('FILE TYPE', type);
-  console.log('load image', loadImage());
+  function onSave() {
+    navigation.navigate(CALLBACK_ROUTE, {
+      ...EXISTING_PARAMS,
+      captionedFile: {
+        base64: file,
+        type: type,
+        caption: caption,
+      },
+    });
+  }
 
   return (
     <View style={styles.container}>
-      <Header title={' '} />
+      <Header
+        title={' '}
+        right={
+          IS_NEED_CALLBACK ? (
+            <TouchableOpacity activeOpacity={0.6} onPress={onSave}>
+              <Text style={{color: Colors.COLOR_PRIMARY}}>Simpan</Text>
+            </TouchableOpacity>
+          ) : null
+        }
+      />
       <View style={styles.mainContainer}>
         {type == 'application/pdf' ? (
           <>
@@ -58,21 +79,24 @@ const PreviewScreen = () => {
             />
           </>
         ) : (
-          <ImageZoom uri={loadImage()} style={styles.imageViewer} />
-          // <ImageViewer
-          //   imageUrls={[
-          //     {
-          //       url: loadImage(),
-          //       width: Dimensions.get('window').width,
-          //       height: Dimensions.get('window').height,
-          //       props: {
-          //         resizeMode: 'contain',
-          //       },
-          //     },
-          //   ]}
-          //   renderIndicator={() => null}
-          //   style={styles.imageViewer}
-          // />
+          <View>
+            <ImageZoom uri={loadImage()} style={styles.imageViewer} />
+            {IS_NEED_CALLBACK ? (
+              <View style={styles.inputContainer}>
+                <TextInput
+                  value={caption}
+                  onChangeText={text => setCaption(text)}
+                  maxLength={124}
+                  placeholder="Tambahkan keterangan"
+                />
+              </View>
+            ) : null}
+            {SELECTED_CAPTION ? (
+              <View style={styles.inputContainer}>
+                <TextInput value={SELECTED_CAPTION} disabled />
+              </View>
+            ) : null}
+          </View>
         )}
       </View>
     </View>
@@ -86,6 +110,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.COLOR_SECONDARY,
     paddingTop: Platform.OS == 'ios' ? Scaler.scaleSize(38) : 0,
+  },
+
+  inputContainer: {
+    padding: Size.SIZE_10,
+    backgroundColor: Colors.COLOR_WHITE,
   },
 
   mainContainer: {

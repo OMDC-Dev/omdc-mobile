@@ -28,12 +28,13 @@ import {
 import ModalView from '../../../components/modal';
 import {getDateFormat} from '../../../utils/utils';
 import {ModalContext, SnackBarContext} from '../../../context';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {fetchApi} from '../../../api/api';
 import {WORKPLAN} from '../../../api/apiRoutes';
 import {API_STATES} from '../../../utils/constant';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {WorkplanGroupDropdown} from '../../../components/dropdown';
+import MultiImageSelector from '../../../components/MultiImageSelector';
 
 const WorkplanScreen = () => {
   // date section
@@ -57,6 +58,7 @@ const WorkplanScreen = () => {
   const [fileInfo, setFileInfo] = React.useState();
   const [file, setFile] = React.useState();
   const [showSelectFile, setShowSelectFile] = React.useState(false);
+  const [multiFiles, setMultiFiles] = React.useState([]);
 
   // utils
   const {setSnakMessage, showSnak, hideSnak} =
@@ -67,6 +69,15 @@ const WorkplanScreen = () => {
 
   // navigation
   const navigation = useNavigation();
+  const route = useRoute();
+
+  const FILE_SELECTED = route.params?.captionedFile;
+
+  React.useEffect(() => {
+    if (FILE_SELECTED) {
+      setMultiFiles(prev => [...prev, FILE_SELECTED]);
+    }
+  }, [FILE_SELECTED]);
 
   // disable by loc
   function disablebyLocation() {
@@ -85,7 +96,8 @@ const WorkplanScreen = () => {
     !perihal ||
     !kategori ||
     !group ||
-    !file;
+    !type ||
+    !multiFiles.length > 0;
 
   // handle on pick from camera / gallery
   function onPickFromRes(data) {
@@ -101,8 +113,22 @@ const WorkplanScreen = () => {
       type: data.fileType,
     };
 
-    setFile(data.base64);
-    setFileInfo(fileInfo);
+    const newFileBase = {
+      base64: data.base64,
+      fileInfo: fileInfo,
+    };
+
+    //setMultiFiles(prev => [...prev, newFileBase]);
+
+    navigation.navigate('Preview', {
+      file: data.base64,
+      type: data.fileType,
+      needCallback: true,
+      callbackRoute: route.name,
+    });
+
+    //setFile(data.base64);
+    //setFileInfo(fileInfo);
   }
 
   React.useEffect(() => {
@@ -127,6 +153,8 @@ const WorkplanScreen = () => {
       user_cc: cc,
       attachment_before: file,
       group: group,
+      is_multi: true,
+      files: multiFiles,
     };
 
     const {state, data, error} = await fetchApi({
@@ -142,6 +170,12 @@ const WorkplanScreen = () => {
       showFailed();
     }
   }
+
+  const handleDeleteFile = index => {
+    const updatedFiles = [...multiFiles];
+    updatedFiles.splice(index, 1);
+    setMultiFiles(updatedFiles);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -160,18 +194,16 @@ const WorkplanScreen = () => {
           <Text style={styles.subtitle} variant="titleSmall">
             Data Work in Progress
           </Text>
-
-          {/* <Gap h={14} />
-          <InputLabel>Jenis Work in Progress</InputLabel>
-          <WorkplanTypeDropdown value={type} onChange={val => setType(val)} /> */}
-
           <Gap h={14} />
+          <InputLabel>Jenis Work in Progress</InputLabel>
+          <WorkplanTypeDropdown value={type} onChange={val => setType(val)} />
+
+          <Gap h={6} />
           <InputLabel>Grup</InputLabel>
           <WorkplanGroupDropdown
             value={group}
             onChange={val => setGroup(val)}
           />
-
           <Gap h={6} />
           <InputLabel>Tanggal Mulai</InputLabel>
           <Card
@@ -195,7 +227,6 @@ const WorkplanScreen = () => {
               </Row>
             </Card.Content>
           </Card>
-
           <Gap h={6} />
           <InputLabel>Estimasi Tanggal Selesai</InputLabel>
           <Card
@@ -219,7 +250,6 @@ const WorkplanScreen = () => {
               </Row>
             </Card.Content>
           </Card>
-
           <Gap h={20} />
           <Row>
             <Text variant={'labelMedium'}>Pilih lokasi dari list cabang</Text>
@@ -244,7 +274,6 @@ const WorkplanScreen = () => {
               ) : null}
             </TouchableOpacity>
           </Row>
-
           <Gap h={6} />
           {useListLocation ? (
             <>
@@ -267,7 +296,6 @@ const WorkplanScreen = () => {
               />
             </>
           )}
-
           <Gap h={6} />
           <InputLabel>Perihal</InputLabel>
           <TextInput
@@ -285,24 +313,33 @@ const WorkplanScreen = () => {
             onChangeText={text => setPerihal(text)}
             value={perihal}
           />
-
           <Gap h={14} />
           <InputLabel>Kategori</InputLabel>
           <Dropdown.PaymentDropdown
             value={kategori}
             onChange={val => setKategori(val)}
           />
-
           <Gap h={14} />
           <InputLabel>CC ( Opsional )</InputLabel>
           <Dropdown.WorkplanCCDropdown
             value={cc}
             onChange={val => setCC(val)}
           />
-
           <Gap h={14} />
-          <InputLabel>Before ( maks 10 MB )</InputLabel>
-          <FilePlaceholder
+          <InputLabel>Lampiran ( maks 10 MB )</InputLabel>
+          <MultiImageSelector
+            files={multiFiles}
+            onSelectFile={() => setShowSelectFile(true)}
+            onDeleteFile={handleDeleteFile}
+            onImagePress={file => {
+              navigation.navigate('Preview', {
+                file: file.base64,
+                type: file.type,
+                caption: file.caption,
+              });
+            }}
+          />
+          {/* <FilePlaceholder
             file={file}
             fileInfo={fileInfo}
             onSelectPress={() => {
@@ -313,8 +350,7 @@ const WorkplanScreen = () => {
               setFile(null);
             }}
             navigation={navigation}
-          />
-
+          /> */}
           <Gap h={32} />
           <Button
             onPress={() => showConfirmation(() => createWorkplan())}

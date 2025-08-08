@@ -9,4 +9,6 @@ export const WORKPLAN_STATUS = {
   FINISH: 3,
   REVISON: 4,
   REJECTED: 5,
+  NEED_APPROVAL: 6,
+  APPROVED: 7,
 };

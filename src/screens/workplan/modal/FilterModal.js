@@ -14,17 +14,20 @@ const FilterModal = () => {
   const [type, setType] = React.useState('');
   const [cabang, setCabang] = React.useState('');
   const [kategori, setKategori] = React.useState('');
+  const [status, setStatus] = React.useState();
 
-  let CURRENT_FILTER = `fCabang=${cabang}&fType=${type}&fKategori=${kategori}`;
+  let CURRENT_FILTER = `fCabang=${cabang}&fType=${type}&fKategori=${kategori}&fStatus=${status}`;
 
   function onReset() {
     setType('');
     setCabang('');
     setKategori('');
+    setStatus('');
   }
 
   const PARAMS = route.params;
   const EXT_FILTER = route?.params?.filter;
+  const IS_WAITING = PARAMS?.type == 'WAITING';
 
   React.useEffect(() => {
     if (EXT_FILTER) {
@@ -32,10 +35,12 @@ const FilterModal = () => {
       const F_CABANG = SPLIT_EXT[0]?.split('=')[1] ?? '';
       const F_TYPE = SPLIT_EXT[1]?.split('=')[1] ?? '';
       const F_KATEGORI = SPLIT_EXT[2]?.split('=')[1] ?? '';
+      const F_STATUS = SPLIT_EXT[3]?.split('=')[1] ?? '';
 
       setCabang(F_CABANG);
       setType(F_TYPE);
       setKategori(F_KATEGORI);
+      setStatus(Number(F_STATUS));
     }
   }, [EXT_FILTER]);
 
@@ -51,15 +56,26 @@ const FilterModal = () => {
         <IconButton icon={'close'} onPress={() => navigation.goBack()} />
       </Row>
       <View style={styles.mainContainer}>
-        {/* <InputLabel>Jenis Workplan</InputLabel>
+        <InputLabel>Jenis Workplan</InputLabel>
         <WorkplanTypeDropdown value={type} onChange={val => setType(val)} />
 
-        <Gap h={6} /> */}
+        <Gap h={6} />
         <InputLabel>Cabang</InputLabel>
         <Dropdown.CabangWorkplanDropdown
           onChange={val => setCabang(val)}
           value={cabang}
         />
+
+        {IS_WAITING ? (
+          <>
+            <Gap h={6} />
+            <InputLabel>Status</InputLabel>
+            <Dropdown.WorkplanStatusDropdown
+              onChange={val => setStatus(val)}
+              value={status}
+            />
+          </>
+        ) : null}
 
         <Gap h={14} />
         <InputLabel>Kategori</InputLabel>

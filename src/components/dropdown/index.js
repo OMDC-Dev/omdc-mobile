@@ -16,6 +16,7 @@ import SatuanDropdown from './SatuanDropdown';
 import CabangWorkplanDropdown from './workplan/CabangDropdown';
 import WorkplanCCDropdown from './workplan/WorkplanCCDropdown';
 import WorkplanGroupDropdown from './workplan/WorkplanGroupDropdown';
+import WorkplanStatusDropdown from './workplan/WorkplanStatusDropdown';
 
 export {
   TypeDropdown,
@@ -36,4 +37,5 @@ export {
   CabangWorkplanDropdown,
   WorkplanCCDropdown,
   WorkplanGroupDropdown,
+  WorkplanStatusDropdown,
 };

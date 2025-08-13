@@ -8,7 +8,7 @@ const LOCAL =
 const NGROK_DEV = 'https://1397-180-244-161-40.ngrok-free.app/';
 
 // check app code version
-export const APP_CODE_VERSION = '9.7.9';
+export const APP_CODE_VERSION = '9.8.0';
 
 export const BASE_URL = PROD;
 

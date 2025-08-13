@@ -144,7 +144,7 @@ const WorkplanCard = ({data, onPress, onDueDate}) => {
             {moment(createdAt).format('ll')}
           </Text>
         </Row>
-        <Gap h={8} />
+        {/* <Gap h={8} />
         <Row>
           <Chip
             style={{
@@ -157,7 +157,7 @@ const WorkplanCard = ({data, onPress, onDueDate}) => {
               {jenis_workplan == 'APPROVAL' ? 'Approval' : 'Non Approval'}
             </Text>
           </Chip>
-        </Row>
+        </Row> */}
       </Card.Content>
     </Card>
   );

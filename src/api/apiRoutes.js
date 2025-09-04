@@ -2,15 +2,17 @@ import {Platform} from 'react-native';
 
 const PROD = 'https://server.omdc.online/';
 const DEV = 'https://devomdc.my.id/';
+const TEST_URL = 'http://47.84.87.3:8080/';
+const NEW_PROD = 'https://omdcapi.my.id/';
 const LOCAL =
   Platform.OS == 'android' ? 'http://10.0.2.2:8080' : 'http://127.0.0.1:8080/';
 
 const NGROK_DEV = 'https://1397-180-244-161-40.ngrok-free.app/';
 
 // check app code version
-export const APP_CODE_VERSION = '9.8.0';
+export const APP_CODE_VERSION = '9.8.1';
 
-export const BASE_URL = PROD;
+export const BASE_URL = NEW_PROD;
 
 // AUTH
 export const LOGIN = 'user/login';
